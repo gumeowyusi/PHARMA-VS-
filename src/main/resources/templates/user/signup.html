@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <th:block th:replace="~{user/_meta}" />
+  <title>Đăng ký - MEDISALE</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #0d6efd;
+      --primary-hover: #0b5ed7;
+      --secondary: #10b981;
+      --glass-bg: rgba(255, 255, 255, 0.85);
+      --glass-border: rgba(255, 255, 255, 0.4);
+      --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+    }
+
+    body {
+      background: #f4f7f6;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+
+    .auth-page-bg {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      background: radial-gradient(circle at 85% 50%, rgba(16, 185, 129, 0.08), transparent 40%),
+        radial-gradient(circle at 15% 30%, rgba(13, 110, 253, 0.08), transparent 40%);
+      animation: ambientShift 15s ease-in-out infinite alternate;
+    }
+
+    @keyframes ambientShift {
+      0% {
+        transform: scale(1);
+      }
+
+      100% {
+        transform: scale(1.1);
+      }
+    }
+
+    .auth-wrapper {
+      min-height: calc(100vh - 160px);
+      display: flex;
+      align-items: center;
+      padding: 3rem 0;
+    }
+
+    .auth-card {
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      overflow: hidden;
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: var(--glass-shadow);
+      transform: translateY(20px);
+      opacity: 0;
+      animation: cardFadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes cardFadeUp {
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .auth-side {
+      background: linear-gradient(135deg, var(--secondary), #34d399);
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 3rem;
+    }
+
+    .auth-side::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.12) 0%, transparent 60%);
+      animation: rotateBg 25s linear infinite reverse;
+    }
+
+    @keyframes rotateBg {
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    .auth-side-content {
+      position: relative;
+      z-index: 2;
+    }
+
+    .auth-side h2 {
+      font-weight: 700;
+      font-size: 2.5rem;
+      margin-bottom: 2rem;
+      letter-spacing: -0.5px;
+    }
+
+    .feature-list li {
+      margin-bottom: 1.25rem;
+      font-size: 1.05rem;
+      display: flex;
+      align-items: center;
+      opacity: 0.9;
+      transform: translateX(-10px);
+      animation: slideRight 0.5s ease forwards;
+    }
+
+    .feature-list li:nth-child(1) {
+      animation-delay: 0.2s;
+    }
+
+    .feature-list li:nth-child(2) {
+      animation-delay: 0.4s;
+    }
+
+    .feature-list li:nth-child(3) {
+      animation-delay: 0.6s;
+    }
+
+    @keyframes slideRight {
+      to {
+        transform: translateX(0);
+        opacity: 0.9;
+      }
+    }
+
+    .auth-form-wrap {
+      padding: 3.5rem 3rem;
+      background: #fff;
+    }
+
+    .auth-form-wrap h4 {
+      font-weight: 700;
+      color: #1e293b;
+      font-size: 1.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .form-floating>.form-control {
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      padding-left: 3rem;
+      font-weight: 500;
+      color: #334155;
+      transition: all 0.3s ease;
+      height: 3.5rem;
+    }
+
+    .form-floating>label {
+      padding-left: 3rem;
+      color: #94a3b8;
+      font-weight: 500;
+    }
+
+    .input-icon {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #94a3b8;
+      z-index: 10;
+      transition: color 0.3s ease;
+    }
+
+    .form-control:focus {
+      border-color: var(--secondary);
+      box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+    }
+
+    .form-control:focus~.input-icon {
+      color: var(--secondary);
+    }
+
+    .toggle-password {
+      position: absolute;
+      top: 50%;
+      right: 1rem;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #94a3b8;
+      z-index: 10;
+      transition: color 0.2s ease;
+      padding: 0.5rem;
+    }
+
+    .toggle-password:hover {
+      color: #334155;
+    }
+
+    .btn-auth {
+      height: 3.5rem;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 1.05rem;
+      letter-spacing: 0.3px;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      border: none;
+      background: linear-gradient(135deg, var(--secondary), #0ea5e9);
+      background-size: 200% auto;
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-auth:hover {
+      background-position: right center;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+      color: #fff;
+    }
+
+    .btn-auth:active {
+      transform: translateY(1px);
+    }
+
+    .strength-bar {
+      height: 6px;
+      background: #f1f5f9;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .strength-bar div {
+      height: 100%;
+      width: 0;
+      background: #ef4444;
+      transition: width 0.35s ease, background 0.35s ease;
+    }
+
+    @media (max-width: 991.98px) {
+      .auth-side {
+        display: none;
+      }
+
+      .auth-form-wrap {
+        padding: 2.5rem 2rem;
+      }
+
+      .auth-wrapper {
+        padding: 1.5rem 0;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="auth-page-bg"></div>
+  <th:block th:replace="~{user/_header}" />
+
+  <div class="container auth-wrapper">
+    <div class="row justify-content-center w-100">
+      <div class="col-xl-9 col-lg-10">
+        <div class="auth-card">
+          <div class="row g-0 align-items-stretch">
+
+            <!-- Left Side / Branding -->
+            <div class="col-lg-5 auth-side">
+              <div class="auth-side-content">
+                <h2>Tạo tài khoản<br>mới! ✨</h2>
+                <p class="mb-5 lead opacity-75" style="font-size: 1.1rem;">Đăng ký để tận hưởng trải nghiệm y tế tối ưu
+                  cùng MEDISALE.</p>
+                <ul class="list-unstyled feature-list">
+                  <li><i class="fa-solid fa-gift me-3 fs-5"></i> Ưu đãi độc quyền mỗi ngày</li>
+                  <li><i class="fa-solid fa-clock-rotate-left me-3 fs-5"></i> Mua lại đơn cũ siêu tốc</li>
+                  <li><i class="fa-solid fa-location-dot me-3 fs-5"></i> Lưu nhiều địa chỉ tiện lợi</li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- Right Side / Form -->
+            <div class="col-lg-7">
+              <div class="auth-form-wrap">
+
+                <!-- Alerts -->
+                <div th:if="${successMessage}" class="alert alert-success d-flex align-items-center mb-4"
+                  style="border-radius: 12px; border: none; background: #ecfdf5; color: #047857;" role="alert">
+                  <i class="fa-solid fa-circle-check me-2 fs-5"></i>
+                  <div th:text="${successMessage}"></div>
+                </div>
+                <div th:if="${errorMessage}" class="alert alert-danger d-flex align-items-center mb-4"
+                  style="border-radius: 12px; border: none; background: #fef2f2; color: #b91c1c;" role="alert">
+                  <i class="fa-solid fa-triangle-exclamation me-2 fs-5"></i>
+                  <div th:text="${errorMessage}"></div>
+                </div>
+
+                <h4>Bắt đầu ngay hôm nay</h4>
+                <p class="text-muted mb-4">Điền thông tin của bạn để tạo tài khoản mới.</p>
+
+                <form th:action="@{/signup}" method="post" novalidate id="registerForm">
+
+                  <div class="position-relative mb-3">
+                    <i class="fa-regular fa-envelope input-icon"></i>
+                    <div class="form-floating">
+                      <input type="email" id="inputEmail" class="form-control" name="idUser" th:value="${user.idUser}"
+                        placeholder="Email" required>
+                      <label for="inputEmail">Địa chỉ Email</label>
+                    </div>
+                  </div>
+
+                  <div class="position-relative mb-1">
+                    <i class="fa-solid fa-lock input-icon"></i>
+                    <div class="form-floating">
+                      <input type="password" id="inputPassword" class="form-control" name="matkhau"
+                        th:value="${user.matkhau}" placeholder="Mật khẩu" required>
+                      <label for="inputPassword">Mật khẩu</label>
+                    </div>
+                    <span class="toggle-password" data-target="#inputPassword"><i class="fa-regular fa-eye"></i></span>
+                  </div>
+                  <div class="strength-bar">
+                    <div id="pwStrength"></div>
+                  </div>
+
+                  <div class="position-relative mb-3">
+                    <i class="fa-regular fa-user input-icon"></i>
+                    <div class="form-floating">
+                      <input type="text" id="inputFullname" class="form-control" name="hoten" th:value="${user.hoten}"
+                        placeholder="Họ và tên" required>
+                      <label for="inputFullname">Họ và tên</label>
+                    </div>
+                  </div>
+
+                  <div class="position-relative mb-4">
+                    <i class="fa-solid fa-phone input-icon"></i>
+                    <div class="form-floating">
+                      <input type="text" id="inputPhoneNumber" class="form-control" name="sdt" th:value="${user.sdt}"
+                        pattern="0[0-9]{9}" placeholder="Số điện thoại" required
+                        title="Số điẹn thoại phải có 10 chữ số và bắt đầu bằng số 0">
+                      <label for="inputPhoneNumber">Số điện thoại</label>
+                    </div>
+                  </div>
+
+                  <!-- Buttons -->
+                  <button type="submit" class="btn btn-auth w-100 mb-4" id="submitBtn">
+                    <span>Đăng ký tài khoản</span> <i class="fa-solid fa-check ms-2 transition-transform"></i>
+                  </button>
+
+                  <div class="text-center">
+                    <p class="text-muted fw-medium mb-1">Đã có tài khoản?</p>
+                    <a th:href="@{/signin}" class="text-primary text-decoration-none fw-bold"
+                      style="font-size: 1.05rem;">
+                      Đăng nhập tại đây
+                    </a>
+                  </div>
+
+                  <p class="mt-4 pt-2 text-center small text-muted mb-0">
+                    Bằng việc đăng ký, bạn đồng ý với <a href="#"
+                      class="text-primary text-decoration-none fw-semibold">Điều khoản</a> & <a href="#"
+                      class="text-primary text-decoration-none fw-semibold">Bảo mật</a> của MEDISALE.
+                  </p>
+                </form>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <th:block th:replace="~{user/_footer}" />
+
+  <script>
+    // Toggle Password
+    document.addEventListener('click', function (e) {
+      const toggle = e.target.closest('.toggle-password');
+      if (!toggle) return;
+      const input = document.querySelector(toggle.getAttribute('data-target'));
+      if (!input) return;
+
+      if (input.type === 'password') {
+        input.type = 'text';
+        toggle.innerHTML = '<i class="fa-regular fa-eye-slash"></i>';
+      } else {
+        input.type = 'password';
+        toggle.innerHTML = '<i class="fa-regular fa-eye"></i>';
+      }
+    });
+
+    // Password Strength indicator
+    const pwd = document.getElementById('inputPassword');
+    const bar = document.getElementById('pwStrength');
+
+    function scorePassword(v) {
+      let s = 0; if (!v) return s;
+      const letters = {};
+      for (const c of v) { letters[c] = (letters[c] || 0) + 1; s += 5.0 / letters[c]; }
+      const variations = {
+        digits: /\d/.test(v),
+        lower: /[a-z]/.test(v),
+        upper: /[A-Z]/.test(v),
+        nonWords: /[^a-zA-Z0-9]/.test(v)
+      };
+      let variationCount = 0;
+      for (const k in variations) { variationCount += variations[k] ? 1 : 0; }
+      s += (variationCount - 1) * 10;
+      return parseInt(s);
+    }
+
+    function updateStrength() {
+      const val = pwd.value;
+      const sc = scorePassword(val);
+      let w = 0, col = '#ef4444';
+      if (sc > 70) { w = 100; col = '#10b981'; }
+      else if (sc > 50) { w = 66; col = '#3b82f6'; }
+      else if (sc > 30) { w = 33; col = '#f59e0b'; }
+      else if (sc > 0) { w = 15; col = '#ef4444'; }
+      bar.style.width = w + '%';
+      bar.style.background = col;
+    }
+
+    if (pwd) {
+      pwd.addEventListener('input', updateStrength);
+      updateStrength();
+    }
+
+    // Button Animation
+    const form = document.getElementById('registerForm');
+    const btn = document.getElementById('submitBtn');
+
+    form.addEventListener('submit', function () {
+      if (form.checkValidity()) {
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Đang xử lý...';
+        btn.style.opacity = '0.8';
+        btn.style.pointerEvents = 'none';
+      }
+    });
+  </script>
+</body>
+
+</html>

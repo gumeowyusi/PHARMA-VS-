@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <th:block th:replace="~{user/_meta}" />
+  <title>Chi tiết khách hàng</title>
+</head>
+<body class="bg-light">
+  <th:block th:replace="~{admin/_headerAdmin}" />
+  <div class="container-fluid px-4 py-3">
+    <div class="d-flex flex-wrap align-items-center gap-3 mb-3 mt-2">
+      <div>
+        <h5 class="mb-1">Chi tiết khách hàng</h5>
+        <div class="text-muted-sm" th:text="${khachHang.hoten}"></div>
+      </div>
+      <div class="ms-auto d-flex gap-2">
+        <a th:href="@{/admin/khachhang}" class="btn btn-soft-secondary"><i class="fas fa-arrow-left me-1"></i>Quay lại</a>
+        <a th:href="@{/admin/khachhang/edit/{id}(id=${khachHang.idKhachHang})}" class="btn btn-soft-primary"><i class="fas fa-edit me-1"></i>Sửa</a>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-lg-7">
+        <div class="card-elevated p-4 mb-4">
+          <div class="form-section-title mb-3">Thông tin chung</div>
+          <div class="row g-3 small">
+            <div class="col-md-6">
+              <div class="text-muted-sm">Mã khách hàng</div>
+              <div class="fw-semibold" th:text="${khachHang.idKhachHang}"></div>
+            </div>
+            <div class="col-md-6">
+              <div class="text-muted-sm">Trạng thái</div>
+              <div>
+                <span th:if="${khachHang.trangThai}" class="status-badge status-active">Hoạt động</span>
+                <span th:if="${!khachHang.trangThai}" class="status-badge status-inactive">Ngưng</span>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="text-muted-sm">Số điện thoại</div>
+              <div th:text="${khachHang.sdt}"></div>
+            </div>
+            <div class="col-md-6">
+              <div class="text-muted-sm">Email</div>
+              <div th:text="${khachHang.email}"></div>
+            </div>
+            <div class="col-md-6">
+              <div class="text-muted-sm">Địa chỉ</div>
+              <div th:text="${khachHang.diaChi}"></div>
+            </div>
+            <div class="col-md-6">
+              <div class="text-muted-sm">Phân loại</div>
+              <div>
+                <span th:if="${khachHang.phanLoai == 'VIP'}" class="badge-soft-warning">VIP</span>
+                <span th:if="${khachHang.phanLoai == 'Thường'}" class="badge-soft-secondary">Thường</span>
+                <span th:if="${khachHang.phanLoai == 'Mới'}" class="badge-soft-info">Mới</span>
+                <span th:if="${khachHang.phanLoai == null}" class="text-muted">—</span>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="text-muted-sm">Dị ứng</div>
+              <div>
+                <span th:if="${khachHang.diUng}" class="badge-soft-danger" th:text="${khachHang.diUng}"></span>
+                <span th:if="${khachHang.diUng == null}" class="text-muted">—</span>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="text-muted-sm">Chống chỉ định</div>
+              <div th:text="${khachHang.chongChiDinh} ?: '—'"></div>
+            </div>
+            <div class="col-12">
+              <div class="text-muted-sm">Ghi chú y tế</div>
+              <div th:text="${khachHang.ghiChuYTe} ?: '—'"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-elevated p-4 mb-4">
+          <div class="form-section-title mb-3">Cập nhật ghi chú y tế</div>
+          <form th:action="@{'/admin/khachhang/view/' + ${khachHang.idKhachHang} + '/medical'}" method="post" class="row g-3 small">
+            <div class="col-md-4">
+              <label class="form-label">Dị ứng</label>
+              <input type="text" name="diUng" class="form-control form-control-sm" th:value="${khachHang.diUng}" />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Chống chỉ định</label>
+              <input type="text" name="chongChiDinh" class="form-control form-control-sm" th:value="${khachHang.chongChiDinh}" />
+            </div>
+            <div class="col-md-12">
+              <label class="form-label">Ghi chú y tế</label>
+              <textarea name="ghiChuYTe" rows="3" class="form-control" th:text="${khachHang.ghiChuYTe}"></textarea>
+            </div>
+            <div class="col-12">
+              <button class="btn btn-soft-primary btn-sm"><i class="fas fa-save me-1"></i>Lưu ghi chú</button>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="col-lg-5">
+        <div class="card-elevated p-0 mb-4 h-100 d-flex flex-column">
+          <div class="p-3 pb-2 d-flex align-items-center justify-content-between">
+            <div class="form-section-title mb-0">Lịch sử đơn gần đây</div>
+            <a th:href="@{'/admin/khachhang/view/' + ${khachHang.idKhachHang} + '/orders'}" class="btn btn-link btn-sm">Tất cả</a>
+          </div>
+          <div class="table-responsive" style="max-height:360px;">
+            <table class="table table-modern table-compact mb-0 small">
+              <thead>
+                <tr>
+                  <th>Mã</th>
+                  <th>Ngày</th>
+                  <th>Trạng thái</th>
+                  <th class="text-end">Tạm tính</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr th:each="o : ${orders}">
+                  <td th:text="${o.idHoadon}"></td>
+                  <td th:text="${#dates.format(o.ngaytao,'dd/MM/yyyy')}"></td>
+                  <td><span class="status-badge" th:text="${o.trangthai}"></span></td>
+                  <td class="text-end" th:text="${#numbers.formatInteger(o.hoaDonChiTiets.stream().mapToInt(ct -> (ct.giamgia == 0 ? ct.gia : (ct.gia * (100-ct.giamgia)/100)) * ct.soluong).sum(),3,'POINT')} + ' đ'"></td>
+                  <td class="text-end"><a th:href="@{'/admin/hoadon/' + ${o.idHoadon}}" class="btn btn-sm btn-soft-info">Xem</a></td>
+                </tr>
+                <tr th:if="${orders == null || orders.size() == 0}">
+                  <td colspan="5" class="text-center text-muted py-3">Không có đơn hàng</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <th:block th:replace="~{admin/_footerAdmin}" />
+</body>
+</html> 

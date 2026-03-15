@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <th:block th:replace="~{user/_meta}" />
+  <title>Thêm sản phẩm</title>
+  <!-- Thêm Dropzone CSS -->
+  <link href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body class="bg-light">
+  <th:block th:replace="~{admin/_headerAdmin}" />
+
+  <div class="container-fluid px-4 py-3">
+    <div class="d-flex flex-wrap align-items-center gap-3 mb-4 mt-2">
+      <div>
+        <h5 class="mb-1">Thêm sản phẩm mới</h5>
+        <div class="text-muted-sm">Điền thông tin chi tiết bên dưới</div>
+      </div>
+      <a th:href="@{/admin/sanpham}" class="btn btn-soft-secondary ms-auto"><i class="fas fa-arrow-left me-2"></i>Quay
+        lại</a>
+    </div>
+
+    <!-- Alert Messages -->
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+      <i class="fas fa-check-circle me-2"></i>
+      <span th:text="${successMessage}"></span>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+      <i class="fas fa-exclamation-circle me-2"></i>
+      <span th:text="${errorMessage}"></span>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- Product Form -->
+    <div class="card-elevated p-4 mb-5">
+      <form method="POST" th:action="@{/admin/sanpham/create}" enctype="multipart/form-data" class="row g-4">
+        <div class="col-lg-8">
+          <div class="form-section">
+            <div class="form-section-title">Thông tin cơ bản</div>
+            <div class="row g-4">
+              <div class="col-12">
+                <label for="tenSanPham" class="form-label">Tên sản phẩm <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" th:value="${sanpham.tenSanpham}" name="tenSanpham"
+                  id="tenSanPham" required>
+              </div>
+              <div class="col-md-6">
+                <label for="gia" class="form-label">Giá bán <span class="text-danger">*</span></label>
+                <div class="input-group">
+                  <input type="number" min="1" step="1" class="form-control" th:value="${sanpham.gia}" name="gia"
+                    id="gia" required>
+                  <span class="input-group-text">VNĐ</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label for="giamgia" class="form-label">Giảm giá</label>
+                <div class="input-group">
+                  <input type="number" min="0" max="100" step="1" class="form-control" th:value="${sanpham.giamgia}"
+                    name="giamgia" id="giamgia" required>
+                  <span class="input-group-text">%</span>
+                </div>
+              </div>
+              <div class="col-12">
+                <label for="motangan" class="form-label">Mô tả ngắn <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" th:value="${sanpham.motangan}" name="motangan" id="motangan"
+                  required>
+              </div>
+              <div class="col-12">
+                <label for="mota" class="form-label">Mô tả chi tiết <span class="text-danger">*</span></label>
+                <textarea class="form-control" rows="5" th:text="${sanpham.mota}" name="mota" id="mota"
+                  required></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div class="form-section mb-4">
+            <div class="form-section-title">Hình ảnh sản phẩm</div>
+            <div class="border rounded p-3 text-center bg-white">
+              <input type="file" class="form-control d-none" id="product-imageName" name="image" accept="image/*"
+                required>
+              <div class="dropzone-preview mb-3" onclick="document.getElementById('product-imageName').click()">
+                <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-2"></i>
+                <p class="mb-0 text-muted">Kéo thả hoặc click để tải ảnh lên</p>
+                <small class="text-muted d-block">PNG, JPG (Tối đa 2MB)</small>
+              </div>
+              <div id="preview-container" class="d-none">
+                <img id="preview-image" class="img-fluid rounded mb-2" src="#" alt="Preview">
+                <button type="button" class="btn btn-sm btn-soft-danger" onclick="removeImage()">
+                  <i class="fas fa-times me-1"></i>Xóa ảnh
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="form-section">
+            <div class="form-section-title">Thông tin phụ</div>
+            <div class="mb-3">
+              <label for="soluong" class="form-label">Số lượng tồn kho <span class="text-danger">*</span></label>
+              <input type="number" min="0" step="1" class="form-control" th:value="${sanpham.soluong}" name="soluong"
+                id="soluong" required>
+            </div>
+            <div class="mb-4">
+              <label for="loai" class="form-label">Loại sản phẩm <span class="text-danger">*</span></label>
+              <select class="form-select" name="loai" id="loai" required>
+                <option value="" disabled selected>Chọn loại sản phẩm...</option>
+                <option th:each="loai : ${loais}" th:value="${loai.idLoai}" th:text="${loai.tenLoai}"></option>
+              </select>
+            </div>
+            <div class="d-grid gap-2">
+              <button type="submit" class="btn btn-soft-primary"><i class="fas fa-save me-2"></i>Lưu sản phẩm</button>
+              <a class="btn btn-soft-secondary" th:href="@{/admin/sanpham}" role="button"><i
+                  class="fas fa-times me-2"></i>Hủy</a>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- <th:block th:replace="~{admin/_footerAdmin}" /> -->
+
+  <script>
+    // Image preview functionality
+    document.getElementById('product-imageName').addEventListener('change', function (e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          document.getElementById('preview-image').src = e.target.result;
+          document.querySelector('.dropzone-preview').classList.add('d-none');
+          document.getElementById('preview-container').classList.remove('d-none');
+        }
+        reader.readAsDataURL(file);
+      }
+    });
+
+    function removeImage() {
+      document.getElementById('product-imageName').value = '';
+      document.querySelector('.dropzone-preview').classList.remove('d-none');
+      document.getElementById('preview-container').classList.add('d-none');
+    }
+  </script>
+
+</body>
+
+</html>

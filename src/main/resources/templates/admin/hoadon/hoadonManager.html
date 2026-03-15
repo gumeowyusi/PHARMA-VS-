@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <th:block th:replace="~{user/_meta}" />
+  <title>Quản lý đơn hàng</title>
+</head>
+
+<body class="bg-light">
+  <th:block th:replace="~{admin/_headerAdmin}" />
+
+  <div class="container-fluid px-4">
+    <!-- Page Header -->
+    <div class="card shadow-sm border-0 mb-4 mt-4">
+      <div class="card-body p-4">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <h3 class="fw-bold mb-0">Quản lý đơn hàng</h3>
+            <p class="text-muted mb-0">Quản lý và theo dõi trạng thái đơn hàng</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Flash Messages -->
+    <div th:with="success=${successMessage}, error=${errorMessage}" th:replace="~{fragments/_flash :: flashMessages}">
+    </div>
+
+    <!-- Orders Table (standardized) -->
+    <div class="card shadow-sm border-0">
+      <div class="table-responsive">
+        <table class="table table-modern table-compact table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Mã</th>
+              <th>Ngày</th>
+              <th>Người tạo</th>
+              <th>Trạng thái</th>
+              <th>Giảm</th>
+              <th class="text-end pe-3">Hành động</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:if="${#lists.isEmpty(hoadons)}" class="table-empty">
+              <td colspan="6">Không có đơn hàng</td>
+            </tr>
+            <tr th:each="order : ${hoadons}" th:with="discAmt=${order.discountAmount != null ? order.discountAmount : 0}">
+              <td th:text="${order.idHoadon}" class="fw-semibold" data-label="Mã"></td>
+              <td th:text="${#dates.format(order.ngaytao, 'dd/MM/yyyy')}" data-label="Ngày"></td>
+              <td data-label="Người tạo">
+                <span class="badge-soft-secondary badge rounded-pill"
+                      th:text="${order.users != null ? order.users.hoten : (order.khachHang != null ? order.khachHang.hoten : 'Khách lẻ')}"></span>
+              </td>
+              <td data-label="Trạng thái">
+                <span th:switch="${order.trangthai}">
+                  <span th:case="'ondelivery'" class="status-badge status-ondelivery"><i
+                      class="fas fa-shipping-fast"></i> Đang giao</span>
+                  <span th:case="'received'" class="status-badge status-received"><i class="fas fa-check-circle"></i>
+                    Hoàn tất</span>
+                  <span th:case="'cancel'" class="status-badge status-cancel"><i class="fas fa-times-circle"></i>
+                    Hủy</span>
+                  <span th:case="*" class="status-badge status-default" th:text="${order.trangthai}"></span>
+                </span>
+              </td>
+              <td data-label="Giảm" class="td-price">
+                <span th:if="${discAmt > 0}" class="text-danger">-</span><span th:if="${discAmt > 0}" th:text="${#numbers.formatInteger(discAmt,0,'COMMA')}"></span><span th:if="${discAmt > 0}" class="currency-symbol">₫</span>
+                <span th:if="${discAmt > 0 && order.discountPercent != null}" class="text-muted ms-1">(<span th:text="${order.discountPercent}"></span>%)</span>
+                <span th:if="${discAmt == 0}">-</span>
+              </td>
+              <td class="text-end pe-3 cell-actions" data-label="Hành động">
+                <div class="d-inline-flex align-items-center gap-1 action-inline-group">
+                  <!-- View -->
+                  <a th:href="@{/admin/hoadon/{id}(id=${order.idHoadon})}" class="btn btn-sm btn-soft-secondary action-btn" 
+                     data-bs-toggle="tooltip" data-bs-title="Chi tiết" aria-label="Chi tiết">
+                    <i class="fas fa-eye"></i>
+                  </a>
+                  <!-- Confirm (to received) -->
+                  <form th:if="${order.trangthai != 'received' && order.trangthai != 'cancel'}" th:action="@{/admin/hoadon/update}" method="post" class="d-inline" 
+                        onsubmit="return confirm('Xác nhận đã giao?');">
+                    <input type="hidden" name="id" th:value="${order.idHoadon}" />
+                    <input type="hidden" name="action" value="CONFIRM" />
+                    <button class="btn btn-sm btn-soft-success action-btn" data-bs-toggle="tooltip" data-bs-title="Xác nhận" aria-label="Xác nhận">
+                      <i class="fas fa-check"></i>
+                    </button>
+                  </form>
+                  <!-- Cancel -->
+                  <form th:if="${order.trangthai != 'received' && order.trangthai != 'cancel'}" th:action="@{/admin/hoadon/update}" method="post" class="d-inline" 
+                        onsubmit="return confirm('Hủy đơn hàng?');">
+                    <input type="hidden" name="id" th:value="${order.idHoadon}" />
+                    <input type="hidden" name="action" value="CANCEL" />
+                    <button class="btn btn-sm btn-soft-danger action-btn" data-bs-toggle="tooltip" data-bs-title="Hủy" aria-label="Hủy">
+                      <i class="fas fa-times"></i>
+                    </button>
+                  </form>
+                  <!-- Reset to ondelivery -->
+                  <form th:if="${order.trangthai != 'ondelivery' && order.trangthai != 'cancel'}" th:action="@{/admin/hoadon/update}" method="post" class="d-inline" 
+                        onsubmit="return confirm('Đặt lại trạng thái đang giao?');">
+                    <input type="hidden" name="id" th:value="${order.idHoadon}" />
+                    <input type="hidden" name="action" value="RESET" />
+                    <button class="btn btn-sm btn-soft-secondary action-btn" data-bs-toggle="tooltip" data-bs-title="Đặt lại" aria-label="Đặt lại">
+                      <i class="fas fa-redo"></i>
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div th:if="${totalPages > 0}" class="mt-4">
+      <nav class="d-flex justify-content-center">
+        <ul class="pagination">
+          <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+            <a class="page-link" th:href="@{/admin/hoadon(page=${currentPage - 1})}">
+              <i class="fas fa-chevron-left"></i>
+            </a>
+          </li>
+          <li th:each="i : ${#numbers.sequence(1, totalPages)}" class="page-item"
+            th:classappend="${currentPage == i - 1} ? 'active'">
+            <a class="page-link" th:href="@{/admin/hoadon(page=${i - 1})}" th:text="${i}"></a>
+          </li>
+          <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+            <a class="page-link" th:href="@{/admin/hoadon(page=${currentPage + 1})}">
+              <i class="fas fa-chevron-right"></i>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+
+  <th:block th:replace="~{admin/_footerAdmin}" />
+
+  <script>
+    // Initialize tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+      return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
+  </script>
+
+  <style>
+    .card {
+      border-radius: 0.5rem;
+    }
+
+    .table> :not(caption)>*>* {
+      padding: 1rem 0;
+    }
+
+    .badge {
+      padding: 0.5rem 0.75rem;
+      font-weight: 500;
+    }
+
+    .btn-sm {
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+    }
+
+    .page-link {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50% !important;
+      margin: 0 3px;
+    }
+
+    .alert {
+      border: none;
+      border-radius: 0.5rem;
+    }
+
+    .tooltip {
+      font-size: 0.875rem;
+    }
+
+    /* Inline action buttons */
+    .action-inline-group .action-btn { width:32px; height:32px; padding:0; display:inline-flex; align-items:center; justify-content:center; border-radius:6px; }
+    .action-inline-group .action-btn i { font-size:.85rem; }
+    @media (max-width: 720px) {
+      .action-inline-group { gap:.35rem; }
+    }
+  </style>
+</body>
+
+</html>

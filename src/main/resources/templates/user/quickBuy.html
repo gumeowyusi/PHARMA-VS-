@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <th:block th:replace="~{user/_meta}" />
+    <title>Mua nhanh - MEDISALE</title>
+    <script th:src="@{/js/toast.js}" type="module"></script>
+    <script th:src="@{/js/quick-buy.js}" type="module"></script>
+    <link rel="stylesheet" th:href="@{/css/quick-buy.css}" />
+    <meta name="robots" content="noindex,nofollow" />
+    <meta name="description" content="Chọn nhanh sản phẩm và mua không cần đăng nhập" />
+    <link rel="preload" th:href="@{/css/styles.css}" as="style" />
+    <link rel="preload" th:href="@{/js/home.js}" as="script" />
+    <link rel="preload" th:href="@{/js/toast.js}" as="script" />
+    <link rel="preload" th:href="@{/js/header.js}" as="script" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="//fonts.gstatic.com">
+    <noscript>
+        <style>
+            .btn {
+                opacity: 0.8
+            }
+        </style>
+    </noscript>
+    <script>
+        document.addEventListener('keydown', (e) => {
+            if (e.key === '/' && !/INPUT|TEXTAREA/i.test(document.activeElement.tagName)) {
+                const s = document.getElementById('quickSearch'); if (s) { s.focus(); e.preventDefault(); }
+            }
+        });
+    </script>
+</head>
+
+<body class="bg-light quick-buy">
+    <th:block th:replace="~{user/_header}" />
+
+    <div class="toolbar py-2">
+        <div class="container">
+            <div class="d-flex align-items-center gap-2 toolbar-inner">
+                <div class="d-none d-md-flex align-items-center toolbar-title">
+                    <i class="bi bi-lightning-charge text-primary me-2"></i>
+                    <span class="fw-semibold">Mua nhanh</span>
+                </div>
+                <div class="flex-grow-1">
+                    <div class="input-group search-pill shadow-sm">
+                        <span class="input-group-text bg-white border-0"><i class="bi bi-search"></i></span>
+                        <input id="quickSearch" class="form-control border-0"
+                            placeholder="Tìm nhanh sản phẩm (nhấn / để tìm)" />
+                        <button type="button" id="clearSearch" class="btn btn-light border-0" aria-label="Xoá tìm kiếm">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center gap-2 toolbar-actions">
+                    <div class="d-none d-md-flex align-items-center gap-2 view-toggle" role="group"
+                        aria-label="Chế độ xem">
+                        <button id="viewGrid" type="button" class="btn btn-sm btn-light active" title="Lưới"
+                            aria-pressed="true"><i class="bi bi-grid-3x3-gap"></i></button>
+                        <button id="viewList" type="button" class="btn btn-sm btn-light" title="Danh sách"
+                            aria-pressed="false"><i class="bi bi-list"></i></button>
+                    </div>
+                    <select id="sortSelect" class="form-select form-select-sm" aria-label="Sắp xếp">
+                        <option value="default" selected>Mặc định</option>
+                        <option value="priceAsc">Giá tăng dần</option>
+                        <option value="priceDesc">Giá giảm dần</option>
+                        <option value="nameAsc">Tên A-Z</option>
+                    </select>
+                    <a href="/cart" class="btn btn-primary btn-sm toolbar-cart"><i class="bi bi-bag"></i><span
+                            class="d-none d-sm-inline ms-1">Giỏ hàng</span></a>
+                </div>
+            </div>
+
+            <div class="mt-2">
+                <div class="scroll-wrap">
+                    <button class="scroll-btn left" data-scroll-target="#catChips" aria-label="Trượt trái"><i
+                            class="bi bi-chevron-left"></i></button>
+                    <div class="chips-row" id="catChips">
+                        <span class="chip active" data-cat="all" role="button" aria-pressed="true" title="Tất cả"><i
+                                class="bi bi-grid"></i> Tất cả</span>
+                        <span class="chip" th:each="loai : ${loais}" th:data-cat="${loai.idLoai}" role="button"
+                            aria-pressed="false" th:title="${loai.tenLoai}"><i class="bi bi-tag"></i> <span
+                                th:text="${loai.tenLoai}"></span></span>
+                    </div>
+                    <button class="scroll-btn right" data-scroll-target="#catChips" aria-label="Trượt phải"><i
+                            class="bi bi-chevron-right"></i></button>
+                </div>
+            </div>
+
+            <div class="mt-2">
+                <div class="scroll-wrap">
+                    <button class="scroll-btn left" data-scroll-target="#priceChips" aria-label="Trượt trái"><i
+                            class="bi bi-chevron-left"></i></button>
+                    <div class="chips-row" id="priceChips" aria-label="Khoảng giá">
+                        <span class="chip active" data-range="all" role="button" aria-pressed="true" title="Tất cả">Tất
+                            cả giá</span>
+                        <span class="chip" data-range="0-100000" role="button" aria-pressed="false"
+                            title="Dưới 100k">Dưới 100k</span>
+                        <span class="chip" data-range="100000-300000" role="button" aria-pressed="false"
+                            title="100k - 300k">100k - 300k</span>
+                        <span class="chip" data-range="300000-500000" role="button" aria-pressed="false"
+                            title="300k - 500k">300k - 500k</span>
+                        <span class="chip" data-range="500000-" role="button" aria-pressed="false"
+                            title="Trên 500k">Trên 500k</span>
+                    </div>
+                    <button class="scroll-btn right" data-scroll-target="#priceChips" aria-label="Trượt phải"><i
+                            class="bi bi-chevron-right"></i></button>
+                </div>
+            </div>
+
+            <div class="d-flex align-items-center mt-2 flex-wrap gap-2">
+                <small id="resultCount" class="results-meta">&nbsp;</small>
+                <div class="toolbar-sub ms-auto d-none d-md-block">Mẹo: Nhấn tia sét để mua nhanh (đi tới giỏ hàng)
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <main class="container py-4">
+        <div class="row g-3 g-md-4" id="quickGrid">
+            <div class="col-6 col-md-4 col-lg-3" th:each="sp : ${sanphams}"
+                th:with="effPrice=${sp.giamgia > 0 ? (sp.gia * (100 - sp.giamgia) / 100) : sp.gia}"
+                th:attr="data-pname=${sp.tenSanpham},data-loaiid=${sp.loai.idLoai},data-price=${effPrice}">
+                <div class="card product-card h-100 border-0 shadow-sm">
+                    <div class="card-body p-3 d-flex flex-column">
+                        <a th:href="@{/sanpham(id=${sp.idSanpham})}" class="product-img mb-3" aria-label="Xem chi tiết">
+                            <img loading="lazy" th:src="@{/image/{url}(url=${sp.hinh})}" class="img-fluid"
+                                th:alt="${sp.tenSanpham}">
+                            <div class="badge-ribbon" th:if="${sp.giamgia > 0}">
+                                <span class="badge bg-danger"><i class="bi bi-percent"></i> -<span
+                                        th:text="${sp.giamgia}"></span>%</span>
+                            </div>
+                            <div class="badge-stock" th:if="${sp.soluong == 0}">
+                                <span class="badge bg-secondary">Hết hàng</span>
+                            </div>
+                        </a>
+                        <div class="meta">
+                            <h6 class="product-title mb-1" th:text="${sp.tenSanpham}"></h6>
+                            <div class="mb-3">
+                                <span th:if="${sp.giamgia == 0}" class="price-main">
+                                    <span th:text="${#numbers.formatInteger(sp.gia, 0, 'COMMA')}"></span>₫
+                                </span>
+                                <div th:if="${sp.giamgia > 0}" class="d-flex align-items-center gap-2">
+                                    <span class="price-main">
+                                        <span
+                                            th:text="${#numbers.formatInteger(sp.gia * (100 - sp.giamgia) / 100, 0, 'COMMA')}"></span>₫
+                                    </span>
+                                    <span class="price-old text-decoration-line-through small">
+                                        <span th:text="${#numbers.formatInteger(sp.gia, 0, 'COMMA')}"></span>₫
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-auto d-flex gap-2 card-actions">
+                            <div class="qty">
+                                <label for="" class="visually-hidden">Số lượng</label>
+                                <input type="number" class="form-control form-control-sm qty-input" value="1" min="1"
+                                    step="1" inputmode="numeric" pattern="[0-9]*" />
+                            </div>
+                            <button th:disabled="${sp.soluong == 0}"
+                                th:classappend="${sp.soluong == 0?'btn-secondary':'btn-primary'}"
+                                class="btn flex-grow-1 add-cart-item" type="button" th:data-id="${sp.idSanpham}"
+                                th:data-name="${sp.tenSanpham}" aria-label="Thêm vào giỏ" title="Thêm vào giỏ hàng"
+                                data-bs-toggle="tooltip" data-bs-title="Thêm vào giỏ">
+                                <i class="bi bi-cart-plus" aria-hidden="true"></i> <span
+                                    class="d-none d-sm-inline">Thêm</span>
+                            </button>
+                            <button th:if="${sp.soluong > 0}" class="btn btn-outline-primary buy-now" type="button"
+                                th:data-id="${sp.idSanpham}" aria-label="Mua ngay" title="Mua ngay"
+                                data-bs-toggle="tooltip" data-bs-title="Mua ngay">
+                                <i class="bi bi-lightning-charge" aria-hidden="true"></i> <span
+                                    class="d-none d-sm-inline">Mua</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="noResults" class="text-center text-muted py-5" style="display:none;">
+            <i class="bi bi-search fs-3 d-block mb-2"></i>
+            Không tìm thấy sản phẩm phù hợp.
+        </div>
+    </main>
+
+    <th:block th:replace="~{user/_footer}" />
+    <div class="toast-container position-fixed bottom-0 start-0 p-3"></div>
+</body>
+
+</html>

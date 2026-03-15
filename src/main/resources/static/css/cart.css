@@ -1,0 +1,63 @@
+:root {
+  --accent: #0d6efd;
+  --text: #0f172a;
+  --muted: #64748b;
+  --shadow-md: 0 18px 40px -24px rgba(15, 23, 42, 0.18);
+  --radius: 14px;
+}
+
+body.cart-page {
+  background: linear-gradient(180deg, #f6f9ff, #ffffff);
+}
+
+.section-pagetop {
+  box-shadow: 0 6px 20px -18px rgba(0, 0, 0, 0.35);
+  backdrop-filter: saturate(160%) blur(8px);
+  -webkit-backdrop-filter: saturate(160%) blur(8px);
+}
+.section-pagetop .h6,
+.section-pagetop .h5 {
+  margin: 0;
+}
+
+.card.shadow-sm {
+  box-shadow: var(--shadow-md) !important;
+}
+.card.rounded-lg {
+  border-radius: var(--radius);
+}
+
+/* Sticky aside */
+@media (min-width: 992px) {
+  .sticky-aside {
+    top: 80px;
+  }
+}
+
+/* Inputs */
+.form-control {
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+}
+.form-control:focus {
+  border-color: #86b7fe;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* Stepper */
+.qty-stepper .form-control {
+  text-align: center;
+  max-width: 88px;
+}
+.qty-stepper .btn {
+  padding: 0.25rem 0.5rem;
+}
+
+.cart-table img {
+  border-radius: 0.5rem;
+  object-fit: cover;
+}
+.cart-table .price {
+  font-weight: 600;
+  color: var(--accent);
+}

@@ -1,0 +1,171 @@
+<footer class="site-footer text-light pt-5 position-relative">
+  <div class="footer-shape"></div>
+  <div class="container">
+    <div class="row g-4 mb-4">
+      <!-- Brand / About -->
+      <div class="col-lg-4 col-md-6">
+        <div class="d-flex align-items-center mb-3">
+          <div class="footer-logo me-2"><i class="fas fa-clinic-medical"></i></div>
+          <h5 class="mb-0 fw-bold">MEDISALE</h5>
+        </div>
+        <p class="text-white-50 small pe-lg-3 mb-3">Chúng tôi cam kết cung cấp dược phẩm chất lượng cao, an toàn & hiệu quả, đồng hành cùng sức khỏe gia đình Việt.</p>
+        <div class="d-flex gap-2 social">
+          <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+          <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+          <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+        </div>
+        <div class="mt-4 d-flex flex-wrap gap-3 small text-white-50 trust-badges">
+          <span class="d-inline-flex align-items-center gap-2"><i class="fas fa-certificate text-warning"></i>Chính hãng</span>
+          <span class="d-inline-flex align-items-center gap-2"><i class="fas fa-shipping-fast text-info"></i>Giao nhanh 2H</span>
+          <span class="d-inline-flex align-items-center gap-2"><i class="fas fa-shield-alt text-success"></i>Bảo mật</span>
+        </div>
+      </div>
+
+      <!-- Category sample -->
+      <div class="col-lg-2 col-md-6">
+        <h6 class="fw-semibold text-uppercase small mb-3">Danh mục</h6>
+        <ul class="list-unstyled footer-links small">
+          <li th:each="loai,iter : ${loais}" th:if="${iter.index} < 6">
+            <a th:href="@{/loai(id=${loai.idLoai})}" th:text="${loai.tenLoai}"></a>
+          </li>
+          <li class="mt-2"><a th:href="@{/loai-all}" class="fw-medium text-primary">Xem tất cả &rsaquo;</a></li>
+        </ul>
+      </div>
+
+      <!-- Support -->
+      <div class="col-lg-3 col-md-6">
+        <h6 class="fw-semibold text-uppercase small mb-3">Hỗ trợ</h6>
+        <ul class="list-unstyled footer-links small mb-3">
+          <li><a href="#">Câu hỏi thường gặp</a></li>
+          <li><a href="#">Hướng dẫn đặt hàng</a></li>
+          <li><a href="#">Chính sách đổi trả</a></li>
+          <li><a href="#">Chính sách bảo mật</a></li>
+          <li><a href="#">Điều khoản sử dụng</a></li>
+        </ul>
+        <div class="small text-white-50 mb-1"><i class="fas fa-phone me-2 text-primary"></i>Hotline: 0353048599</div>
+        <div class="small text-white-50"><i class="fas fa-envelope me-2 text-primary"></i>capyboy.dev@gmail.com</div>
+      </div>
+
+      <!-- Newsletter -->
+      <div class="col-lg-3 col-md-6">
+        <h6 class="fw-semibold text-uppercase small mb-3">Nhận tin khuyến mãi</h6>
+        <p class="text-white-50 small mb-3">Ưu đãi độc quyền & thông tin sản phẩm mới mỗi tuần.</p>
+        <form class="newsletter" novalidate>
+          <div class="position-relative mb-2">
+            <input type="email" class="form-control form-control-sm rounded-pill ps-3 pe-5" placeholder="Email của bạn" required>
+            <button class="btn btn-primary btn-sm rounded-pill position-absolute top-50 end-0 translate-middle-y me-1 px-3" type="submit"><i class="fas fa-paper-plane"></i></button>
+          </div>
+          <div class="form-text text-white-50 small">*Có thể huỷ đăng ký bất cứ lúc nào</div>
+        </form>
+        <div class="payment mt-4 d-flex flex-wrap gap-2">
+          <img src="https://cdn-icons-png.flaticon.com/128/349/349221.png" alt="Visa" height="28" loading="lazy">
+          <img src="https://cdn-icons-png.flaticon.com/128/349/349228.png" alt="MasterCard" height="28" loading="lazy">
+          <img src="https://cdn-icons-png.flaticon.com/128/6124/6124998.png" alt="Momo" height="28" loading="lazy">
+          <img src="https://cdn-icons-png.flaticon.com/128/5968/5968299.png" alt="PayPal" height="28" loading="lazy">
+          <img src="https://cdn-icons-png.flaticon.com/128/196/196566.png" alt="VNPay" height="28" loading="lazy">
+        </div>
+      </div>
+    </div>
+
+    <hr class="border-secondary-subtle opacity-25 my-4">
+
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center small text-white-50 gap-2 pb-4">
+      <div>&copy; 2024 MEDISALE. All rights reserved.</div>
+      <div class="d-flex gap-3 policy-links">
+        <a href="#">Bảo mật</a>
+        <a href="#">Điều khoản</a>
+        <a href="#">Cookies</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<style>
+.site-footer { background:radial-gradient(circle at 30% 40%, #0d2a45 0%, #081725 60%, #05101c 100%); overflow:hidden; }
+.footer-shape { position:absolute; inset:0; background:radial-gradient(circle at 75% 20%, rgba(13,110,253,.15), transparent 55%), radial-gradient(circle at 10% 80%, rgba(32,201,151,.12), transparent 60%); mix-blend-mode:screen; pointer-events:none; }
+.site-footer .footer-logo { width:44px; height:44px; border-radius:12px; background:linear-gradient(135deg,#0d6efd,#20c997); display:flex; align-items:center; justify-content:center; font-size:1.15rem; color:#fff; box-shadow:0 4px 12px -2px rgba(13,110,253,.35); }
+.site-footer h5, .site-footer h6 { letter-spacing:.5px; }
+.footer-links a { color:#ced7df; text-decoration:none; display:inline-block; padding:.25rem 0; position:relative; }
+.footer-links a:after { content:""; position:absolute; left:0; bottom:2px; width:0; height:1px; background:linear-gradient(90deg,#0d6efd,#20c997); transition:.3s; }
+.footer-links a:hover { color:#fff; }
+.footer-links a:hover:after { width:60%; }
+.social a { width:38px; height:38px; background:rgba(255,255,255,.08); border-radius:10px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:.9rem; backdrop-filter:blur(4px); transition:.3s; }
+.social a:hover { background:linear-gradient(135deg,#0d6efd,#20c997); box-shadow:0 4px 14px -3px rgba(13,110,253,.45); transform:translateY(-2px); }
+.newsletter input.form-control { background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.15); color:#fff; }
+.newsletter input.form-control:focus { background:rgba(255,255,255,.12); color:#fff; box-shadow:0 0 0 2px rgba(13,110,253,.25); }
+.newsletter .form-text { font-size:.65rem; }
+.payment img { filter:drop-shadow(0 2px 4px rgba(0,0,0,.4)); opacity:.85; transition:.3s; }
+.payment img:hover { opacity:1; transform:translateY(-2px); }
+.policy-links a { color:#9fb1bf; text-decoration:none; position:relative; }
+.policy-links a:hover { color:#fff; }
+.trust-badges span { background:rgba(255,255,255,.05); padding:.4rem .75rem; border-radius:20px; }
+
+@media (max-width: 991.98px){
+  .site-footer { font-size:.95rem; }
+  .footer-links a { font-size:.85rem; }
+  .social a { width:34px; height:34px; }
+}
+@media (max-width: 575.98px){
+  .payment img { height:24px; }
+  .site-footer h5 { font-size:1.05rem; }
+}
+</style>
+
+<!-- CSKH Chat Widget (customer support) -->
+<div id="chat-widget" class="chat-widget d-print-none">
+  <button id="chat-toggle" class="chat-toggle" type="button" aria-label="Mở chat CSKH">
+    <i class="fas fa-comments"></i>
+  </button>
+  <div id="chat-panel" class="chat-panel card shadow-lg" hidden>
+    <div class="chat-header">
+      <div class="d-flex align-items-center gap-2">
+        <span class="avatar"><i class="fas fa-user-md"></i></span>
+        <div>
+          <div class="title">Hỗ trợ MEDISALE</div>
+        </div>
+      </div>
+      <button class="btn-close" id="chat-close" type="button" aria-label="Đóng"></button>
+    </div>
+    <div id="chat-messages" class="chat-messages" role="log" aria-live="polite" aria-relevant="additions text">
+      <div class="msg bot">Xin chào 👋. Mình có thể giúp gì cho bạn? (ví dụ: vận chuyển, đổi trả, voucher…)</div>
+    </div>
+    <div class="chat-quick">
+      <button class="chip" type="button" data-text="Thời gian làm việc">Thời gian làm việc</button>
+      <button class="chip" type="button" data-text="Chính sách đổi trả">Chính sách đổi trả</button>
+      <button class="chip" type="button" data-text="Giao hàng / vận chuyển">Giao hàng</button>
+      <button class="chip" type="button" data-text="Voucher / mã giảm">Voucher</button>
+    </div>
+    <form id="chat-form" class="chat-input" autocomplete="off">
+      <input id="chat-text" type="text" class="form-control" placeholder="Nhập câu hỏi…" required />
+      <button class="btn btn-primary" type="submit" aria-label="Gửi"><i class="fas fa-paper-plane"></i></button>
+    </form>
+    <div class="chat-help text-center small">
+      <button id="chat-handoff" class="btn btn-link p-0" type="button">Cần người thật hỗ trợ?</button>
+    </div>
+  </div>
+  
+</div>
+
+<style>
+  .chat-widget{position:fixed;right:20px;bottom:20px;z-index:1100}
+  .chat-toggle{width:56px;height:56px;border-radius:50%;border:none;background:linear-gradient(135deg,#0d6efd,#20c997);color:#fff;box-shadow:0 8px 24px -8px rgba(13,110,253,.6);display:flex;align-items:center;justify-content:center;font-size:1.25rem}
+  .chat-toggle:active{transform:scale(.98)}
+  .chat-panel{position:fixed;right:20px;bottom:90px;width:320px;max-height:70vh;border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
+  .chat-header{padding:.6rem .75rem;border-bottom:1px solid #eef2f5;display:flex;align-items:center;justify-content:space-between}
+  .chat-header .avatar{width:32px;height:32px;border-radius:50%;background:#e9f3ff;color:#0d6efd;display:inline-flex;align-items:center;justify-content:center}
+  .chat-header .title{font-weight:600}
+  .chat-header .subtitle{font-size:.8rem;color:#6c757d;margin-top:-2px}
+  .chat-messages{padding:.75rem;overflow:auto;background:#f8fafc;flex:1}
+  .msg{background:#fff;border:1px solid #e9eef3;border-radius:12px;padding:.5rem .6rem;margin:.25rem 0;max-width:85%;box-shadow:0 2px 6px -3px rgba(0,0,0,.08)}
+  .msg.bot{background:#fff}
+  .msg.user{background:#0d6efd;color:#fff;border-color:#0b5ed7;margin-left:auto}
+  .chat-input{display:flex;gap:.4rem;padding:.5rem;border-top:1px solid #eef2f5}
+  .chat-quick{display:flex;gap:.35rem;flex-wrap:wrap;padding:.4rem .5rem;border-top:1px solid #eef2f5;background:#fff}
+  .chip{border:none;background:#eef5ff;color:#0d6efd;border-radius:999px;padding:.25rem .6rem;font-size:.8rem}
+  .chip:hover{background:#e3efff}
+  .chat-help{padding:.3rem .75rem;color:#6c757d;background:#fff;border-top:1px solid #eef2f5}
+  @media (max-width:575.98px){.chat-panel{right:10px;left:10px;width:auto}}
+</style>
+
+<script th:src="@{/js/chat-widget.js}" type="module"></script>

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <th:block th:replace="~{user/_meta}" />
+  <title>Quản lý sản phẩm</title>
+  <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-light">
+  <th:block th:replace="~{admin/_headerAdmin}" />
+
+  <div class="container-fluid px-4 py-3">
+    <!-- Flash Messages -->
+    <div class="flash-container" th:if="${successMessage != null || errorMessage != null}">
+      <div th:if="${successMessage}" class="flash flash-success" th:text="${successMessage}"></div>
+      <div th:if="${errorMessage}" class="flash flash-danger" th:text="${errorMessage}"></div>
+    </div>
+
+    <!-- Header / Actions -->
+    <div class="d-flex flex-wrap align-items-center gap-3 mb-3 mt-2">
+      <div>
+        <h5 class="mb-1">Quản lý sản phẩm</h5>
+        <div class="text-muted-sm">Danh sách & thao tác nhanh</div>
+      </div>
+      <form th:action="@{/admin/sanpham/search}" method="get"
+        class="ms-auto d-flex align-items-center gap-2 position-relative" style="max-width:320px;">
+        <div class="flex-grow-1 position-relative">
+          <input type="text" class="form-control ps-3" placeholder="Tìm kiếm..." name="q" th:value="${query}"
+            aria-label="Tìm kiếm sản phẩm">
+          <button class="btn btn-soft-primary position-absolute top-0 end-0 h-100 px-3" type="submit" aria-label="Tìm">
+            <i class="fas fa-search"></i>
+          </button>
+        </div>
+      </form>
+      <a class="btn btn-soft-success d-flex align-items-center" th:href="@{/admin/sanpham/create}">
+        <i class="fas fa-plus me-2"></i><span>Thêm sản phẩm</span>
+      </a>
+    </div>
+
+    <!-- Products Table -->
+    <div class="card-elevated p-0">
+      <div class="table-responsive">
+        <table class="table table-modern table-compact align-middle" id="productsTable">
+          <thead>
+            <tr>
+              <th style="width:56px;">#</th>
+              <th>Sản phẩm</th>
+              <th class="text-center">Tồn kho</th>
+              <th>Giá bán</th>
+              <th>Giảm giá</th>
+              <th>Loại</th>
+              <th>Ngày tạo</th>
+              <th class="text-end" style="width:110px;">Thao tác</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:if="${#lists.isEmpty(sanphams)}" class="table-empty">
+              <td colspan="8">Không có sản phẩm</td>
+            </tr>
+            <tr th:each="sanpham, loop : ${sanphams}" th:with="price=${sanpham.gia}">
+              <td th:text="${loop.index + 1}" data-label="#"></td>
+              <td>
+                <div class="d-flex align-items-center gap-3">
+                  <div class="ratio ratio-1x1 rounded overflow-hidden" style="width:54px;">
+                    <img th:src="@{/image/{url}(url=${sanpham.hinh})}" th:alt="${sanpham.tenSanpham}"
+                      class="w-100 h-100 object-fit-cover" loading="lazy" />
+                  </div>
+                  <div>
+                    <div class="fw-semibold" th:text="${sanpham.tenSanpham}"></div>
+                    <div class="text-muted-sm" th:text="${sanpham.loai.tenLoai}"></div>
+                  </div>
+                </div>
+              </td>
+              <td class="text-center" data-label="Tồn kho">
+                <span th:if="${sanpham.soluong <= 5}" class="badge-soft-danger" th:text="${sanpham.soluong}"></span>
+                <span th:if="${sanpham.soluong > 5 && sanpham.soluong <= 20}" class="badge-soft-warning"
+                  th:text="${sanpham.soluong}"></span>
+                <span th:if="${sanpham.soluong > 20}" class="badge-soft-success" th:text="${sanpham.soluong}"></span>
+              </td>
+              <td class="td-price" data-label="Giá bán">
+                <span th:text="${#numbers.formatInteger(price,0,'COMMA')}"></span><span class="currency-symbol">₫</span>
+              </td>
+              <td data-label="Giảm giá">
+                <span th:if="${sanpham.giamgia != null}" class="percent-badge"
+                  th:text="${sanpham.giamgia + '%'}"></span>
+                <span th:if="${sanpham.giamgia == null}" class="text-muted">—</span>
+              </td>
+              <td th:text="${sanpham.loai.tenLoai}" data-label="Loại"></td>
+              <td th:text="${#dates.format(sanpham.ngaytao,'dd/MM/yyyy')}" data-label="Ngày tạo"></td>
+              <td class="text-end cell-actions" data-label="Thao tác">
+                <div class="d-flex gap-1 justify-content-end flex-nowrap">
+                  <a class="btn btn-sm btn-soft-primary" th:href="@{/admin/sanpham/edit/{id}(id=${sanpham.idSanpham})}"
+                    aria-label="Chỉnh sửa">
+                    <i class="fas fa-edit"></i>
+                  </a>
+                  <button type="button" class="btn btn-sm btn-soft-danger"
+                    th:onclick="confirmDelete([[${sanpham.idSanpham}]], [[${sanpham.tenSanpham}]])" aria-label="Xóa">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <nav th:if="${totalPages != 0}" class="mt-4 mb-5">
+      <ul class="pagination justify-content-center">
+        <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+          <a class="page-link" th:href="@{/admin/sanpham(page=${currentPage - 1})}">
+            <i class="fas fa-chevron-left"></i>
+          </a>
+        </li>
+        <li class="page-item" th:each="i : ${#numbers.sequence(1, totalPages)}"
+          th:classappend="${currentPage == i - 1} ? 'active'">
+          <a class="page-link" th:href="@{/admin/sanpham(page=${i - 1})}" th:text="${i}"></a>
+        </li>
+        <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+          <a class="page-link" th:href="@{/admin/sanpham(page=${currentPage + 1})}">
+            <i class="fas fa-chevron-right"></i>
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+
+  <!-- <th:block th:replace="~{admin/_footerAdmin}" /> -->
+
+  <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+
+  <script>
+    // Initialize toasts
+    var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+    var toastList = toastElList.map(function (toastEl) {
+      return new bootstrap.Toast(toastEl, {
+        autohide: true,
+        delay: 3000
+      })
+    })
+    toastList.forEach(toast => toast.show())
+
+    // Khởi tạo tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+      return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
+
+    // Xử lý xác nhận xóa
+    function confirmDelete(id, name) {
+      document.getElementById('productName').textContent = name;
+      document.getElementById('deleteLink').href = '/admin/sanpham/delete/' + id;
+      var deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+      deleteModal.show();
+    }
+
+    // Ẩn tooltip khi modal hiển thị
+    var deleteModal = document.getElementById('deleteModal')
+    deleteModal.addEventListener('show.bs.modal', function () {
+      tooltipList.forEach(tooltip => tooltip.hide())
+    })
+  </script>
+
+
+  <!-- Thêm modal xác nhận xóa -->
+  <div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header border-0">
+          <h5 class="modal-title">Xác nhận xóa</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          Bạn có chắc chắn muốn xóa sản phẩm "<span id="productName"></span>"?
+        </div>
+        <div class="modal-footer border-0">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+          <a href="#" id="deleteLink" class="btn btn-danger">Xóa</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>

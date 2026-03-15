@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <th:block th:replace="~{user/_meta}" />
+  <title>Đăng nhập - MEDISALE</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #0d6efd;
+      --primary-hover: #0b5ed7;
+      --secondary: #20c997;
+      --glass-bg: rgba(255, 255, 255, 0.85);
+      --glass-border: rgba(255, 255, 255, 0.4);
+      --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+    }
+
+    body {
+      background: #f4f7f6;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+
+    /* Animated background */
+    .auth-page-bg {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      background: radial-gradient(circle at 15% 50%, rgba(13, 110, 253, 0.08), transparent 40%),
+        radial-gradient(circle at 85% 30%, rgba(32, 201, 151, 0.08), transparent 40%);
+      animation: ambientShift 15s ease-in-out infinite alternate;
+    }
+
+    @keyframes ambientShift {
+      0% {
+        transform: scale(1);
+      }
+
+      100% {
+        transform: scale(1.1);
+      }
+    }
+
+    .auth-wrapper {
+      min-height: calc(100vh - 160px);
+      display: flex;
+      align-items: center;
+      padding: 3rem 0;
+    }
+
+    .auth-card {
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      overflow: hidden;
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: var(--glass-shadow);
+      transform: translateY(20px);
+      opacity: 0;
+      animation: cardFadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes cardFadeUp {
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .auth-side {
+      background: linear-gradient(135deg, var(--primary), #4facfe);
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 3rem;
+    }
+
+    .auth-side::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 60%);
+      animation: rotateBg 20s linear infinite;
+    }
+
+    @keyframes rotateBg {
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    .auth-side-content {
+      position: relative;
+      z-index: 2;
+    }
+
+    .auth-side h2 {
+      font-weight: 700;
+      font-size: 2.5rem;
+      margin-bottom: 2rem;
+      letter-spacing: -0.5px;
+    }
+
+    .feature-list li {
+      margin-bottom: 1.25rem;
+      font-size: 1.05rem;
+      display: flex;
+      align-items: center;
+      opacity: 0.9;
+      transform: translateX(-10px);
+      animation: slideRight 0.5s ease forwards;
+    }
+
+    .feature-list li:nth-child(1) {
+      animation-delay: 0.2s;
+    }
+
+    .feature-list li:nth-child(2) {
+      animation-delay: 0.4s;
+    }
+
+    .feature-list li:nth-child(3) {
+      animation-delay: 0.6s;
+    }
+
+    @keyframes slideRight {
+      to {
+        transform: translateX(0);
+        opacity: 0.9;
+      }
+    }
+
+    .auth-form-wrap {
+      padding: 3.5rem 3rem;
+      background: #fff;
+    }
+
+    .auth-form-wrap h4 {
+      font-weight: 700;
+      color: #1e293b;
+      font-size: 1.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .form-floating>.form-control {
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      padding-left: 3rem;
+      font-weight: 500;
+      color: #334155;
+      transition: all 0.3s ease;
+      height: 3.5rem;
+    }
+
+    .form-floating>label {
+      padding-left: 3rem;
+      color: #94a3b8;
+      font-weight: 500;
+    }
+
+    .input-icon {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #94a3b8;
+      z-index: 10;
+      transition: color 0.3s ease;
+    }
+
+    .form-control:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.1);
+    }
+
+    .form-control:focus~.input-icon {
+      color: var(--primary);
+    }
+
+    .toggle-password {
+      position: absolute;
+      top: 50%;
+      right: 1rem;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #94a3b8;
+      z-index: 10;
+      transition: color 0.2s ease;
+      padding: 0.5rem;
+    }
+
+    .toggle-password:hover {
+      color: #334155;
+    }
+
+    .btn-auth {
+      height: 3.5rem;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 1.05rem;
+      letter-spacing: 0.3px;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      border: none;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      background-size: 200% auto;
+      box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3);
+    }
+
+    .btn-auth:hover {
+      background-position: right center;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(13, 110, 253, 0.4);
+      color: #fff;
+    }
+
+    .btn-auth:active {
+      transform: translateY(1px);
+    }
+
+    .btn-outline-custom {
+      height: 3.5rem;
+      border-radius: 12px;
+      font-weight: 600;
+      color: var(--primary);
+      border: 2px solid var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      background: transparent;
+    }
+
+    .btn-outline-custom:hover {
+      background: rgba(13, 110, 253, 0.05);
+      color: var(--primary-hover);
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      text-align: center;
+      color: #94a3b8;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      font-weight: 600;
+      letter-spacing: 1px;
+      margin: 2rem 0;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: '';
+      flex: 1;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .divider:not(:empty)::before {
+      margin-right: 1em;
+    }
+
+    .divider:not(:empty)::after {
+      margin-left: 1em;
+    }
+
+    .social-btn {
+      height: 3rem;
+      border-radius: 10px;
+      font-weight: 600;
+      color: #475569;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      transition: all 0.2s ease;
+    }
+
+    .social-btn:hover {
+      background: #f1f5f9;
+      transform: translateY(-1px);
+    }
+
+    .form-check-input:checked {
+      background-color: var(--primary);
+      border-color: var(--primary);
+    }
+
+    @media (max-width: 991.98px) {
+      .auth-side {
+        display: none;
+      }
+
+      .auth-form-wrap {
+        padding: 2.5rem 2rem;
+      }
+
+      .auth-wrapper {
+        padding: 1.5rem 0;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="auth-page-bg"></div>
+  <th:block th:replace="~{user/_header}" />
+
+  <div class="container auth-wrapper">
+    <div class="row justify-content-center w-100">
+      <div class="col-xl-9 col-lg-10">
+        <div class="auth-card">
+          <div class="row g-0 align-items-stretch">
+
+            <!-- Left Side / Branding -->
+            <div class="col-lg-5 auth-side">
+              <div class="auth-side-content">
+                <h2>Mừng bạn<br>trở lại! 👋</h2>
+                <p class="mb-5 lead opacity-75" style="font-size: 1.1rem;">Khám phá các sản phẩm y tế chất lượng cao
+                  dành riêng cho bạn và gia đình.</p>
+                <ul class="list-unstyled feature-list">
+                  <li><i class="fa-solid fa-truck-fast me-3 fs-5"></i> Giao hàng siêu tốc 2H</li>
+                  <li><i class="fa-solid fa-shield-halved me-3 fs-5"></i> Sản phẩm chính hãng 100%</li>
+                  <li><i class="fa-solid fa-gift me-3 fs-5"></i> Tích điểm đổi quà hấp dẫn</li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- Right Side / Form -->
+            <div class="col-lg-7">
+              <div class="auth-form-wrap">
+
+                <!-- Alerts -->
+                <div th:if="${successMessage}" class="alert alert-success d-flex align-items-center mb-4"
+                  style="border-radius: 12px; border: none; background: #ecfdf5; color: #047857;" role="alert">
+                  <i class="fa-solid fa-circle-check me-2 fs-5"></i>
+                  <div th:text="${successMessage}"></div>
+                </div>
+                <div th:if="${errorMessage}" class="alert alert-danger d-flex align-items-center mb-4"
+                  style="border-radius: 12px; border: none; background: #fef2f2; color: #b91c1c;" role="alert">
+                  <i class="fa-solid fa-triangle-exclamation me-2 fs-5"></i>
+                  <div th:text="${errorMessage}"></div>
+                </div>
+
+                <h4>Đăng nhập tài khoản</h4>
+                <p class="text-muted mb-4">Vui lòng nhập thông tin để truy cập hệ thống MEDISALE.</p>
+
+                <form th:action="@{/signin}" method="post" novalidate id="loginForm">
+
+                  <div class="position-relative mb-4">
+                    <i class="fa-regular fa-envelope input-icon"></i>
+                    <div class="form-floating">
+                      <input class="form-control" id="email" placeholder="Email" type="email" autocomplete="off"
+                        th:value="${user.idUser}" name="idUser" required>
+                      <label for="email">Địa chỉ Email</label>
+                    </div>
+                  </div>
+
+                  <div class="position-relative mb-3">
+                    <i class="fa-solid fa-lock input-icon"></i>
+                    <div class="form-floating">
+                      <input name="matkhau" class="form-control" id="password" placeholder="Mật khẩu" type="password"
+                        th:value="${user.matkhau}" autocomplete="off" required>
+                      <label for="password">Mật khẩu</label>
+                    </div>
+                    <span class="toggle-password" data-target="#password"><i class="fa-regular fa-eye"></i></span>
+                  </div>
+
+                  <div class="d-flex justify-content-between align-items-center mb-4 mt-2">
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" value="1" id="rememberMe">
+                      <label class="form-check-label text-muted small fw-medium" for="rememberMe"
+                        style="cursor: pointer;">Ghi nhớ đăng nhập</label>
+                    </div>
+                    <a th:href="@{/forgot-password}" class="text-primary text-decoration-none small fw-semibold">Quên
+                      mật khẩu?</a>
+                  </div>
+
+                  <!-- Buttons -->
+                  <button type="submit" class="btn btn-auth w-100 mb-3" id="submitBtn">
+                    <span>Đăng nhập ngay</span> <i class="fa-solid fa-arrow-right ms-2 transition-transform"></i>
+                  </button>
+
+                  <a th:href="@{/signup}" class="btn btn-outline-custom w-100 text-decoration-none">
+                    Tạo tài khoản mới
+                  </a>
+
+                  <div class="divider">Hoặc đăng nhập bằng</div>
+
+                  <div class="row g-2">
+                    <div class="col-6">
+                      <button type="button" class="btn social-btn w-100"><img
+                          src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" width="18"
+                          class="me-2" alt="Google"> Google</button>
+                    </div>
+                    <div class="col-6">
+                      <button type="button" class="btn social-btn w-100"><img
+                          src="https://upload.wikimedia.org/wikipedia/commons/b/b8/2021_Facebook_icon.svg" width="18"
+                          class="me-2" alt="Facebook"> Facebook</button>
+                    </div>
+                  </div>
+
+                  <p class="mt-4 pt-2 text-center small text-muted mb-0">
+                    Bằng việc đăng nhập, bạn đồng ý với <a href="#"
+                      class="text-primary text-decoration-none fw-semibold">Điều khoản</a> & <a href="#"
+                      class="text-primary text-decoration-none fw-semibold">Bảo mật</a> của MEDISALE.
+                  </p>
+                </form>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <th:block th:replace="~{user/_footer}" />
+
+  <script>
+    // Toggle Password Visibility
+    document.addEventListener('click', function (e) {
+      const toggle = e.target.closest('.toggle-password');
+      if (!toggle) return;
+      const input = document.querySelector(toggle.getAttribute('data-target'));
+      if (!input) return;
+
+      if (input.type === 'password') {
+        input.type = 'text';
+        toggle.innerHTML = '<i class="fa-regular fa-eye-slash"></i>';
+      } else {
+        input.type = 'password';
+        toggle.innerHTML = '<i class="fa-regular fa-eye"></i>';
+      }
+    });
+
+    // Button Click Animation
+    const form = document.getElementById('loginForm');
+    const btn = document.getElementById('submitBtn');
+
+    form.addEventListener('submit', function () {
+      if (form.checkValidity()) {
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Đang xử lý...';
+        btn.style.opacity = '0.8';
+        btn.style.pointerEvents = 'none';
+      }
+    });
+  </script>
+</body>
+
+</html>
