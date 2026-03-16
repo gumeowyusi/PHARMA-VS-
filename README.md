@@ -1,11 +1,11 @@
 ## DANT Pharmacy — Hướng dẫn cài đặt và chạy
 
-> Spring Boot 3.3 (Java 17), SQL Server, Thymeleaf, Spring Security, JPA, Mail, PayOS.
+> Spring Boot 3.3 (Java 21), SQL Server, Thymeleaf, Spring Security, JPA, Mail, PayOS.
 
 ---
 
 ### 1) Yêu cầu hệ thống (System Requirements)
-- **Java JDK**: 17+
+- **Java JDK**: 21+
 - **Maven**: 3.6+
 - **Database**: Microsoft SQL Server 2019/2022 + SSMS
 - **IDE**: Visual Studio Code (khuyến nghị) hoặc IntelliJ IDEA

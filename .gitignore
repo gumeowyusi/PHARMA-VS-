@@ -35,3 +35,6 @@ build/
 # exclude application.properties
 src/main/resources/application.properties
 .github/copilot-instructions.md
+
+# local JDK folder (not part of source)
+oracleJdk-25/
