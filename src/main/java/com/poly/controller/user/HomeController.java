@@ -30,6 +30,7 @@ import com.poly.service.LoaiService;
 import com.poly.service.SanPhamService;
 import com.poly.service.UserService;
 import com.poly.service.CurrentUserService;
+import com.poly.service.WishlistService;
 
 @Controller
 public class HomeController {
@@ -43,6 +44,8 @@ public class HomeController {
 	CurrentUserService currentUserService;
 	@Autowired
 	HoaDonService hoaDonService;
+	@Autowired
+	WishlistService wishlistService;
 
 	@GetMapping("/")
 	public String home(Model model) {
@@ -149,6 +152,10 @@ public class HomeController {
 					.filter(item -> item.getIdSanpham() != sanPham.getIdSanpham()));
 			model.addAttribute("loais", loaiService.getAllLoai(0, 5));
 			model.addAttribute("luotMua", sanPhamService.getLuotMuaById(sanPham.getIdSanpham()));
+			boolean wishlisted = currentUserService.getCurrentUser()
+					.map(u -> wishlistService.isWishlisted(u.getIdUser(), sanPham.getIdSanpham()))
+					.orElse(false);
+			model.addAttribute("isWishlisted", wishlisted);
 			return "user/productDetail";
 		} catch (Exception e) {
 			return "redirect:/";

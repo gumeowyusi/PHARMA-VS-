@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
@@ -319,19 +319,26 @@
 					</div>
 
 					<div class="mb-3">
-						<div class="section-label">Thanh toán</div>
-						<div class="d-flex gap-3">
-							<div class="form-check">
-								<input class="form-check-input" type="radio" id="CASH" name="phuongthuc" value="CASH"
-									checked>
-								<label for="CASH" class="form-check-label">Tiền mặt</label>
-							</div>
-							<div class="form-check">
-								<input class="form-check-input" id="BANK" type="radio" name="phuongthuc" value="BANK">
-								<label for="BANK" class="form-check-label">Chuyển khoản</label>
-							</div>
+					<div class="section-label">Thanh toán</div>
+					<div class="d-flex flex-wrap gap-2">
+						<div class="form-check">
+							<input class="form-check-input" type="radio" id="CASH" name="phuongthuc" value="CASH" checked>
+							<label for="CASH" class="form-check-label"><i class="fas fa-money-bill-wave text-success me-1"></i>Tiền mặt</label>
+						</div>
+						<div class="form-check">
+							<input class="form-check-input" id="BANK" type="radio" name="phuongthuc" value="BANK">
+							<label for="BANK" class="form-check-label"><i class="fas fa-university text-primary me-1"></i>Ngân hàng</label>
+						</div>
+						<div class="form-check">
+							<input class="form-check-input" id="MOMO" type="radio" name="phuongthuc" value="MOMO">
+							<label for="MOMO" class="form-check-label" style="color:#ae2070;font-weight:600;">&#9679; MoMo</label>
+						</div>
+						<div class="form-check">
+							<input class="form-check-input" id="ZALOPAY" type="radio" name="phuongthuc" value="ZALOPAY">
+							<label for="ZALOPAY" class="form-check-label" style="color:#0068ff;font-weight:600;">&#9679; ZaloPay</label>
 						</div>
 					</div>
+				</div>
 
 					<div class="mb-3">
 						<div class="section-label">Khách hàng (SĐT)</div>
@@ -349,14 +356,22 @@
 							name="adminDiscount" min="0" max="100" placeholder="% hoặc để trống auto">
 					</div>
 
-					<form th:action="@{/banhangtaiquay/thanh-toan}" method="post" class="mt-auto">
+					<!-- Hidden config for QR -->
+					<span id="cfg-bank-bin" th:text="${bankBin}" class="d-none"></span>
+					<span id="cfg-bank-account" th:text="${bankAccount}" class="d-none"></span>
+					<span id="cfg-bank-name" th:text="${bankName}" class="d-none"></span>
+					<span id="cfg-bank-account-name" th:text="${bankAccountName}" class="d-none"></span>
+					<span id="cfg-momo-phone" th:text="${momoPhone}" class="d-none"></span>
+					<span id="cfg-momo-name" th:text="${momoName}" class="d-none"></span>
+					<span id="cfg-zalopay-phone" th:text="${zalopayPhone}" class="d-none"></span>
+					<span id="cfg-zalopay-name" th:text="${zalopayName}" class="d-none"></span>
+					<form th:action="@{/banhangtaiquay/thanh-toan}" method="post" class="mt-auto" id="payForm">
 						<input type="hidden" name="phuongthuc" value="CASH" id="selectedPayment">
 						<input type="hidden" name="khachHangId" id="selectedKhachHangId">
 						<input type="hidden" name="adminDiscount" id="adminDiscountHidden">
 						<input type="hidden" name="voucherCode" id="voucherCodeHidden">
 						<input type="hidden" name="voucherDiscount" id="voucherDiscountHidden">
-						<button type="submit" class="btn btn-primary w-100"><i class="fas fa-check-circle me-1"></i>
-							Thanh toán</button>
+						<button type="button" id="btnThanhToan" class="btn btn-primary w-100"><i class="fas fa-check-circle me-1"></i> Thanh toán</button>
 					</form>
 				</div>
 			</div>
@@ -875,6 +890,97 @@
 			setVoucherFeedback('Đã bỏ voucher', 'secondary');
 			updateDiscountSummary();
 		});
+	
+	// ===== Payment QR Logic =====
+	(function () {
+		const radios  = document.querySelectorAll('input[name="phuongthuc"]');
+		const hidden  = document.getElementById('selectedPayment');
+		const btnPay  = document.getElementById('btnThanhToan');
+		const payForm = document.getElementById('payForm');
+
+		function getTotal() {
+			const el = document.getElementById('tongTienSauGiam');
+			if (!el) return 0;
+			return parseInt(el.textContent.replace(/[^\d]/g, '')) || 0;
+		}
+
+		radios.forEach(r => r.addEventListener('change', () => { hidden.value = r.value; }));
+
+		function vietQRUrl(amount) {
+			const bin  = document.getElementById('cfg-bank-bin').textContent.trim();
+			const acc  = document.getElementById('cfg-bank-account').textContent.trim();
+			const name = encodeURIComponent(document.getElementById('cfg-bank-account-name').textContent.trim());
+			return `https://img.vietqr.io/image/${bin}-${acc}-compact2.jpg?amount=${amount}&addInfo=Thanh%20toan%20MEDISALE&accountName=${name}`;
+		}
+
+		function momoQRUrl(amount) {
+			const phone = document.getElementById('cfg-momo-phone').textContent.trim();
+			return `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent('2|99|' + phone + '||' + amount + '|Thanh toan MEDISALE')}`;
+		}
+
+		function zalopayQRUrl(amount) {
+			const phone = document.getElementById('cfg-zalopay-phone').textContent.trim();
+			return `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent('zalopay://transfer?to=' + phone + '&amount=' + amount + '&desc=Thanh+toan+MEDISALE')}`;
+		}
+
+		btnPay.addEventListener('click', function () {
+			const method = hidden.value;
+			const amount = getTotal();
+
+			if (method === 'BANK') {
+				const bankName = document.getElementById('cfg-bank-name').textContent.trim();
+				const acc      = document.getElementById('cfg-bank-account').textContent.trim();
+				const accName  = document.getElementById('cfg-bank-account-name').textContent.trim();
+				document.getElementById('qrModalTitle').innerHTML = '<i class="fas fa-university text-primary me-2"></i>Chuy\u1ec3n kho\u1ea3n ng\u00e2n h\u00e0ng';
+				document.getElementById('qrModalInfo').innerHTML =
+					`<div class="text-center mb-2"><span class="badge bg-primary fs-6">${bankName}</span></div>
+					<table class="table table-sm table-bordered mb-0">
+						<tr><td class="text-muted" style="width:40%">S\u1ed1 t\u00e0i kho\u1ea3n</td><td class="fw-bold">${acc}</td></tr>
+						<tr><td class="text-muted">Ch\u1ee7 t\u00e0i kho\u1ea3n</td><td class="fw-bold">${accName}</td></tr>
+						<tr><td class="text-muted">S\u1ed1 ti\u1ec1n</td><td class="fw-bold text-danger">${amount.toLocaleString('vi-VN')}\u20ab</td></tr>
+						<tr><td class="text-muted">N\u1ed9i dung</td><td>Thanh toan MEDISALE</td></tr>
+					</table>`;
+				document.getElementById('qrCodeImg').src = vietQRUrl(amount);
+				new bootstrap.Modal(document.getElementById('qrPayModal')).show();
+
+			} else if (method === 'MOMO') {
+				const phone = document.getElementById('cfg-momo-phone').textContent.trim();
+				const name  = document.getElementById('cfg-momo-name').textContent.trim();
+				document.getElementById('qrModalTitle').innerHTML = '<span style="color:#ae2070;font-size:1.1rem;font-weight:700;">M</span> Thanh to\u00e1n MoMo';
+				document.getElementById('qrModalInfo').innerHTML =
+					`<div class="text-center mb-2"><span class="badge fs-6" style="background:#ae2070">MoMo</span></div>
+					<table class="table table-sm table-bordered mb-0">
+						<tr><td class="text-muted" style="width:40%">S\u1ed1 \u0111i\u1ec7n tho\u1ea1i</td><td class="fw-bold">${phone}</td></tr>
+						<tr><td class="text-muted">T\u00ean</td><td class="fw-bold">${name}</td></tr>
+						<tr><td class="text-muted">S\u1ed1 ti\u1ec1n</td><td class="fw-bold text-danger">${amount.toLocaleString('vi-VN')}\u20ab</td></tr>
+					</table>`;
+				document.getElementById('qrCodeImg').src = momoQRUrl(amount);
+				new bootstrap.Modal(document.getElementById('qrPayModal')).show();
+
+			} else if (method === 'ZALOPAY') {
+				const phone = document.getElementById('cfg-zalopay-phone').textContent.trim();
+				const name  = document.getElementById('cfg-zalopay-name').textContent.trim();
+				document.getElementById('qrModalTitle').innerHTML = '<span style="color:#0068ff;font-size:1.1rem;font-weight:700;">Z</span> Thanh to\u00e1n ZaloPay';
+				document.getElementById('qrModalInfo').innerHTML =
+					`<div class="text-center mb-2"><span class="badge fs-6" style="background:#0068ff">ZaloPay</span></div>
+					<table class="table table-sm table-bordered mb-0">
+						<tr><td class="text-muted" style="width:40%">S\u1ed1 \u0111i\u1ec7n tho\u1ea1i</td><td class="fw-bold">${phone}</td></tr>
+						<tr><td class="text-muted">T\u00ean</td><td class="fw-bold">${name}</td></tr>
+						<tr><td class="text-muted">S\u1ed1 ti\u1ec1n</td><td class="fw-bold text-danger">${amount.toLocaleString('vi-VN')}\u20ab</td></tr>
+					</table>`;
+				document.getElementById('qrCodeImg').src = zalopayQRUrl(amount);
+				new bootstrap.Modal(document.getElementById('qrPayModal')).show();
+
+			} else {
+				payForm.submit();
+			}
+		});
+
+		document.getElementById('btnConfirmQR').addEventListener('click', function () {
+			bootstrap.Modal.getInstance(document.getElementById('qrPayModal')).hide();
+			payForm.submit();
+		});
+	})();
 	</script>
 
 	<!-- Toast notification -->
@@ -891,6 +997,29 @@
 		</div>
 	</div>
 
+
+	<!-- Modal QR thanh toan -->
+	<div class="modal fade" id="qrPayModal" tabindex="-1" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered" style="max-width:420px">
+			<div class="modal-content">
+				<div class="modal-header py-2">
+					<h5 class="modal-title" id="qrModalTitle">QR Thanh toan</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+				</div>
+				<div class="modal-body">
+					<div id="qrModalInfo" class="mb-3"></div>
+					<div class="text-center">
+						<img id="qrCodeImg" src="" alt="QR Code" class="img-fluid rounded border" style="max-width:220px;min-height:100px;">
+						<div class="text-muted small mt-2">Quet ma QR de thanh toan, sau do bam "Da nhan thanh toan"</div>
+					</div>
+				</div>
+				<div class="modal-footer py-2">
+					<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Huy</button>
+					<button type="button" class="btn btn-success" id="btnConfirmQR"><i class="fas fa-check me-1"></i>Da nhan thanh toan</button>
+				</div>
+			</div>
+		</div>
+	</div>
 </body>
 
 </html>

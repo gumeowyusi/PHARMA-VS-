@@ -43,6 +43,7 @@ import vn.payos.PayOS;
 import vn.payos.type.CheckoutResponseData;
 import vn.payos.type.ItemData;
 import vn.payos.type.PaymentData;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 
 @Controller
@@ -82,6 +83,23 @@ public class BanHangTaiQuayController {
 	@Autowired
 	private VoucherService voucherService;
 
+	@Value("${payment.bank.bin:970422}")
+	private String bankBin;
+	@Value("${payment.bank.account:}")
+	private String bankAccount;
+	@Value("${payment.bank.name:}")
+	private String bankAccountName;
+	@Value("${payment.bank.bank-name:MB Bank}")
+	private String bankName;
+	@Value("${payment.momo.phone:}")
+	private String momoPhone;
+	@Value("${payment.momo.name:}")
+	private String momoName;
+	@Value("${payment.zalopay.phone:}")
+	private String zalopayPhone;
+	@Value("${payment.zalopay.name:}")
+	private String zalopayName;
+
 	@GetMapping("/banhangtaiquay")
 	public String banHangTaiQuay(@RequestParam(name = "page", defaultValue = "0") int page,
 			@RequestParam(name = "keyword", required = false) String keyword, HttpSession session,
@@ -116,6 +134,14 @@ public class BanHangTaiQuayController {
 		model.addAttribute("idLoai", idLoai);
 		model.addAttribute("gioHang", gioHangChiTietList);
 		model.addAttribute("khachHangs", khachHangService.getAllKhachHang());
+		model.addAttribute("bankBin", bankBin);
+		model.addAttribute("bankAccount", bankAccount);
+		model.addAttribute("bankAccountName", bankAccountName);
+		model.addAttribute("bankName", bankName);
+		model.addAttribute("momoPhone", momoPhone);
+		model.addAttribute("momoName", momoName);
+		model.addAttribute("zalopayPhone", zalopayPhone);
+		model.addAttribute("zalopayName", zalopayName);
 		return "admin/banhangtaiquay/banhangtaiquay";
 	}
 
@@ -317,7 +343,8 @@ public class BanHangTaiQuayController {
 				}
 			}
 
-			String msg = "Thanh toán thành công! Tổng tiền: " + tongTienSauGiam + "₫ (Giảm admin: " + discountPercent + "%;";
+			String payLabel = "MOMO".equals(phuongThuc) ? "MoMo" : "ZALOPAY".equals(phuongThuc) ? "ZaloPay" : "Tiền mặt";
+			String msg = "Thanh toán thành công! [" + payLabel + "] Tổng tiền: " + tongTienSauGiam + "₫ (Giảm: " + discountPercent + "%;";
 			if (voucherDiscount > 0) msg += " Voucher: -" + ((long) voucherDiscount) + "₫)"; else msg += ")";
 			redirectAttributes.addFlashAttribute("successMessage", msg);
 			redirectAttributes.addFlashAttribute("idHoaDon", hoaDon.getIdHoadon());
