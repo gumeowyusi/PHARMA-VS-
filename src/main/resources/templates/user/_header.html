@@ -79,6 +79,7 @@
             <li th:if="${currentUser.vaitro}"><a class="dropdown-item" th:href="@{/admin}"><i
                   class="fas fa-cog me-2"></i>Admin</a></li>
             <li><a class="dropdown-item" th:href="@{/setting}"><i class="fas fa-user-cog me-2"></i>Tài khoản</a></li>
+            <li><a class="dropdown-item" th:href="@{/wishlist}"><i class="fas fa-heart me-2 text-danger"></i>Yêu thích</a></li>
             <li><a class="dropdown-item" th:href="@{/order}"><i class="fas fa-clipboard-list me-2"></i>Đơn hàng</a></li>
             <li>
               <hr class="dropdown-divider">
@@ -153,6 +154,7 @@
         <a class="list-group-item" th:if="${currentUser.vaitro}" th:href="@{/admin}"><i
             class="fas fa-cog me-2"></i>Admin</a>
         <a class="list-group-item" th:href="@{/setting}"><i class="fas fa-user-cog me-2"></i>Cài đặt</a>
+        <a class="list-group-item" th:href="@{/wishlist}"><i class="fas fa-heart me-2 text-danger"></i>Yêu thích</a>
         <a class="list-group-item" th:href="@{/order}"><i class="fas fa-clipboard-list me-2"></i>Đơn hàng</a>
         <form th:action="@{/signout}" method="get" class="list-group-item p-0 border-0">
           <button class="btn w-100 text-start px-3 py-2"><i class="fas fa-sign-out-alt me-2"></i>Đăng xuất</button>

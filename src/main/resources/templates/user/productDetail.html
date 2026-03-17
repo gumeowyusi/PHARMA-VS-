@@ -150,6 +150,13 @@
                           id="add-cart-item">
                     <i class="fas fa-cart-plus me-2"></i>Thêm vào giỏ hàng
                   </button>
+                  <button type="button"
+                          class="btn btn-outline-danger btn-lg btn-wishlist-toggle"
+                          th:data-id="${sanpham.idSanpham}"
+                          th:classappend="${isWishlisted ? ' active' : ''}">
+                    <i th:class="${isWishlisted ? 'fas fa-heart me-2' : 'far fa-heart me-2'}"></i>
+                    <span th:text="${isWishlisted ? 'Đã yêu thích' : 'Thêm vào yêu thích'}"></span>
+                  </button>
                 </div>
               </div>
             </div>
@@ -277,7 +284,29 @@
         aspect-ratio: 4/3;
       }
     }
+    .btn-wishlist-toggle.active { background-color: #dc3545; color: #fff; border-color: #dc3545; }
   </style>
+  <script>
+    document.querySelector('.btn-wishlist-toggle')?.addEventListener('click', async function () {
+      const id = this.dataset.id;
+      const res = await fetch(`/wishlist/toggle/${id}`, { method: 'POST' });
+      if (res.status === 401) { window.location.href = '/signin'; return; }
+      const data = await res.json();
+      if (data.success) {
+        const icon = this.querySelector('i');
+        const label = this.querySelector('span');
+        if (data.added) {
+          this.classList.add('active');
+          icon.className = 'fas fa-heart me-2';
+          label.textContent = 'Đã yêu thích';
+        } else {
+          this.classList.remove('active');
+          icon.className = 'far fa-heart me-2';
+          label.textContent = 'Thêm vào yêu thích';
+        }
+      }
+    });
+  </script>
 </body>
 
 </html>
