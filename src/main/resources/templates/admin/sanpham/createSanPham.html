@@ -46,12 +46,14 @@
                   id="tenSanPham" required>
               </div>
               <div class="col-md-6">
-                <label for="gia" class="form-label">Giá bán <span class="text-danger">*</span></label>
+                <label for="gia-display" class="form-label">Giá bán <span class="text-danger">*</span></label>
                 <div class="input-group">
-                  <input type="number" min="1" step="1" class="form-control" th:value="${sanpham.gia}" name="gia"
-                    id="gia" required>
+                  <input type="text" class="form-control" id="gia-display" placeholder="0"
+                    th:value="${sanpham.gia != null ? #numbers.formatInteger(sanpham.gia, 0, 'POINT') : ''}" autocomplete="off">
                   <span class="input-group-text">VNĐ</span>
                 </div>
+                <input type="hidden" name="gia" id="gia" th:value="${sanpham.gia}">
+                <div class="form-text text-muted" id="gia-preview"></div>
               </div>
               <div class="col-md-6">
                 <label for="giamgia" class="form-label">Giảm giá</label>
@@ -78,8 +80,7 @@
           <div class="form-section mb-4">
             <div class="form-section-title">Hình ảnh sản phẩm</div>
             <div class="border rounded p-3 text-center bg-white">
-              <input type="file" class="form-control d-none" id="product-imageName" name="image" accept="image/*"
-                required>
+              <input type="file" class="form-control d-none" id="product-imageName" name="image" accept="image/*">
               <div class="dropzone-preview mb-3" onclick="document.getElementById('product-imageName').click()">
                 <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-2"></i>
                 <p class="mb-0 text-muted">Kéo thả hoặc click để tải ảnh lên</p>
@@ -140,6 +141,92 @@
       document.querySelector('.dropzone-preview').classList.remove('d-none');
       document.getElementById('preview-container').classList.add('d-none');
     }
+
+    // --- Thousand separator for price input ---
+    (function () {
+      const display = document.getElementById('gia-display');
+      const hidden  = document.getElementById('gia');
+      const preview = document.getElementById('gia-preview');
+      if (!display) return;
+
+      const vn = new Intl.NumberFormat('vi-VN');
+      function fmt(n)  { return vn.format(n) + ' ₫'; }
+      function raw(s)  { return parseInt(s.replace(/\D/g, ''), 10) || 0; }
+
+      function applyFormat() {
+        const v = raw(display.value);
+        display.value     = v ? vn.format(v) : '';
+        hidden.value      = v ? v : '';
+        preview.textContent = v ? '= ' + fmt(v) : '';
+      }
+
+      display.addEventListener('input', function () {
+        const pos    = this.selectionStart;
+        const before = this.value.length;
+        const v      = raw(this.value);
+        this.value   = v ? vn.format(v) : '';
+        hidden.value = v ? v : '';
+        preview.textContent = v ? '= ' + fmt(v) : '';
+        const after  = this.value.length;
+        this.setSelectionRange(pos + (after - before), pos + (after - before));
+        this.classList.remove('is-invalid');
+        const errEl = document.getElementById('gia-error');
+        if (errEl) errEl.remove();
+      });
+
+      applyFormat();
+    })();
+
+    // --- Single submit validator ---
+    document.querySelector('form').addEventListener('submit', function (e) {
+      let ok = true;
+
+      // 1. Validate giá
+      const display = document.getElementById('gia-display');
+      const hidden  = document.getElementById('gia');
+      const preview = document.getElementById('gia-preview');
+      const rawVal  = parseInt(display.value.replace(/\D/g, ''), 10) || 0;
+      if (!rawVal || rawVal <= 0) {
+        e.preventDefault();
+        ok = false;
+        display.classList.add('is-invalid');
+        if (!document.getElementById('gia-error')) {
+          const err = document.createElement('div');
+          err.id = 'gia-error';
+          err.className = 'text-danger small mt-1';
+          err.textContent = 'Vui lòng nhập giá bán hợp lệ';
+          preview.after(err);
+        }
+        display.focus();
+      } else {
+        hidden.value = rawVal;
+        display.classList.remove('is-invalid');
+        const errEl = document.getElementById('gia-error');
+        if (errEl) errEl.remove();
+      }
+
+      // 2. Validate ảnh
+      const fileInput = document.getElementById('product-imageName');
+      if (!fileInput.files || fileInput.files.length === 0) {
+        e.preventDefault();
+        ok = false;
+        const wrapper = fileInput.closest('.border');
+        wrapper.classList.add('border-danger');
+        if (!document.getElementById('img-error')) {
+          const err = document.createElement('div');
+          err.id = 'img-error';
+          err.className = 'text-danger small mt-2';
+          err.textContent = 'Vui lòng chọn hình ảnh sản phẩm';
+          wrapper.after(err);
+        }
+        if (ok === false) wrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } else {
+        const wrapper = fileInput.closest('.border');
+        wrapper.classList.remove('border-danger');
+        const imgErr = document.getElementById('img-error');
+        if (imgErr) imgErr.remove();
+      }
+    });
   </script>
 
 </body>

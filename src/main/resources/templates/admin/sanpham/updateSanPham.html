@@ -42,11 +42,14 @@
                 <input type="text" class="form-control" th:value="${sanpham.tenSanpham}" name="tenSanpham" id="tenSanPham" required>
               </div>
               <div class="col-md-6">
-                <label for="gia" class="form-label">Giá bán <span class="text-danger">*</span></label>
+                <label for="gia-display" class="form-label">Giá bán <span class="text-danger">*</span></label>
                 <div class="input-group">
-                  <input type="number" min="1" step="1" class="form-control" th:value="${sanpham.gia}" name="gia" id="gia" required>
+                  <input type="text" class="form-control" id="gia-display" placeholder="0"
+                    th:value="${sanpham.gia != null ? #numbers.formatInteger(sanpham.gia, 0, 'COMMA') : ''}" autocomplete="off">
                   <span class="input-group-text">VNĐ</span>
                 </div>
+                <input type="hidden" name="gia" id="gia" th:value="${sanpham.gia}" required>
+                <div class="form-text text-muted" id="gia-preview"></div>
               </div>
               <div class="col-md-6">
                 <label for="giamgia" class="form-label">Giảm giá</label>
@@ -141,6 +144,42 @@
         reader.readAsDataURL(file);
       }
     });
+
+    // --- Thousand separator for price input ---
+    (function () {
+      const display = document.getElementById('gia-display');
+      const hidden  = document.getElementById('gia');
+      const preview = document.getElementById('gia-preview');
+      if (!display) return;
+
+      const vn = new Intl.NumberFormat('vi-VN');
+      function fmt(n)  { return vn.format(n) + ' ₫'; }
+      function raw(s)  { return parseInt(s.replace(/\D/g, ''), 10) || 0; }
+
+      function applyFormat() {
+        const v = raw(display.value);
+        display.value       = v ? vn.format(v) : '';
+        hidden.value        = v ? v : '';
+        preview.textContent = v ? '= ' + fmt(v) : '';
+      }
+
+      display.addEventListener('input', function () {
+        const pos    = this.selectionStart;
+        const before = this.value.length;
+        const v      = raw(this.value);
+        this.value   = v ? vn.format(v) : '';
+        hidden.value = v ? v : '';
+        preview.textContent = v ? '= ' + fmt(v) : '';
+        const after  = this.value.length;
+        this.setSelectionRange(pos + (after - before), pos + (after - before));
+      });
+
+      display.closest('form').addEventListener('submit', function () {
+        hidden.value = raw(display.value) || '';
+      });
+
+      applyFormat();
+    })();
   </script>
 
 </body>
