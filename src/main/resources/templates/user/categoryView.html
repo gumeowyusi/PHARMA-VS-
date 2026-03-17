@@ -141,26 +141,32 @@
                       <span th:text="${sanpham.tenSanpham}"></span>
                     </a>
                   </h6>
-                  <div class="product-price">
+                  <div class="product-price mb-2">
                     <div th:if="${sanpham.giamgia == 0}">
-                      <span class="price fw-bold text-primary">
-                        <i class="fas fa-tag me-2"></i>
-                        <span th:text="${#numbers.formatInteger(sanpham.gia, 0, 'COMMA')}"></span>₫
-                      </span>
+                      <span class="price fw-bold text-primary"
+                            th:text="${#numbers.formatInteger(sanpham.gia, 0, 'COMMA') + '₫'}"></span>
                     </div>
-                    <div th:if="${sanpham.giamgia > 0}" class="d-flex align-items-center gap-2">
-                      <span class="price fw-bold text-primary">
-                        <i class="fas fa-tags me-2"></i>
-                        <span th:text="${#numbers.formatInteger(sanpham.gia * (100 - sanpham.giamgia) / 100, 0, 'COMMA')}"></span>₫
-                      </span>
-                      <span class="original-price text-decoration-line-through text-muted small">
-                        <span th:text="${#numbers.formatInteger(sanpham.gia, 0, 'COMMA')}"></span>₫
-                      </span>
-                      <span class="discount badge bg-danger">
-                        <i class="fas fa-percent me-1"></i>
-                        -<span th:text="${sanpham.giamgia}"></span>%
-                      </span>
+                    <div th:if="${sanpham.giamgia > 0}" class="d-flex align-items-center flex-wrap gap-1">
+                      <span class="price fw-bold text-primary"
+                            th:text="${#numbers.formatInteger(sanpham.gia * (100 - sanpham.giamgia) / 100, 0, 'COMMA') + '₫'}"></span>
+                      <span class="original-price text-decoration-line-through text-muted small"
+                            th:text="${#numbers.formatInteger(sanpham.gia, 0, 'COMMA') + '₫'}"></span>
+                      <span class="discount badge bg-danger small">-<span th:text="${sanpham.giamgia}"></span>%</span>
                     </div>
+                  </div>
+                  <div class="d-flex gap-2">
+                    <button th:disabled="${sanpham.soluong == 0}"
+                            th:classappend="${sanpham.soluong == 0 ? 'btn-danger' : 'btn-primary'}"
+                            type="button" class="btn btn-sm flex-grow-1 add-cart-item"
+                            th:data-id="${sanpham.idSanpham}">
+                      <i class="fas fa-cart-plus me-1"></i>
+                      <span th:text="${sanpham.soluong == 0 ? 'Hết hàng' : 'Thêm vào giỏ'}"></span>
+                    </button>
+                    <button th:if="${sanpham.soluong > 0}" type="button"
+                            class="btn btn-sm btn-outline-primary buy-now"
+                            th:data-id="${sanpham.idSanpham}">
+                      <i class="fas fa-bolt"></i>
+                    </button>
                   </div>
                 </div>
               </div>

@@ -137,4 +137,16 @@ public class SanPhamService {
 		PageRequest pageable = PageRequest.of(pageNumber, limit);
 		return sanPhamRepository.findByTenSanphamContainingIgnoreCaseAndLoai_IdLoai(keyword, idLoai, pageable);
 	}
+
+	public Page<SanPham> searchWithFilter(int pageNumber, int limit, String keyword, String priceRanges, String order) {
+		PageRequest pageable = PageRequest.of(pageNumber, limit);
+		Integer minPrice = null;
+		Integer maxPrice = null;
+		if (priceRanges != null && !priceRanges.isEmpty()) {
+			String[] parts = priceRanges.split("-");
+			minPrice = Integer.parseInt(parts[0]);
+			maxPrice = parts[1].equals("infinity") ? Integer.MAX_VALUE : Integer.parseInt(parts[1]);
+		}
+		return sanPhamRepository.searchWithFilter(keyword, minPrice, maxPrice, order, pageable);
+	}
 }

@@ -22,18 +22,33 @@ public class SearchController {
 	private static final int PRODUCTS_PER_PAGE = 12;
 
 	@GetMapping("/search")
-	public String search(Model model, @RequestParam(name = "q", required = false) String q,
-			@RequestParam(defaultValue = "0", name = "page") int page) {
+	public String search(Model model,
+			@RequestParam(name = "q", required = false) String q,
+			@RequestParam(defaultValue = "0", name = "page") int page,
+			@RequestParam(name = "idLoai", required = false) Integer idLoai,
+			@RequestParam(name = "priceRanges", required = false) String priceRanges,
+			@RequestParam(name = "order", defaultValue = "createdAt-DESC", required = false) String order) {
 		Optional<String> query = Optional.ofNullable(q).filter(s -> !s.trim().isEmpty());
 		if (query.isPresent()) {
 			String queryStr = query.get();
-			Page<SanPham> sanPhamPage = sanPhamService.searchByName(page, PRODUCTS_PER_PAGE, queryStr);
-			model.addAttribute("sanphams", sanPhamPage.getContent()); // Danh sách user
-			model.addAttribute("totalProducts", sanPhamPage.getTotalElements()); // Danh sách user
-			model.addAttribute("currentPage", page); // Trang hiện tại
+			Page<SanPham> sanPhamPage;
+			if (idLoai != null) {
+				sanPhamPage = sanPhamService.searchByTenAndLoai(page, PRODUCTS_PER_PAGE, queryStr, idLoai);
+			} else if ((priceRanges != null && !priceRanges.isEmpty()) || !"createdAt-DESC".equals(order)) {
+				sanPhamPage = sanPhamService.searchWithFilter(page, PRODUCTS_PER_PAGE, queryStr, priceRanges, order);
+			} else {
+				sanPhamPage = sanPhamService.searchByName(page, PRODUCTS_PER_PAGE, queryStr);
+			}
+			model.addAttribute("sanphams", sanPhamPage.getContent());
+			model.addAttribute("totalProducts", sanPhamPage.getTotalElements());
+			model.addAttribute("currentPage", page);
 			model.addAttribute("totalPages", sanPhamPage.getTotalPages());
 			model.addAttribute("query", queryStr);
-			model.addAttribute("loais", loaiService.getAllLoai(0, 5));
+			model.addAttribute("idLoai", idLoai);
+			model.addAttribute("priceRanges", priceRanges);
+			model.addAttribute("order", order);
+			model.addAttribute("loais", loaiService.getAllLoai(0, 100));
+			model.addAttribute("allLoais", loaiService.getAllLoai(0, 100));
 			return "user/search";
 		} else {
 			return "redirect:/";

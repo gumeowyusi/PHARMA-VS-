@@ -34,6 +34,19 @@ public interface SanPhamRepository extends JpaRepository<SanPham, Integer> {
 
 	Page<SanPham> findByTenSanphamContainingIgnoreCaseAndLoai_IdLoai(String keyword, Integer idLoai, Pageable pageable);
 
+	@Query("SELECT s FROM SanPham s "
+			+ "WHERE s.tenSanpham LIKE %:keyword% "
+			+ "AND (:minPrice IS NULL OR s.gia >= :minPrice) "
+			+ "AND (:maxPrice IS NULL OR s.gia <= :maxPrice) "
+			+ "ORDER BY "
+			+ "CASE WHEN :sortBy = 'totalBuy-DESC' THEN (SELECT COALESCE(SUM(hdct.soluong),0) FROM HoaDonChiTiet hdct WHERE hdct.sanPham = s) END DESC, "
+			+ "CASE WHEN :sortBy = 'createdAt-DESC' THEN s.ngaytao END DESC, "
+			+ "CASE WHEN :sortBy = 'price-ASC' THEN s.gia END ASC, "
+			+ "CASE WHEN :sortBy = 'price-DESC' THEN s.gia END DESC")
+	Page<SanPham> searchWithFilter(@Param("keyword") String keyword,
+			@Param("minPrice") Integer minPrice, @Param("maxPrice") Integer maxPrice,
+			@Param("sortBy") String sortBy, Pageable pageable);
+
 	// Gợi ý sản phẩm chăm sóc đi kèm: lấy top sản phẩm cùng loại
 	@Query("SELECT sp2 FROM HoaDonChiTiet hdct1 "
 			+ "JOIN hdct1.sanPham sp1 "

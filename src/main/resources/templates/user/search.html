@@ -29,107 +29,193 @@
   <!-- Search Results -->
   <section class="section-content py-5">
     <div class="container">
-      <!-- Empty State -->
-      <div th:if="${#lists.isEmpty(sanphams)}" class="text-center py-5">
-        <i class="fas fa-search fa-4x text-muted mb-4"></i>
-        <h4 class="fw-bold mb-2">Không tìm thấy sản phẩm</h4>
-        <p class="text-muted mb-4">Vui lòng thử lại với từ khóa khác</p>
-        <a href="/" class="btn btn-primary">
-          <i class="fas fa-home me-2"></i>Về trang chủ
-        </a>
-      </div>
+      <div class="row g-4">
 
-      <!-- Products Grid -->
-      <div th:if="${not #lists.isEmpty(sanphams)}" class="row g-4">
-        <div th:each="sanpham : ${sanphams}" class="col-xl-3 col-lg-4 col-md-6">
-          <div class="card product-card h-100 border-0 shadow-sm">
-            <div class="card-body p-3">
-              <!-- Product Image -->
-              <a th:href="@{/sanpham(id=${sanpham.idSanpham})}" class="product-img mb-3">
-                <img th:src="@{/image/{url}(url=${sanpham.hinh})}" 
-                     class="img-fluid w-100" 
-                     th:alt="${sanpham.tenSanpham}">
-                <div class="product-overlay">
-                  <i class="fas fa-search-plus"></i>
+        <!-- Filter Sidebar -->
+        <aside class="col-lg-3">
+          <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body p-4">
+              <form th:action="@{/search}" method="get" id="filterForm">
+                <input type="hidden" name="q" th:value="${query}">
+
+                <!-- Category Filter -->
+                <div class="filter-group mb-4">
+                  <h6 class="fw-bold mb-3">
+                    <i class="fas fa-th-list me-2"></i>Danh mục
+                  </h6>
+                  <div class="form-check mb-2">
+                    <input class="form-check-input" type="radio" name="idLoai" value=""
+                           id="cat_all" th:checked="${idLoai == null}">
+                    <label class="form-check-label" for="cat_all">Tất cả danh mục</label>
+                  </div>
+                  <div th:each="loai : ${allLoais}" class="form-check mb-2">
+                    <input class="form-check-input" type="radio" name="idLoai"
+                           th:value="${loai.idLoai}" th:id="'cat_' + ${loai.idLoai}"
+                           th:checked="${idLoai != null and idLoai == loai.idLoai}">
+                    <label class="form-check-label" th:for="'cat_' + ${loai.idLoai}"
+                           th:text="${loai.tenLoai}"></label>
+                  </div>
                 </div>
-              </a>
 
-              <!-- Product Info -->
-              <div class="product-info">
-                <h5 class="product-title mb-3">
-                  <a th:href="@{/sanpham(id=${sanpham.idSanpham})}" 
-                     class="text-dark text-decoration-none">
-                    <i class="fas fa-capsules text-primary me-2"></i>
-                    <span th:text="${sanpham.tenSanpham}"></span>
+                <!-- Price Filter -->
+                <div class="filter-group mb-4">
+                  <h6 class="fw-bold mb-3">
+                    <i class="fas fa-dollar-sign me-2"></i>Giá bán
+                  </h6>
+                  <div class="form-check mb-2">
+                    <input class="form-check-input" type="radio" value="" id="price_all"
+                           name="priceRanges" th:checked="${priceRanges == null or priceRanges == ''}">
+                    <label class="form-check-label" for="price_all">Tất cả</label>
+                  </div>
+                  <div class="form-check mb-2">
+                    <input class="form-check-input" type="radio" value="0-50000" id="price_1"
+                           name="priceRanges" th:checked="${priceRanges == '0-50000'}">
+                    <label class="form-check-label" for="price_1">Dưới 50.000₫</label>
+                  </div>
+                  <div class="form-check mb-2">
+                    <input class="form-check-input" type="radio" value="50000-200000" id="price_2"
+                           name="priceRanges" th:checked="${priceRanges == '50000-200000'}">
+                    <label class="form-check-label" for="price_2">50.000₫ - 200.000₫</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" value="200000-infinity" id="price_3"
+                           name="priceRanges" th:checked="${priceRanges == '200000-infinity'}">
+                    <label class="form-check-label" for="price_3">Trên 200.000₫</label>
+                  </div>
+                </div>
+
+                <!-- Sort Filter -->
+                <div class="filter-group mb-4">
+                  <h6 class="fw-bold mb-3">
+                    <i class="fas fa-sort me-2"></i>Sắp xếp theo
+                  </h6>
+                  <div class="form-check mb-2">
+                    <input class="form-check-input" type="radio" value="createdAt-DESC" id="sort_1"
+                           name="order" th:checked="${order == 'createdAt-DESC' or order == null}">
+                    <label class="form-check-label" for="sort_1">
+                      <i class="fas fa-clock me-2"></i>Mới nhất
+                    </label>
+                  </div>
+                  <div class="form-check mb-2">
+                    <input class="form-check-input" type="radio" value="totalBuy-DESC" id="sort_2"
+                           name="order" th:checked="${order == 'totalBuy-DESC'}">
+                    <label class="form-check-label" for="sort_2">
+                      <i class="fas fa-fire me-2"></i>Bán chạy nhất
+                    </label>
+                  </div>
+                  <div class="form-check mb-2">
+                    <input class="form-check-input" type="radio" value="price-ASC" id="sort_3"
+                           name="order" th:checked="${order == 'price-ASC'}">
+                    <label class="form-check-label" for="sort_3">
+                      <i class="fas fa-sort-amount-up me-2"></i>Giá thấp → cao
+                    </label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" value="price-DESC" id="sort_4"
+                           name="order" th:checked="${order == 'price-DESC'}">
+                    <label class="form-check-label" for="sort_4">
+                      <i class="fas fa-sort-amount-down me-2"></i>Giá cao → thấp
+                    </label>
+                  </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">
+                  <i class="fas fa-filter me-2"></i>Lọc kết quả
+                </button>
+                <a th:href="@{/search(q=${query})}" class="btn btn-outline-secondary w-100 mt-2">
+                  <i class="fas fa-times me-2"></i>Xóa bộ lọc
+                </a>
+              </form>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Results Main -->
+        <main class="col-lg-9">
+          <!-- Empty State -->
+          <div th:if="${#lists.isEmpty(sanphams)}" class="text-center py-5">
+            <i class="fas fa-search fa-4x text-muted mb-4"></i>
+            <h4 class="fw-bold mb-2">Không tìm thấy sản phẩm</h4>
+            <p class="text-muted mb-4">Vui lòng thử lại với từ khóa hoặc bộ lọc khác</p>
+            <a href="/" class="btn btn-primary">
+              <i class="fas fa-home me-2"></i>Về trang chủ
+            </a>
+          </div>
+
+          <!-- Products Grid -->
+          <div th:if="${not #lists.isEmpty(sanphams)}" class="row g-3">
+            <div th:each="sanpham : ${sanphams}" class="col-md-4 col-6">
+              <div class="card product-card h-100 border-0 shadow-sm">
+                <div class="card-body p-3">
+                  <a th:href="@{/sanpham(id=${sanpham.idSanpham})}" class="product-img mb-3">
+                    <img th:src="@{/image/{url}(url=${sanpham.hinh})}"
+                         class="img-fluid" th:alt="${sanpham.tenSanpham}">
+                    <div class="product-overlay">
+                      <i class="fas fa-search-plus"></i>
+                    </div>
                   </a>
-                </h5>
-
-                <!-- Price -->
-                <div class="product-price mb-3">
-                  <div th:if="${sanpham.giamgia == 0}">
-                    <span class="fw-bold text-primary">
-                      <i class="fas fa-tag me-2"></i>
-                      <span th:text="${#numbers.formatInteger(sanpham.gia, 0, 'COMMA')}"></span>₫
-                    </span>
+                  <h6 class="product-title mb-2">
+                    <a th:href="@{/sanpham(id=${sanpham.idSanpham})}" class="text-dark text-decoration-none">
+                      <span th:text="${sanpham.tenSanpham}"></span>
+                    </a>
+                  </h6>
+                  <div class="product-price mb-2">
+                    <div th:if="${sanpham.giamgia == 0}">
+                      <span class="fw-bold text-primary"
+                            th:text="${#numbers.formatInteger(sanpham.gia, 0, 'COMMA') + '₫'}"></span>
+                    </div>
+                    <div th:if="${sanpham.giamgia > 0}" class="d-flex align-items-center flex-wrap gap-1">
+                      <span class="fw-bold text-primary"
+                            th:text="${#numbers.formatInteger(sanpham.gia * (100 - sanpham.giamgia) / 100, 0, 'COMMA') + '₫'}"></span>
+                      <span class="text-decoration-line-through text-muted small"
+                            th:text="${#numbers.formatInteger(sanpham.gia, 0, 'COMMA') + '₫'}"></span>
+                      <span class="badge bg-danger small">-<span th:text="${sanpham.giamgia}"></span>%</span>
+                    </div>
                   </div>
-                  <div th:if="${sanpham.giamgia > 0}" class="d-flex align-items-center gap-2">
-                    <span class="fw-bold text-primary">
-                      <i class="fas fa-tags me-2"></i>
-                      <span th:text="${#numbers.formatInteger(sanpham.gia * (100 - sanpham.giamgia) / 100, 0, 'COMMA')}"></span>₫
-                    </span>
-                    <span class="text-decoration-line-through text-muted small">
-                      <span th:text="${#numbers.formatInteger(sanpham.gia, 0, 'COMMA')}"></span>₫
-                    </span>
-                    <span class="badge bg-danger">
-                      <i class="fas fa-percent me-1"></i>
-                      -<span th:text="${sanpham.giamgia}"></span>%
-                    </span>
+                  <div class="d-flex gap-2">
+                    <button th:disabled="${sanpham.soluong == 0}"
+                            th:classappend="${sanpham.soluong == 0 ? 'btn-danger' : 'btn-primary'}"
+                            type="button" class="btn btn-sm flex-grow-1 add-cart-item"
+                            th:data-id="${sanpham.idSanpham}">
+                      <i class="fas fa-cart-plus me-1"></i>
+                      <span th:text="${sanpham.soluong == 0 ? 'Hết hàng' : 'Thêm vào giỏ'}"></span>
+                    </button>
+                    <button th:if="${sanpham.soluong > 0}" type="button"
+                            class="btn btn-sm btn-outline-primary buy-now"
+                            th:data-id="${sanpham.idSanpham}">
+                      <i class="fas fa-bolt"></i>
+                    </button>
                   </div>
-                </div>
-
-                <!-- Actions -->
-                <div class="product-actions d-flex gap-2">
-                  <button th:disabled="${sanpham.soluong == 0}" 
-                          th:classappend="${sanpham.soluong == 0?'btn-danger':'btn-primary'}"
-                          type="button" 
-                          class="btn flex-grow-1 add-cart-item" 
-                          th:data-id="${sanpham.idSanpham}">
-                    <i class="fas fa-cart-plus me-2"></i>
-                    <span th:text="${sanpham.soluong == 0?'Hết hàng':'Thêm vào giỏ'}"></span>
-                  </button>
-                  <button th:if="${sanpham.soluong > 0}" 
-                          type="button"
-                          class="btn btn-outline-primary buy-now"
-                          th:data-id="${sanpham.idSanpham}">
-                    <i class="fas fa-bolt"></i>
-                  </button>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
 
-      <!-- Pagination -->
-      <div th:if="${totalPages > 0}" class="mt-5">
-        <nav class="d-flex justify-content-center">
-          <ul class="pagination mb-0">
-            <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
-              <a class="page-link rounded-start" th:href="@{/search(q=${query}, page=${currentPage - 1})}">
-                <i class="fas fa-chevron-left"></i>
-              </a>
-            </li>
-            <li th:each="i : ${#numbers.sequence(1, totalPages)}"
-                class="page-item" th:classappend="${currentPage == i - 1} ? 'active'">
-              <a class="page-link" th:href="@{/search(q=${query}, page=${i - 1})}" th:text="${i}"></a>
-            </li>
-            <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
-              <a class="page-link rounded-end" th:href="@{/search(q=${query}, page=${currentPage + 1})}">
-                <i class="fas fa-chevron-right"></i>
-              </a>
-            </li>
-          </ul>
-        </nav>
+          <!-- Pagination -->
+          <div th:if="${totalPages > 1}" class="mt-4">
+            <nav class="d-flex justify-content-center">
+              <ul class="pagination mb-0">
+                <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                  <a class="page-link" th:href="@{/search(q=${query},page=${currentPage - 1},idLoai=${idLoai},priceRanges=${priceRanges},order=${order})}">
+                    <i class="fas fa-chevron-left"></i>
+                  </a>
+                </li>
+                <li th:each="i : ${#numbers.sequence(1, totalPages)}"
+                    class="page-item" th:classappend="${currentPage == i - 1} ? 'active'">
+                  <a class="page-link"
+                     th:href="@{/search(q=${query},page=${i - 1},idLoai=${idLoai},priceRanges=${priceRanges},order=${order})}"
+                     th:text="${i}"></a>
+                </li>
+                <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+                  <a class="page-link" th:href="@{/search(q=${query},page=${currentPage + 1},idLoai=${idLoai},priceRanges=${priceRanges},order=${order})}">
+                    <i class="fas fa-chevron-right"></i>
+                  </a>
+                </li>
+              </ul>
+            </nav>
+          </div>
+        </main>
+
       </div>
     </div>
   </section>
