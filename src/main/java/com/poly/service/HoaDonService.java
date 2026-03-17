@@ -185,4 +185,30 @@ public class HoaDonService {
 	public ReportRevenueStatistics thongKeDoanhThuTheoLoai(Integer loaiId) {
 		return hoaDonRepository.thongKeDoanhThuTheoLoai(loaiId);
 	}
+
+	public long[] getKpiCounts() {
+		return new long[]{
+			hoaDonRepository.countReceivedOrders(),
+			hoaDonRepository.countOnDeliveryOrders(),
+			hoaDonRepository.countAllUsers()
+		};
+	}
+
+	public Double tongDoanhThuToanBo() {
+		return hoaDonRepository.tongDoanhThuToanBo();
+	}
+
+	public long[] doanhThuTheoThang(int nam) {
+		java.util.List<Object[]> rows = hoaDonRepository.doanhThuTheoThang(nam);
+		long[] result = new long[12];
+		for (Object[] row : rows) {
+			int thang = ((Number) row[0]).intValue() - 1;
+			result[thang] = ((Number) row[1]).longValue();
+		}
+		return result;
+	}
+
+	public java.util.List<Object[]> topSanPhamBanChay() {
+		return hoaDonRepository.topSanPhamBanChay();
+	}
 }

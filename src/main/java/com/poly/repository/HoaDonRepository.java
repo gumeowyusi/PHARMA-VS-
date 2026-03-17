@@ -1,5 +1,7 @@
 package com.poly.repository;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -37,4 +39,31 @@ public interface HoaDonRepository extends JpaRepository<HoaDon, Integer> {
 	ReportRevenueStatistics thongKeDoanhThuTheoLoai(@Param("idLoai") Integer loaiId);
 
 	Page<HoaDon> findByKhachHang_IdKhachHang(Long idKhachHang, Pageable pageable);
+
+	@Query(value = "SELECT MONTH(hd.ngaytao) AS thang, " +
+			"SUM(hdct.soluong * (hdct.gia * (1 - hdct.giamgia / 100.0))) AS doanhThu " +
+			"FROM HOADON hd JOIN HOADONCHITIET hdct ON hd.id_hoadon = hdct.id_hoadon " +
+			"WHERE hd.trangthai = 'received' AND YEAR(hd.ngaytao) = :nam " +
+			"GROUP BY MONTH(hd.ngaytao) ORDER BY thang", nativeQuery = true)
+	List<Object[]> doanhThuTheoThang(@Param("nam") int nam);
+
+	@Query(value = "SELECT TOP 10 sp.ten_sanpham, SUM(hdct.soluong) AS tongBan, " +
+			"SUM(hdct.soluong * (hdct.gia * (1 - hdct.giamgia / 100.0))) AS doanhThu " +
+			"FROM HOADONCHITIET hdct " +
+			"JOIN HOADON hd ON hd.id_hoadon = hdct.id_hoadon " +
+			"JOIN SANPHAM sp ON sp.id_sanpham = hdct.id_sanpham " +
+			"WHERE hd.trangthai = 'received' " +
+			"GROUP BY sp.id_sanpham, sp.ten_sanpham ORDER BY tongBan DESC", nativeQuery = true)
+	List<Object[]> topSanPhamBanChay();
+
+	@Query(value = "SELECT COUNT(*) FROM HOADON WHERE trangthai = 'ondelivery'", nativeQuery = true)
+	long countOnDeliveryOrders();
+
+	@Query(value = "SELECT COUNT(*) FROM USERS", nativeQuery = true)
+	long countAllUsers();
+
+	@Query(value = "SELECT COALESCE(SUM(hdct.soluong * (hdct.gia * (1 - hdct.giamgia / 100.0))), 0) " +
+			"FROM HOADON hd JOIN HOADONCHITIET hdct ON hd.id_hoadon = hdct.id_hoadon " +
+			"WHERE hd.trangthai = 'received'", nativeQuery = true)
+	Double tongDoanhThuToanBo();
 }

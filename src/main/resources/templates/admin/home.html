@@ -4,7 +4,6 @@
 <head>
   <th:block th:replace="~{user/_meta}" />
   <title>Dashboard Admin - MEDISALE</title>
-  <!-- Thêm thư viện Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
@@ -14,103 +13,173 @@
   <div class="container-fluid px-4 py-3">
     <div class="d-flex flex-wrap align-items-center gap-3 mb-4">
       <div>
-        <h5 class="mb-1">Dashboard</h5>
-        <div class="text-muted-sm">Tổng quan hiệu suất & số liệu</div>
+        <h5 class="mb-1 fw-bold"><i class="fas fa-tachometer-alt text-primary me-2"></i>Dashboard</h5>
+        <div class="text-muted small">Tổng quan hiệu suất & số liệu</div>
       </div>
-      <div class="ms-auto"></div>
-    </div>
-
-    <!-- Metrics Row -->
-    <div class="row g-3 mb-3">
-      <div class="col-6 col-md-3" th:if="${reportRevenueStatistics != null}">
-        <div class="card-elevated p-3 h-100 d-flex flex-column">
-          <div class="text-muted-sm mb-1">Doanh thu</div>
-          <div class="fw-bold" style="font-size:1.05rem;"
-            th:text="${#numbers.formatInteger(reportRevenueStatistics.tongDoanhThu,0,'COMMA')} + '₫'"></div>
-        </div>
-      </div>
-      <div class="col-6 col-md-3" th:if="${reportRevenueStatistics != null}">
-        <div class="card-elevated p-3 h-100 d-flex flex-column">
-          <div class="text-muted-sm mb-1">Số lượng bán</div>
-          <div class="fw-bold" style="font-size:1.05rem;"
-            th:text="${#numbers.formatInteger(reportRevenueStatistics.tongSoLuong,0,'COMMA')}"></div>
-        </div>
-      </div>
-      <div class="col-6 col-md-3" th:if="${reportRevenueStatistics != null}">
-        <div class="card-elevated p-3 h-100 d-flex flex-column">
-          <div class="text-muted-sm mb-1">Giá cao nhất</div>
-          <div class="fw-bold" style="font-size:1.05rem;"
-            th:text="${#numbers.formatInteger(reportRevenueStatistics.giaCaoNhat,0,'COMMA')} + '₫'"></div>
-        </div>
-      </div>
-      <div class="col-6 col-md-3" th:if="${reportRevenueStatistics != null}">
-        <div class="card-elevated p-3 h-100 d-flex flex-column">
-          <div class="text-muted-sm mb-1">Giá trung bình</div>
-          <div class="fw-bold" style="font-size:1.05rem;"
-            th:text="${#numbers.formatInteger(reportRevenueStatistics.giaTrungBinh,0,'COMMA')} + '₫'"></div>
-        </div>
+      <div class="ms-auto text-muted small">
+        <i class="fas fa-calendar-alt me-1"></i>
+        <span th:text="${#dates.format(#dates.createNow(), 'dd/MM/yyyy')}"></span>
       </div>
     </div>
 
-    <!-- Chart + Side -->
-    <div class="row g-4">
+    <!-- KPI Cards -->
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-md-3">
+        <div class="kpi-card bg-white rounded-3 shadow-sm p-3 border-start border-primary border-4">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <span class="text-muted small">Tổng doanh thu</span>
+            <span class="kpi-icon bg-primary bg-opacity-10 text-primary"><i class="fas fa-chart-line"></i></span>
+          </div>
+          <div class="fw-bold fs-5 text-primary"
+               th:text="${#numbers.formatInteger(kpiDoanhThu != null ? kpiDoanhThu : 0, 0, 'COMMA') + '₫'}"></div>
+          <div class="text-muted small mt-1">Tất cả thời gian</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="kpi-card bg-white rounded-3 shadow-sm p-3 border-start border-success border-4">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <span class="text-muted small">Đã giao thành công</span>
+            <span class="kpi-icon bg-success bg-opacity-10 text-success"><i class="fas fa-check-circle"></i></span>
+          </div>
+          <div class="fw-bold fs-5 text-success" th:text="${kpiDaGiao}"></div>
+          <div class="text-muted small mt-1">Đơn hàng hoàn tất</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="kpi-card bg-white rounded-3 shadow-sm p-3 border-start border-warning border-4">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <span class="text-muted small">Đang giao hàng</span>
+            <span class="kpi-icon bg-warning bg-opacity-10 text-warning"><i class="fas fa-truck"></i></span>
+          </div>
+          <div class="fw-bold fs-5 text-warning" th:text="${kpiDangGiao}"></div>
+          <div class="text-muted small mt-1">Đơn chờ xử lý</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="kpi-card bg-white rounded-3 shadow-sm p-3 border-start border-info border-4">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <span class="text-muted small">Người dùng</span>
+            <span class="kpi-icon bg-info bg-opacity-10 text-info"><i class="fas fa-users"></i></span>
+          </div>
+          <div class="fw-bold fs-5 text-info" th:text="${kpiUsers}"></div>
+          <div class="text-muted small mt-1">Tài khoản đăng ký</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Monthly Chart + Top Products -->
+    <div class="row g-4 mb-4">
+      <!-- Monthly Revenue Chart -->
       <div class="col-lg-8">
-        <div class="card-elevated p-3 h-100 d-flex flex-column chart-card">
-          <div class="d-flex align-items-center gap-3 mb-2 flex-wrap">
-            <div class="form-section-title mb-0 d-flex align-items-center gap-2">
-              <i class="fas fa-chart-line text-primary"></i>
-              <span>Thống kê doanh thu</span>
-            </div>
-            <form id="statsForm" class="ms-auto d-flex align-items-center gap-2">
-              <select id="categorySelect" name="idLoai" class="form-select form-select-sm" onchange="submitForm()"
-                aria-label="Chọn loại hàng">
-                <option disabled selected>Chọn loại hàng</option>
-                <option th:each="item : ${loais}" th:selected="${idLoai == item.idLoai}" th:value="${item.idLoai}"
-                  th:text="${item.tenLoai}"></option>
+        <div class="bg-white rounded-3 shadow-sm p-4 h-100">
+          <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+            <h6 class="fw-bold mb-0">
+              <i class="fas fa-chart-bar text-primary me-2"></i>Doanh thu theo tháng
+            </h6>
+            <form id="yearForm" method="get" action="/admin" class="d-flex align-items-center gap-2">
+              <input type="hidden" name="idLoai" th:value="${idLoai}">
+              <select name="nam" class="form-select form-select-sm" style="width:100px" onchange="this.form.submit()">
+                <option th:each="y : ${#numbers.sequence(2023, 2027)}"
+                        th:value="${y}" th:text="${y}"
+                        th:selected="${y == nam}"></option>
               </select>
             </form>
           </div>
-          <div id="chartContainer" class="chart-container flex-grow-1 position-relative">
-            <div id="chartEmptyState" class="empty-state d-none">
-              <div class="empty-icon mb-2"><i class="fas fa-signal"></i></div>
-              <div class="fw-semibold mb-1">Chưa có dữ liệu</div>
-              <div class="text-muted-sm">Chọn một loại hàng để xem thống kê</div>
-            </div>
-            <canvas id="revenueChart" aria-label="Biểu đồ doanh thu" role="img"></canvas>
+          <div style="height:280px; position:relative;">
+            <canvas id="monthlyChart"></canvas>
           </div>
         </div>
       </div>
+
+      <!-- Top 5 Selling Products -->
       <div class="col-lg-4">
-        <div class="card-elevated p-0 h-100 d-flex flex-column">
-          <div class="p-3 pb-2 d-flex align-items-center justify-content-between">
-            <div class="form-section-title mb-0">Top khách hàng VIP</div>
+        <div class="bg-white rounded-3 shadow-sm p-4 h-100">
+          <h6 class="fw-bold mb-3">
+            <i class="fas fa-fire text-danger me-2"></i>Top sản phẩm bán chạy
+          </h6>
+          <div th:if="${topSanPham == null or #lists.isEmpty(topSanPham)}" class="text-center text-muted py-4">
+            <i class="fas fa-box-open fa-2x mb-2"></i><br>Chưa có dữ liệu
           </div>
-          <div class="table-responsive" style="max-height:340px;">
-            <table class="table table-modern table-compact mb-0">
-              <thead>
+          <div th:each="item, stat : ${topSanPham}" th:if="${stat.index < 5}" class="mb-3">
+            <div class="d-flex align-items-center justify-content-between mb-1">
+              <span class="small fw-medium text-truncate me-2" style="max-width:160px;"
+                    th:text="${item[0]}"></span>
+              <span class="badge bg-light text-dark border small"
+                    th:text="${#numbers.formatInteger(item[1], 0, 'COMMA') + ' bán'}"></span>
+            </div>
+            <div class="progress" style="height:6px;">
+              <div class="progress-bar bg-primary" role="progressbar"
+                   th:style="'width:' + (${topSanPham[0][1] != 0 ? item[1] * 100 / topSanPham[0][1] : 0}) + '%'"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Category Stats + VIP Customers -->
+    <div class="row g-4">
+      <!-- Category filter chart -->
+      <div class="col-lg-7">
+        <div class="bg-white rounded-3 shadow-sm p-4 h-100">
+          <div class="d-flex align-items-center gap-3 mb-3 flex-wrap">
+            <h6 class="fw-bold mb-0">
+              <i class="fas fa-tags text-primary me-2"></i>Thống kê theo danh mục
+            </h6>
+            <form id="statsForm" class="ms-auto d-flex align-items-center gap-2">
+              <input type="hidden" name="nam" th:value="${nam}">
+              <select name="idLoai" class="form-select form-select-sm" onchange="this.form.submit()"
+                      aria-label="Chọn loại hàng">
+                <option value="0" th:selected="${idLoai == 0}">-- Chọn danh mục --</option>
+                <option th:each="item : ${loais}" th:selected="${idLoai == item.idLoai}"
+                        th:value="${item.idLoai}" th:text="${item.tenLoai}"></option>
+              </select>
+            </form>
+          </div>
+          <div id="catChartWrapper" style="height:240px; position:relative;">
+            <div id="catEmptyState" class="empty-state" th:classappend="${reportRevenueStatistics != null} ? 'd-none' : ''">
+              <div class="empty-icon mb-2"><i class="fas fa-signal"></i></div>
+              <div class="fw-semibold">Chưa có dữ liệu</div>
+              <div class="text-muted small">Chọn danh mục để xem thống kê</div>
+            </div>
+            <canvas id="catChart" th:classappend="${reportRevenueStatistics == null} ? 'd-none' : ''"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIP Customers -->
+      <div class="col-lg-5">
+        <div class="bg-white rounded-3 shadow-sm p-0 h-100 d-flex flex-column">
+          <div class="p-3 pb-2 border-bottom">
+            <h6 class="fw-bold mb-0">
+              <i class="fas fa-crown text-warning me-2"></i>Top khách hàng VIP
+            </h6>
+          </div>
+          <div class="table-responsive flex-grow-1" style="max-height:280px; overflow-y:auto;">
+            <table class="table table-hover table-sm mb-0">
+              <thead class="table-light sticky-top">
                 <tr>
+                  <th>#</th>
                   <th>Khách hàng</th>
                   <th class="text-end">Chi tiêu</th>
                 </tr>
               </thead>
               <tbody>
-                <tr th:each="item : ${reportKhachHangVip}" th:if="${reportKhachHangVip != null}">
+                <tr th:each="item, stat : ${reportKhachHangVip}" th:if="${reportKhachHangVip != null}">
+                  <td class="text-muted small" th:text="${stat.index + 1}"></td>
                   <td>
                     <div class="d-flex align-items-center gap-2">
-                      <img th:if="${item.hinh == null}" th:src="@{img/280px.png}" width="36" height="36"
-                        class="rounded-circle" alt="Avatar" loading="lazy" />
-                      <img th:if="${item.hinh != null}" th:src="@{/image/{url}(url=${item.hinh})}" width="36"
-                        height="36" class="rounded-circle" th:alt="${item.tenKhachHang}" loading="lazy" />
-                      <div>
-                        <div class="fw-semibold" th:text="${item.tenKhachHang}"></div>
-                        <div class="text-muted-sm" th:text="${#dates.format(item.ngayMuaDauTien,'dd/MM/yyyy')}"></div>
-                      </div>
+                      <img th:if="${item.hinh == null}" th:src="@{img/280px.png}" width="30" height="30"
+                           class="rounded-circle object-fit-cover" alt="Avatar" loading="lazy"/>
+                      <img th:if="${item.hinh != null}" th:src="@{/image/{url}(url=${item.hinh})}" width="30"
+                           height="30" class="rounded-circle object-fit-cover" th:alt="${item.tenKhachHang}" loading="lazy"/>
+                      <span class="small fw-medium" th:text="${item.tenKhachHang}"></span>
                     </div>
                   </td>
-                  <td class="text-end" th:text="${#numbers.formatInteger(item.tongTienDaMua,3,'POINT')}"></td>
+                  <td class="text-end small fw-bold text-primary"
+                      th:text="${#numbers.formatInteger(item.tongTienDaMua, 0, 'COMMA') + '₫'}"></td>
                 </tr>
-                <tr th:if="${reportKhachHangVip == null || #lists.isEmpty(reportKhachHangVip)}">
-                  <td colspan="2" class="text-center text-muted py-4">Không có dữ liệu</td>
+                <tr th:if="${reportKhachHangVip == null or #lists.isEmpty(reportKhachHangVip)}">
+                  <td colspan="3" class="text-center text-muted py-4">Chưa có dữ liệu</td>
                 </tr>
               </tbody>
             </table>
@@ -120,166 +189,90 @@
     </div>
   </div>
 
-  <!--   <th:block th:replace="~{admin/_footerAdmin}" /> -->
-
   <script th:inline="javascript">
     /*<![CDATA[*/
-    const reportData = {
+    function formatCurrency(v) {
+      return new Intl.NumberFormat('vi-VN', { maximumFractionDigits: 0 }).format(v || 0) + '₫';
+    }
+
+    // --- Monthly Revenue Chart ---
+    const monthlyData = /*[[${monthlyRevenue}]]*/ [0,0,0,0,0,0,0,0,0,0,0,0];
+    const monthlyCtx = document.getElementById('monthlyChart').getContext('2d');
+    new Chart(monthlyCtx, {
+      type: 'bar',
+      data: {
+        labels: ['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11','T12'],
+        datasets: [{
+          label: 'Doanh thu',
+          data: monthlyData,
+          backgroundColor: 'rgba(13,110,253,0.7)',
+          borderRadius: 6,
+          maxBarThickness: 36
+        }]
+      },
+      options: {
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: ctx => formatCurrency(ctx.raw) } }
+        },
+        scales: {
+          y: { beginAtZero: true, ticks: { callback: v => formatCurrency(v) }, grid: { color: 'rgba(0,0,0,.06)' } },
+          x: { grid: { display: false } }
+        }
+      }
+    });
+
+    // --- Category Chart ---
+    const catData = {
       tongDoanhThu: /*[[${reportRevenueStatistics != null ? reportRevenueStatistics.tongDoanhThu : null}]]*/ null,
-      tongSoLuong: /*[[${reportRevenueStatistics != null ? reportRevenueStatistics.tongSoLuong : null}]]*/ null,
-      giaCaoNhat: /*[[${reportRevenueStatistics != null ? reportRevenueStatistics.giaCaoNhat : null}]]*/ null,
-      giaThapNhat: /*[[${reportRevenueStatistics != null ? reportRevenueStatistics.giaThapNhat : null}]]*/ null,
+      tongSoLuong:  /*[[${reportRevenueStatistics != null ? reportRevenueStatistics.tongSoLuong  : null}]]*/ null,
+      giaCaoNhat:   /*[[${reportRevenueStatistics != null ? reportRevenueStatistics.giaCaoNhat   : null}]]*/ null,
+      giaThapNhat:  /*[[${reportRevenueStatistics != null ? reportRevenueStatistics.giaThapNhat  : null}]]*/ null,
       giaTrungBinh: /*[[${reportRevenueStatistics != null ? reportRevenueStatistics.giaTrungBinh : null}]]*/ null
     };
-
-    function hasData(obj) { return obj && Object.values(obj).some(v => v !== null && v !== 0); }
-    function formatCurrency(v) {
-      return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', maximumFractionDigits: 0 }).format(v || 0);
-    }
-    function formatNumber(v) { return new Intl.NumberFormat('vi-VN').format(v || 0); }
-
-    const canvas = document.getElementById('revenueChart');
-    const emptyStateEl = document.getElementById('chartEmptyState');
-    const chartWrapper = document.getElementById('chartContainer');
-
-    if (!hasData(reportData)) {
-      emptyStateEl.classList.remove('d-none');
-      canvas.classList.add('d-none');
-    } else {
-      canvas.classList.remove('d-none');
-      emptyStateEl.classList.add('d-none');
-
-      const ctx = canvas.getContext('2d');
-      const lightPalette = {
-        revenue: 'rgba(54, 162, 235, 0.65)',
-        min: 'rgba(255, 206, 86, 0.65)',
-        avg: 'rgba(153, 102, 255, 0.65)',
-        max: 'rgba(255, 99, 132, 0.65)',
-        qty: 'rgba(75, 192, 192, 0.65)'
-      };
-      const darkPalette = {
-        revenue: 'rgba(54, 162, 235, 0.5)',
-        min: 'rgba(255, 206, 86, 0.5)',
-        avg: 'rgba(153, 102, 255, 0.5)',
-        max: 'rgba(255, 99, 132, 0.5)',
-        qty: 'rgba(75, 192, 192, 0.5)'
-      };
-      function isDark() { return document.documentElement.classList.contains('dark'); }
-      function palette() { return isDark() ? darkPalette : lightPalette; }
-
-      const chartConfig = {
+    const catCanvas = document.getElementById('catChart');
+    if (catData.tongDoanhThu) {
+      new Chart(catCanvas.getContext('2d'), {
         type: 'bar',
         data: {
-          labels: ['Giá thấp nhất', 'Giá trung bình', 'Giá cao nhất', 'Tổng doanh thu', 'Tổng số lượng'],
-          datasets: [
-            {
-              label: 'Giá & Doanh thu',
-              data: [reportData.giaThapNhat, reportData.giaTrungBinh, reportData.giaCaoNhat, reportData.tongDoanhThu, null],
-              backgroundColor: () => [palette().min, palette().avg, palette().max, palette().revenue],
-              borderWidth: 0,
-              yAxisID: 'y1',
-              maxBarThickness: 46
-            },
-            {
-              type: 'line',
-              label: 'Tổng số lượng',
-              data: [null, null, null, null, reportData.tongSoLuong],
-              borderColor: palette().qty,
-              backgroundColor: palette().qty,
-              tension: .3,
-              fill: false,
-              pointRadius: 5,
-              yAxisID: 'y2'
-            }
-          ]
+          labels: ['Giá thấp nhất','Giá TB','Giá cao nhất','Tổng DT'],
+          datasets: [{
+            data: [catData.giaThapNhat, catData.giaTrungBinh, catData.giaCaoNhat, catData.tongDoanhThu],
+            backgroundColor: ['rgba(255,206,86,.75)','rgba(153,102,255,.75)','rgba(255,99,132,.75)','rgba(54,162,235,.75)'],
+            borderRadius: 6,
+            maxBarThickness: 48
+          }]
         },
         options: {
           maintainAspectRatio: false,
-          interaction: { mode: 'index', intersect: false },
+          plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => formatCurrency(ctx.raw) } } },
           scales: {
-            y1: {
-              beginAtZero: true,
-              grid: { color: isDark() ? 'rgba(255,255,255,.08)' : 'rgba(0,0,0,.08)' },
-              ticks: { callback: v => formatCurrency(v) }
-            },
-            y2: {
-              beginAtZero: true,
-              position: 'right',
-              grid: { drawOnChartArea: false },
-              ticks: { callback: v => formatNumber(v) }
-            },
+            y: { beginAtZero: true, ticks: { callback: v => formatCurrency(v) }, grid: { color: 'rgba(0,0,0,.06)' } },
             x: { grid: { display: false } }
-          },
-          plugins: {
-            legend: { display: true, labels: { usePointStyle: true, boxWidth: 8 } },
-            tooltip: {
-              callbacks: {
-                label: ctx => {
-                  const v = ctx.raw;
-                  if (v == null) return '';
-                  return ctx.dataset.yAxisID === 'y2' ? 'Số lượng: ' + formatNumber(v) : 'Giá trị: ' + formatCurrency(v);
-                }
-              }
-            }
           }
         }
-      };
-
-      let revenueChart = new Chart(ctx, chartConfig);
-
-      // Responsive resize (Chart.js v4 handles, but ensure container sizing)
-      new ResizeObserver(() => revenueChart.resize()).observe(chartWrapper);
-
-      // Re-theme on dark mode toggle (if a toggle adds/removes .dark class)
-      const observer = new MutationObserver(() => {
-        const pal = palette();
-        revenueChart.data.datasets[0].backgroundColor = [pal.min, pal.avg, pal.max, pal.revenue];
-        revenueChart.data.datasets[1].borderColor = pal.qty;
-        revenueChart.data.datasets[1].backgroundColor = pal.qty;
-        revenueChart.options.scales.y1.grid.color = isDark() ? 'rgba(255,255,255,.08)' : 'rgba(0,0,0,.08)';
-        revenueChart.update('none');
       });
-      observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
     }
-
-    function submitForm() { document.getElementById('statsForm').submit(); }
     /*]]>*/
   </script>
 
   <style>
-    .chart-card {
-      min-height: 380px;
+    .kpi-card { transition: transform .2s; }
+    .kpi-card:hover { transform: translateY(-3px); }
+    .kpi-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: .95rem;
     }
-
-    .chart-container {
-      min-height: 300px;
-    }
-
-    .chart-container canvas {
-      width: 100% !important;
-      height: 100% !important;
-    }
-
     .empty-state {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 1rem;
-      color: var(--color-muted-text, #6c757d);
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      color: #6c757d; text-align: center;
     }
-
-    .empty-state .empty-icon {
-      font-size: 2rem;
-      opacity: .35;
-    }
-
-    html.dark .empty-state {
-      color: var(--color-muted-text, #adb5bd);
-    }
+    .empty-icon { font-size: 2rem; opacity: .35; }
+    .progress { border-radius: 4px; background: #f0f0f0; }
   </style>
 </body>
 

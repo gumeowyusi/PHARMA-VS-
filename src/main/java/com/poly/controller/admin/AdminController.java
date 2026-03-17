@@ -34,9 +34,12 @@ public class AdminController {
 
 	@GetMapping("/admin")
 	@PreAuthorize("hasRole('ADMIN')")
-	public String home(@RequestParam(defaultValue = "0", name = "idLoai") int idLoai, Model model) {
+	public String home(@RequestParam(defaultValue = "0", name = "idLoai") int idLoai,
+			@RequestParam(defaultValue = "0", name = "nam") int nam, Model model) {
+		if (nam == 0) nam = java.time.Year.now().getValue();
+
 		ReportRevenueStatistics reportRevenueStatistics = hoaDonService.thongKeDoanhThuTheoLoai(idLoai);
-		if (reportRevenueStatistics.getTongDoanhThu() != 0L) {
+		if (reportRevenueStatistics != null && reportRevenueStatistics.getTongDoanhThu() != 0L) {
 			model.addAttribute("reportRevenueStatistics", reportRevenueStatistics);
 		}
 
@@ -44,6 +47,20 @@ public class AdminController {
 		if (reportKhachHangVip.getTotalElements() != 0) {
 			model.addAttribute("reportKhachHangVip", reportKhachHangVip.getContent());
 		}
+
+		long[] kpi = hoaDonService.getKpiCounts();
+		model.addAttribute("kpiDaGiao", kpi[0]);
+		model.addAttribute("kpiDangGiao", kpi[1]);
+		model.addAttribute("kpiUsers", kpi[2]);
+		model.addAttribute("kpiDoanhThu", hoaDonService.tongDoanhThuToanBo());
+
+		long[] monthly = hoaDonService.doanhThuTheoThang(nam);
+		model.addAttribute("monthlyRevenue", monthly);
+		model.addAttribute("nam", nam);
+
+		java.util.List<Object[]> top = hoaDonService.topSanPhamBanChay();
+		model.addAttribute("topSanPham", top);
+
 		model.addAttribute("idLoai", idLoai);
 		model.addAttribute("loais", loaiService.getAllLoai(0, 1000));
 		return "admin/home";
