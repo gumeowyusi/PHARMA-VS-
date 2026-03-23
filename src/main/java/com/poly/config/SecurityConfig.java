@@ -52,7 +52,8 @@ public class SecurityConfig {
         .authorizeHttpRequests(auth -> auth
             .requestMatchers("/", "/signup", "/signin", "/active-account", "/forgot-password",
                 "/reset-password", "/access-denied", "/error", "/api/auth/refresh",
-                "/api/chatbot/**", "/api/support/**", "/api/payments/**", "/guest/**", "/cart", "/quick-buy",
+                "/api/chatbot/**", "/api/support/**", "/api/payments/**", "/api/search/**", "/api/recommend/**",
+                "/guest/**", "/cart", "/quick-buy",
                 "/loai-all", "/loai", "/sanpham", "/search",
                 "/css/**", "/js/**", "/img/**", "/image/**", "/fragment/**")
                         .permitAll()
