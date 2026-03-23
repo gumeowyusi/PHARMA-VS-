@@ -63,8 +63,12 @@ public class HomeController {
 
 	@GetMapping("/signin")
 	public String signin(@ModelAttribute("user") Users user, Model model) {
-		if (currentUserService.getCurrentUser().isPresent()) {
-			return "redirect:/banhangtaiquay";
+		var current = currentUserService.getCurrentUser();
+		if (current.isPresent()) {
+			Users u = current.get();
+			if (u.isAdmin()) return "redirect:/admin";
+			if (u.isStaff()) return "redirect:/banhangtaiquay";
+			return "redirect:/";
 		}
 		model.addAttribute("loais", loaiService.getAllLoai(0, 5));
 		return "user/signin";
@@ -73,8 +77,10 @@ public class HomeController {
 	@PostMapping("/signin")
 	public String login(@ModelAttribute("user") Users user, Model model) {
 		try {
-			userService.login(user);
-			return "redirect:/banhangtaiquay";
+			Users loggedIn = userService.login(user);
+			if (loggedIn.isAdmin()) return "redirect:/admin";
+			if (loggedIn.isStaff()) return "redirect:/banhangtaiquay";
+			return "redirect:/";
 		} catch (Exception e) {
 			model.addAttribute("loais", loaiService.getAllLoai(0, 5));
 			model.addAttribute("errorMessage", e.getMessage());

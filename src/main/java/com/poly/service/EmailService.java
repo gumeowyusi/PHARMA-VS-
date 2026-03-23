@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -20,12 +21,16 @@ public class EmailService {
 
 	@Autowired
 	private JavaMailSender emailSender;
+	
+	@Value("${spring.mail.username}")
+	private String fromEmail;
 
 	public void sendEmailAcctiveAccount(String to, String subject, String body) throws MessagingException, IOException {
 		MimeMessage message = emailSender.createMimeMessage();
 		MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
 		helper.setTo(to);
+		helper.setFrom(fromEmail);
 		helper.setSubject(subject);
 		helper.setText("<h3>Nhấn vào link sau để kích hoạt tài khoản: http://localhost:8080/active-account?token="
 				+ body + "</h3>", true);
@@ -39,6 +44,7 @@ public class EmailService {
 		MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
 		helper.setTo(to);
+		helper.setFrom(fromEmail);
 		helper.setSubject(subject);
 		helper.setText("<h3>Mật khẩu tài khoản cũ của bạn là: " + user.getMatkhau() + "</h3>", true);
 
@@ -77,6 +83,7 @@ public class EmailService {
 	                + "</table><p>Cảm ơn bạn đã mua sắm cùng chúng tôi!</p></div></body></html>";
 
 	        helper.setTo(to);
+	        helper.setFrom(fromEmail);
 	        helper.setSubject(subject);
 	        helper.setText(htmlContent, true);
 
@@ -89,6 +96,7 @@ public class EmailService {
 	            MimeMessage mimeMessage = emailSender.createMimeMessage();
 	            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
 	            helper.setTo(toEmail);
+	            helper.setFrom(fromEmail);
 	            helper.setSubject(subject);
 	            
 	            String htmlContent = """

@@ -27,21 +27,21 @@
   </div>
   <nav id="adminNav" class="admin-nav border-top">
     <ul class="nav-scroll list-unstyled mb-0 d-flex flex-nowrap">
-      <li th:if="${currentUser != null and currentUser.vaitro}"><a th:href="@{/admin}" data-path="/admin"
+      <li th:if="${currentUser != null and currentUser.admin}"><a th:href="@{/admin}" data-path="/admin"
           class="nav-link-item"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a></li>
       <li><a th:href="@{/banhangtaiquay}" data-path="/banhangtaiquay" class="nav-link-item"><i
             class="fas fa-shopping-bag me-2"></i>Bán Hàng</a></li>
-      <li th:if="${currentUser != null and currentUser.vaitro}"><a th:href="@{/admin/user}" data-path="/admin/user"
+      <li th:if="${currentUser != null and currentUser.admin}"><a th:href="@{/admin/user}" data-path="/admin/user"
           class="nav-link-item"><i class="fas fa-users me-2"></i>Nhân viên</a></li>
-      <li th:if="${currentUser != null and currentUser.vaitro}"><a th:href="@{/admin/khachhang}"
+      <li th:if="${currentUser != null and currentUser.admin}"><a th:href="@{/admin/khachhang}"
           data-path="/admin/khachhang" class="nav-link-item"><i class="fas fa-user-friends me-2"></i>Khách hàng</a></li>
-      <li th:if="${currentUser != null and currentUser.vaitro}"><a th:href="@{/admin/loai}" data-path="/admin/loai"
+      <li th:if="${currentUser != null and currentUser.admin}"><a th:href="@{/admin/loai}" data-path="/admin/loai"
           class="nav-link-item"><i class="fas fa-tags me-2"></i>Thể loại</a></li>
-      <li th:if="${currentUser != null and currentUser.vaitro}"><a th:href="@{/admin/sanpham}"
+      <li th:if="${currentUser != null and currentUser.admin}"><a th:href="@{/admin/sanpham}"
           data-path="/admin/sanpham" class="nav-link-item"><i class="fas fa-box me-2"></i>Sản phẩm</a></li>
-      <li th:if="${currentUser != null and currentUser.vaitro}"><a th:href="@{/admin/hoadon}" data-path="/admin/hoadon"
+      <li th:if="${currentUser != null and (currentUser.admin or currentUser.staff)}"><a th:href="@{/admin/hoadon}" data-path="/admin/hoadon"
           class="nav-link-item"><i class="fas fa-file-invoice me-2"></i>Đơn hàng</a></li>
-      <li th:if="${currentUser != null and currentUser.vaitro}"><a th:href="@{/admin/vouchers}"
+      <li th:if="${currentUser != null and currentUser.admin}"><a th:href="@{/admin/vouchers}"
           data-path="/admin/vouchers" class="nav-link-item"><i class="fas fa-ticket-alt me-2"></i>Voucher</a></li>
     </ul>
   </nav>

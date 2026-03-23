@@ -57,8 +57,9 @@
                 <td th:text="${user.idUser}"></td>
                 <td th:text="${user.hoten}"></td>
                 <td>
-                  <span th:if="${user.vaitro}" class="badge bg-primary">ADMIN</span>
-                  <span th:unless="${user.vaitro}" class="badge bg-secondary">USER</span>
+                  <span th:if="${user.admin}" class="badge bg-primary">ADMIN</span>
+                  <span th:if="${user.staff}" class="badge bg-info text-dark">STAFF</span>
+                  <span th:if="${user.customer}" class="badge bg-secondary">CUSTOMER</span>
                 </td>
                 <td>
                   <span th:if="${user.kichhoat}" class="badge bg-success">Đã kích hoạt</span>

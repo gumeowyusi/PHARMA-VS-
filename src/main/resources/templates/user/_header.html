@@ -76,8 +76,10 @@
             <i class="fas fa-chevron-down ms-1 text-muted small"></i>
           </a>
           <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-            <li th:if="${currentUser.vaitro}"><a class="dropdown-item" th:href="@{/admin}"><i
+            <li th:if="${currentUser.admin}"><a class="dropdown-item" th:href="@{/admin}"><i
                   class="fas fa-cog me-2"></i>Admin</a></li>
+            <li th:if="${currentUser.staff}"><a class="dropdown-item" th:href="@{/banhangtaiquay}"><i
+                  class="fas fa-cash-register me-2"></i>Bán hàng tại quầy</a></li>
             <li><a class="dropdown-item" th:href="@{/setting}"><i class="fas fa-user-cog me-2"></i>Tài khoản</a></li>
             <li><a class="dropdown-item" th:href="@{/wishlist}"><i class="fas fa-heart me-2 text-danger"></i>Yêu thích</a></li>
             <li><a class="dropdown-item" th:href="@{/order}"><i class="fas fa-clipboard-list me-2"></i>Đơn hàng</a></li>
@@ -151,8 +153,10 @@
       </div>
       <div th:if="${currentUser != null}" class="list-group list-group-flush">
         <span class="list-group-item disabled" th:text="${currentUser.hoten}">Tài khoản</span>
-        <a class="list-group-item" th:if="${currentUser.vaitro}" th:href="@{/admin}"><i
+        <a class="list-group-item" th:if="${currentUser.admin}" th:href="@{/admin}"><i
             class="fas fa-cog me-2"></i>Admin</a>
+        <a class="list-group-item" th:if="${currentUser.staff}" th:href="@{/banhangtaiquay}"><i
+            class="fas fa-cash-register me-2"></i>Bán hàng tại quầy</a>
         <a class="list-group-item" th:href="@{/setting}"><i class="fas fa-user-cog me-2"></i>Cài đặt</a>
         <a class="list-group-item" th:href="@{/wishlist}"><i class="fas fa-heart me-2 text-danger"></i>Yêu thích</a>
         <a class="list-group-item" th:href="@{/order}"><i class="fas fa-clipboard-list me-2"></i>Đơn hàng</a>

@@ -69,11 +69,14 @@
                   </span>
                 </td>
                 <td data-label="Vai trò">
-                  <span th:if="${user.vaitro}" class="badge bg-primary">
+                  <span th:if="${user.admin}" class="badge bg-primary">
                     <i class="fas fa-user-shield me-1"></i>Admin
                   </span>
-                  <span th:unless="${user.vaitro}" class="badge bg-secondary">
+                  <span th:if="${user.staff}" class="badge bg-info text-dark">
                     <i class="fas fa-user me-1"></i>Nhân viên
+                  </span>
+                  <span th:if="${user.customer}" class="badge bg-secondary">
+                    <i class="fas fa-user me-1"></i>Khách hàng
                   </span>
                 </td>
                 <td class="text-end pe-4 cell-actions" data-label="Thao tác">

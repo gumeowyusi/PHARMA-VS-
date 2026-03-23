@@ -117,10 +117,11 @@
               </div>
 
               <div class="mb-4">
-                <label for="vaitro" class="form-label">Vai trò <span class="text-danger">*</span></label>
-                <select class="form-select" name="vaitro" id="vaitro" required>
-                  <option value="true" th:selected="${user.vaitro}">Quản trị viên</option>
-                  <option value="false" th:selected="${!user.vaitro}">Khách hàng</option>
+                <label for="roleName" class="form-label">Vai trò <span class="text-danger">*</span></label>
+                <select class="form-select" name="roleName" id="roleName" required>
+                  <option value="ADMIN" th:selected="${user.admin}">Quản trị viên</option>
+                  <option value="STAFF" th:selected="${user.staff}">Nhân viên</option>
+                  <option value="CUSTOMER" th:selected="${user.customer}">Khách hàng</option>
                 </select>
               </div>
 

@@ -8,6 +8,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import lombok.ToString;
 
 @Entity
@@ -21,6 +22,7 @@ public class Users {
 	private String hoten;
 	private String matkhau;
 	private boolean vaitro;
+	private boolean nhanvien;
 	private boolean kichhoat;
 	private List<GioHang> gioHangs;
 	private List<HoaDon> hoaDons;
@@ -95,6 +97,15 @@ public class Users {
 	public void setVaitro(boolean vaitro) {
 		this.vaitro = vaitro;
 	}
+
+	@Column(name = "nhanvien", nullable = false)
+	public boolean isNhanvien() {
+		return nhanvien;
+	}
+
+	public void setNhanvien(boolean nhanvien) {
+		this.nhanvien = nhanvien;
+	}
 	
 	@Column(name = "kichhoat", nullable = false)
 	public boolean isKichhoat() {
@@ -103,6 +114,50 @@ public class Users {
 
 	public void setKichhoat(boolean kichhoat) {
 		this.kichhoat = kichhoat;
+	}
+
+	@Transient
+	public String getRoleName() {
+		if (this.vaitro) {
+			return "ADMIN";
+		}
+		if (this.nhanvien) {
+			return "STAFF";
+		}
+		return "CUSTOMER";
+	}
+
+	public void setRoleName(String roleName) {
+		String role = roleName == null ? "CUSTOMER" : roleName.trim().toUpperCase();
+		switch (role) {
+		case "ADMIN":
+			this.vaitro = true;
+			this.nhanvien = false;
+			break;
+		case "STAFF":
+			this.vaitro = false;
+			this.nhanvien = true;
+			break;
+		default:
+			this.vaitro = false;
+			this.nhanvien = false;
+			break;
+		}
+	}
+
+	@Transient
+	public boolean isAdmin() {
+		return this.vaitro;
+	}
+
+	@Transient
+	public boolean isStaff() {
+		return !this.vaitro && this.nhanvien;
+	}
+
+	@Transient
+	public boolean isCustomer() {
+		return !this.vaitro && !this.nhanvien;
 	}
 
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "users")

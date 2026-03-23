@@ -36,7 +36,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             throw new UsernameNotFoundException("Tài khoản chưa được kích hoạt");
         }
         
-        String role = user.isVaitro() ? "ADMIN" : "USER";
+        String role = user.getRoleName();
         
         return new User(
             user.getIdUser(),

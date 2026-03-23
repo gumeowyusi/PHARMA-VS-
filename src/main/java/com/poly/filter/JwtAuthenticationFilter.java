@@ -47,12 +47,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @org.springframework.lang.NonNull FilterChain filterChain)
             throws ServletException, IOException {
 
-        // Skip JWT filter for public paths
         String path = request.getServletPath();
-        if (isPublicPath(path)) {
-            filterChain.doFilter(request, response);
-            return;
-        }
 
         String token = getTokenFromRequest(request);
         boolean tokenValid = token != null && jwtService.validateToken(token);
@@ -84,7 +79,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 String username = jwtService.extractUsername(token);
                 String role = jwtService.extractRole(token);
                 if (role == null) {
-                    role = "USER";
+                    role = "CUSTOMER";
                 }
                 if (role.startsWith("ROLE_")) {
                     role = role.substring(5);
@@ -110,31 +105,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
-    }
-
-    private boolean isPublicPath(String path) {
-        return path.equals("/") ||
-                path.startsWith("/signin") ||
-                path.startsWith("/signup") ||
-                path.startsWith("/active-account") ||
-                path.startsWith("/forgot-password") ||
-                path.startsWith("/reset-password") ||
-                path.startsWith("/api/auth/refresh") ||
-                path.startsWith("/api/chatbot/") ||
-                path.startsWith("/api/support/") ||
-                path.startsWith("/api/payments/") ||
-                path.startsWith("/guest/") ||
-                path.equals("/cart") ||
-                path.equals("/quick-buy") ||
-                path.equals("/loai-all") ||
-                path.startsWith("/loai") ||
-                path.startsWith("/sanpham") ||
-                path.startsWith("/search") ||
-                path.startsWith("/fragment/") ||
-                path.startsWith("/css/") ||
-                path.startsWith("/js/") ||
-                path.startsWith("/img/") ||
-                path.startsWith("/image/");
     }
 
     private String getTokenFromRequest(HttpServletRequest request) {
