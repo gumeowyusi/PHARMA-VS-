@@ -30,6 +30,7 @@ const tempPriceRootElement = document.querySelector("#temp-price");
 const deliveryPriceRootElement = document.querySelector("#delivery-price");
 const totalPriceRootElement = document.querySelector("#total-price");
 const checkoutBtnElement = document.querySelector("#checkoutBtn");
+const cartRecommendationsRootElement = document.querySelector("#cart-recommendations");
 const deliveryMethodRadioElements = [
   ...document.querySelectorAll("input[name='delivery-method']"),
 ];
@@ -52,17 +53,34 @@ function cartItemRowComponent(props) {
     quantity,
   } = props;
 
+  const hasImage = productImageName && String(productImageName).trim().length > 0;
+  const imageHtml = hasImage
+    ? `
+      <img
+        src="${"/image/" + productImageName}"
+        alt="${productName}"
+        width="80"
+        height="80"
+        onerror="this.style.display='none'; this.nextElementSibling && (this.nextElementSibling.style.display='flex');"
+      >
+      <div class="cart-image-fallback d-none align-items-center justify-content-center bg-light text-muted"
+           style="width:80px;height:80px;border-radius:.5rem;">
+        <i class="bi bi-capsule-pill fs-4"></i>
+      </div>
+    `
+    : `
+      <div class="cart-image-fallback d-flex align-items-center justify-content-center bg-light text-muted"
+           style="width:80px;height:80px;border-radius:.5rem;">
+        <i class="bi bi-capsule-pill fs-4"></i>
+      </div>
+    `;
+
   return `
     <tr>
       <td>
         <figure class="itemside">
           <div class="float-start me-3">
-            <img
-              src="${"/image/" + productImageName}"
-              alt="${productName}"
-              width="80"
-              height="80"
-            >
+            ${imageHtml}
           </div>
           <figcaption class="info">
             <a href="${
@@ -278,6 +296,151 @@ function _formatPrice(price) {
   return new Intl.NumberFormat("vi-VN").format(price.toFixed());
 }
 
+async function _fetchPostAddCartItem(productId, quantity = 1) {
+  if (currentUserIdMetaTag) {
+    const response = await fetch("/cartItem", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      credentials: "same-origin",
+      body: JSON.stringify({
+        userId: currentUserIdMetaTag.content,
+        productId: Number(productId),
+        quantity: Number(quantity),
+      }),
+    });
+    return [response.status, await response.json().catch(() => ({}))];
+  }
+
+  // Guest cart: cart id is carried by httpOnly cookie
+  const response = await fetch("/guest/cartItem", {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    credentials: "same-origin",
+    body: JSON.stringify({
+      productId: Number(productId),
+      quantity: Number(quantity),
+    }),
+  });
+
+  return [response.status, await response.json().catch(() => ({}))];
+}
+
+async function _fetchCartRecommendations() {
+  if (!state.cart?.cartItems?.length) return [];
+
+  const cartProductIds = new Set(
+    state.cart.cartItems.map((ci) => Number(ci.productId))
+  );
+
+  // Giảm tải: chỉ cần lấy gợi ý dựa trên vài sản phẩm đang có
+  const seedProductIds = Array.from(cartProductIds).slice(0, 3);
+  const unique = new Map(); // idSanpham -> sp
+
+  const respList = await Promise.all(
+    seedProductIds.map(async (id) => {
+      const resp = await fetch(`/api/recommend/ingredient/${id}?limit=6`, {
+        method: "GET",
+        headers: { Accept: "application/json" },
+      });
+      if (!resp.ok) return [];
+      return await resp.json();
+    })
+  );
+
+  for (const recs of respList) {
+    for (const sp of recs || []) {
+      const spId = Number(sp.idSanpham);
+      if (!spId || cartProductIds.has(spId)) continue; // không gợi ý sản phẩm đã có trong giỏ
+      if (!unique.has(spId)) unique.set(spId, sp);
+    }
+  }
+
+  return Array.from(unique.values()).slice(0, 6);
+}
+
+function _recommendedPriceText(sp) {
+  const gia = Number(sp.gia || 0);
+  const giamgia = Number(sp.giamgia || 0);
+  const finalPrice = giamgia === 0 ? gia : (gia * (100 - giamgia)) / 100;
+  return `${_formatPrice(finalPrice)}₫`;
+}
+
+function _recommendationCard(sp) {
+  const priceText = _recommendedPriceText(sp);
+  const img = sp.hinh ? `/image/${sp.hinh}` : "";
+  const reason = sp.reason || "Gợi ý sản phẩm liên quan";
+
+  return `
+    <div class="d-flex align-items-start gap-3 mb-3">
+      <div class="flex-shrink-0">
+        ${
+          img
+            ? `<img src="${img}" alt="${sp.tenSanpham}" width="58" height="58" style="object-fit:cover;border-radius:10px;">`
+            : `<div style="width:58px;height:58px;border-radius:10px;background:#f1f4f7;"></div>`
+        }
+      </div>
+      <div class="flex-grow-1">
+        <a href="/sanpham?id=${sp.idSanpham}" class="text-decoration-none text-dark" style="display:block; line-height:1.2; font-size:.95rem; font-weight:600;">
+          ${sp.tenSanpham}
+        </a>
+        <div class="text-primary fw-semibold mt-1" style="font-size:.95rem;">${priceText}</div>
+        <div class="small text-muted mt-1">${reason}</div>
+        <button type="button" class="btn btn-sm btn-outline-primary mt-2 add-recommend-to-cart" data-id="${sp.idSanpham}">
+          <i class="bi bi-cart-plus me-1"></i>Thêm vào giỏ
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+async function _renderCartRecommendations() {
+  if (!cartRecommendationsRootElement) return;
+
+  if (!state.cart?.cartItems?.length) {
+    cartRecommendationsRootElement.innerHTML = `Bạn chưa có sản phẩm trong giỏ.`;
+    return;
+  }
+
+  cartRecommendationsRootElement.innerHTML = `Đang tải gợi ý...`;
+  const recs = await _fetchCartRecommendations();
+  if (!recs.length) {
+    cartRecommendationsRootElement.innerHTML = `Không có gợi ý phù hợp ngay lúc này.`;
+    return;
+  }
+
+  cartRecommendationsRootElement.innerHTML = recs
+    .map((sp) => _recommendationCard(sp))
+    .join("");
+
+  cartRecommendationsRootElement
+    .querySelectorAll(".add-recommend-to-cart")
+    .forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const productId = btn.getAttribute("data-id");
+        btn.disabled = true;
+        try {
+          const [status] = await _fetchPostAddCartItem(productId, 1);
+          if (status === 200) {
+            await state.initState(); // refresh cart + recommendations
+            createToast(
+              toastComponent("Đã thêm sản phẩm vào giỏ hàng!", "success")
+            );
+          } else {
+            createToast(toastComponent(FAILED_OPERATION_MESSAGE, "danger"));
+          }
+        } finally {
+          btn.disabled = false;
+        }
+      });
+    });
+}
+
 // STATE
 const initialCart = {
   id: 0,
@@ -300,6 +463,7 @@ const state = {
       state.cart = data;
       render();
       attachEventHandlersForNoneRerenderElements();
+      await _renderCartRecommendations();
     } else if (status === 404) {
       createToast(toastComponent(FAILED_OPERATION_MESSAGE, "danger"));
     }

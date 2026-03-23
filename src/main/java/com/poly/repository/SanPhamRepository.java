@@ -1,5 +1,7 @@
 package com.poly.repository;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,6 +12,10 @@ import com.poly.entity.SanPham;
 
 public interface SanPhamRepository extends JpaRepository<SanPham, Integer> {
 	Page<SanPham> findByTenSanphamContainingIgnoreCase(String keyword, Pageable pageable);
+
+	// Autocomplete: gợi ý theo prefix (bấm chữ cái đầu)
+	List<SanPham> findTop10ByTenSanphamStartingWithIgnoreCase(String prefix);
+	List<SanPham> findTop10ByTenSanphamContainingIgnoreCase(String keyword);
 
 	Page<SanPham> findByLoai_IdLoai(Integer id, Pageable pageable);
 
@@ -57,5 +63,14 @@ public interface SanPhamRepository extends JpaRepository<SanPham, Integer> {
 			+ "GROUP BY sp2 "
 			+ "ORDER BY COUNT(DISTINCT hdct1.hoaDon) DESC")
 	Page<SanPham> recommendByCoPurchaseSameCategory(@Param("idSanpham") Integer idSanpham, Pageable pageable);
+
+	@Query("SELECT s FROM SanPham s "
+			+ "WHERE s.idSanpham <> :excludeId "
+			+ "AND (LOWER(COALESCE(s.mota,'')) LIKE CONCAT('%', LOWER(:ingredient), '%') "
+			+ "OR LOWER(COALESCE(s.motangan,'')) LIKE CONCAT('%', LOWER(:ingredient), '%') "
+			+ "OR LOWER(COALESCE(s.tenSanpham,'')) LIKE CONCAT('%', LOWER(:ingredient), '%')) "
+			+ "ORDER BY s.ngaytao DESC")
+	List<SanPham> findByIngredientKeyword(@Param("ingredient") String ingredient, @Param("excludeId") Integer excludeId,
+			Pageable pageable);
 
 }

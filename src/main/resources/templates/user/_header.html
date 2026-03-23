@@ -228,6 +228,36 @@
     justify-content: center;
   }
 
+  /* Search autocomplete dropdown */
+  .search-autocomplete {
+    position: absolute;
+    top: calc(100% + .35rem);
+    left: 0;
+    right: 0;
+    background: #fff;
+    border: 1px solid #e5e9ec;
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.08);
+    z-index: 1055;
+    overflow: auto;
+    max-height: 320px;
+  }
+
+  .search-suggestion-item {
+    width: 100%;
+    display: block;
+    padding: .6rem .85rem;
+    border: 0;
+    background: transparent;
+    text-align: left;
+    font-size: .95rem;
+  }
+
+  .search-suggestion-item:hover {
+    background: #f3f7fb;
+    cursor: pointer;
+  }
+
   /* Buttons / Icons */
   .btn-icon {
     background: #f1f4f7;
