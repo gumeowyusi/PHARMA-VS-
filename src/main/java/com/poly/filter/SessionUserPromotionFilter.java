@@ -43,7 +43,7 @@ public class SessionUserPromotionFilter extends OncePerRequestFilter {
             if (session != null) {
                 Object u = session.getAttribute("currentUser");
                 if (u instanceof Users user) {
-                    String role = user.isVaitro() ? "ADMIN" : "USER";
+                    String role = user.getRoleName();
                     UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                             user.getIdUser(),
                             null,

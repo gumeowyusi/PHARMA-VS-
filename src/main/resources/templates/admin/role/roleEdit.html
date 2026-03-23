@@ -41,8 +41,9 @@
               <span th:unless="${user.kichhoat}" class="badge bg-danger">Chưa kích hoạt</span>
             </p>
             <p><strong>Vai trò hiện tại:</strong>
-              <span th:if="${user.vaitro}" class="badge bg-primary">ADMIN</span>
-              <span th:unless="${user.vaitro}" class="badge bg-secondary">USER</span>
+              <span th:if="${user.admin}" class="badge bg-primary">ADMIN</span>
+              <span th:if="${user.staff}" class="badge bg-info text-dark">STAFF</span>
+              <span th:if="${user.customer}" class="badge bg-secondary">CUSTOMER</span>
             </p>
           </div>
         </div>
@@ -58,17 +59,24 @@
             <label class="form-label fw-medium">Vai trò người dùng</label>
             <div class="d-flex flex-column gap-3">
               <div class="form-check">
-                <input class="form-check-input" type="radio" name="vaitro" id="roleAdmin" value="true" th:checked="${user.vaitro}">
+                <input class="form-check-input" type="radio" name="roleName" id="roleAdmin" value="ADMIN" th:checked="${user.admin}">
                 <label class="form-check-label" for="roleAdmin">
                   <span class="badge bg-primary me-2">ADMIN</span>
                   Quản trị viên - Toàn quyền quản lý hệ thống
                 </label>
               </div>
               <div class="form-check">
-                <input class="form-check-input" type="radio" name="vaitro" id="roleUser" value="false" th:checked="${!user.vaitro}">
-                <label class="form-check-label" for="roleUser">
-                  <span class="badge bg-secondary me-2">USER</span>
-                  Người dùng - Chỉ có quyền truy cập và sử dụng các chức năng cơ bản
+                <input class="form-check-input" type="radio" name="roleName" id="roleStaff" value="STAFF" th:checked="${user.staff}">
+                <label class="form-check-label" for="roleStaff">
+                  <span class="badge bg-info text-dark me-2">STAFF</span>
+                  Nhân viên - Bán hàng tại quầy và quản lý đơn hàng
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="roleName" id="roleCustomer" value="CUSTOMER" th:checked="${user.customer}">
+                <label class="form-check-label" for="roleCustomer">
+                  <span class="badge bg-secondary me-2">CUSTOMER</span>
+                  Khách hàng - Mua sắm và theo dõi đơn hàng cá nhân
                 </label>
               </div>
             </div>

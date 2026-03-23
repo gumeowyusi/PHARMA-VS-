@@ -53,12 +53,12 @@ public class RoleManagementController {
     @PostMapping("/update/{id}")
     public String updateUserRole(
             @PathVariable("id") String id,
-            @RequestParam("vaitro") boolean isAdmin,
+            @RequestParam("roleName") String roleName,
             RedirectAttributes redirectAttributes) {
         
         try {
             Users user = userService.getUserById(id);
-            user.setVaitro(isAdmin);
+            user.setRoleName(roleName);
             userService.updateUser(id, user);
             
             redirectAttributes.addFlashAttribute("successMessage", 

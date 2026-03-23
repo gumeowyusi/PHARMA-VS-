@@ -60,7 +60,7 @@ public class UserService {
 		
 		// Encode password before saving
 		user.setMatkhau(passwordEncoder.encode(user.getMatkhau()));
-		user.setVaitro(false);
+		user.setRoleName("CUSTOMER");
 		user.setKichhoat(false);
 		usersRepository.save(user);
 
@@ -84,6 +84,9 @@ public class UserService {
         }
 		// Encode password before saving (admin creating user)
 		user.setMatkhau(passwordEncoder.encode(user.getMatkhau()));
+		if (!user.isVaitro() && !user.isNhanvien()) {
+			user.setRoleName("STAFF");
+		}
 		usersRepository.save(user);
 
 		GioHang gioHang = new GioHang();
@@ -101,6 +104,7 @@ public class UserService {
 			user.setSdt(updatedUser.getSdt());
 			user.setHinh(updatedUser.getHinh());
 			user.setVaitro(updatedUser.isVaitro());
+			user.setNhanvien(updatedUser.isNhanvien());
 			user.setKichhoat(updatedUser.isKichhoat());
 			
 			// If password is provided, encode and update it
@@ -276,7 +280,7 @@ public class UserService {
 			String resetToken = jwtService.generatePasswordResetToken(user);
 			emailService.sendPasswordResetEmail(id, "Yêu cầu đặt lại mật khẩu", resetToken);
 		} catch (Exception e) {
-			throw new IllegalArgumentException("Đã xảy ra lỗi trong quá trình gửi email!");
+			throw new IllegalArgumentException("Đã xảy ra lỗi trong quá trình gửi email: " + e.getMessage());
 		}
 	}
 

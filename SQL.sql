@@ -1,4 +1,4 @@
-﻿USE [master]
+USE [master]
 GO
 /****** Object:  Database [STORE]    Script Date: 8/14/2025 10:14:15 AM ******/
 CREATE DATABASE [STORE]
@@ -293,6 +293,7 @@ CREATE TABLE [dbo].[USERS](
 	[matkhau] [varchar](60) NOT NULL,
 	[kichhoat] [bit] NOT NULL,
 	[vaitro] [bit] NOT NULL,
+	[nhanvien] [bit] NOT NULL CONSTRAINT [DF_USERS_NHANVIEN] DEFAULT ((0)),
 PRIMARY KEY CLUSTERED 
 (
 	[id_user] ASC

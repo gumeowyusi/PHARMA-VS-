@@ -12,6 +12,7 @@ BEGIN
     UPDATE [dbo].[USERS]
     SET 
         [vaitro]   = 1,   -- 1 = Admin
+        [nhanvien] = 0,   -- 0 = không phải nhân viên
         [kichhoat] = 1    -- 1 = Đã kích hoạt
     WHERE [id_user] = 'capyboy.dev@gmail.com';
 
@@ -22,7 +23,7 @@ BEGIN
     -- Nếu chưa có → tạo mới với mật khẩu mặc định là "Admin@123"
     -- (BCrypt hash của "Admin@123")
     -- Sau khi đăng nhập nên đổi mật khẩu ngay
-    INSERT INTO [dbo].[USERS] ([id_user], [sdt], [hinh], [hoten], [matkhau], [kichhoat], [vaitro])
+    INSERT INTO [dbo].[USERS] ([id_user], [sdt], [hinh], [hoten], [matkhau], [kichhoat], [vaitro], [nhanvien])
     VALUES (
         'capyboy.dev@gmail.com',
         '0000000000',
@@ -30,7 +31,8 @@ BEGIN
         N'Admin',
         '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', -- Admin@123
         1,   -- kichhoat = true
-        1    -- vaitro = true (Admin)
+        1,   -- vaitro = true (Admin)
+        0    -- nhanvien = false
     );
 
     -- Tạo giỏ hàng cho admin

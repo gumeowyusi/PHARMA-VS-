@@ -37,7 +37,7 @@ public class JWTService {
                 .setClaims(claims)
                 .setSubject(user.getIdUser())
                 .claim("username", user.getIdUser())
-                .claim("role", user.isVaitro() ? "ADMIN" : "USER")
+                .claim("role", user.getRoleName())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getSignKey(), SignatureAlgorithm.HS256)
@@ -96,7 +96,7 @@ public class JWTService {
         try {
             return (String) extractAllClaims(token).get("role");
         } catch (Exception e) {
-            return "USER"; // Default role if not found
+            return "CUSTOMER"; // Default role if not found
         }
     }
 

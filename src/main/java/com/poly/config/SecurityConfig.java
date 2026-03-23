@@ -56,6 +56,7 @@ public class SecurityConfig {
                 "/loai-all", "/loai", "/sanpham", "/search",
                 "/css/**", "/js/**", "/img/**", "/image/**", "/fragment/**")
                         .permitAll()
+                        .requestMatchers("/banhangtaiquay/**", "/admin/hoadon/**").hasAnyRole("ADMIN", "STAFF")
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated());
 

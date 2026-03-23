@@ -28,7 +28,7 @@ public class HoaDonController {
 	SanPhamService sanPhamService;
 
 	@GetMapping("/admin/hoadon")
-	@PreAuthorize("hasRole('ADMIN')")
+	@PreAuthorize("hasAnyRole('ADMIN','STAFF')")
 	public String hoadonManager(Model model, @RequestParam(defaultValue = "0", name = "page") int page) {
 
 		Page<HoaDon> hoadonPage = hoaDonService.getAllHoaDon(page, 8);
@@ -40,7 +40,7 @@ public class HoaDonController {
 	}
 
 	@GetMapping("/admin/hoadon/{id}")
-	@PreAuthorize("hasRole('ADMIN')")
+	@PreAuthorize("hasAnyRole('ADMIN','STAFF')")
 	public String showUpdateForm(@PathVariable("id") Integer id, Model model) {
 		try {
 			AtomicReference<Double> tempPrice = new AtomicReference<>(0.0);
@@ -73,7 +73,7 @@ public class HoaDonController {
 	}
 
 	@GetMapping("/admin/hoadon/print/{id}")
-	@PreAuthorize("hasRole('ADMIN')")
+	@PreAuthorize("hasAnyRole('ADMIN','STAFF')")
 	public String printInvoice(@PathVariable("id") Integer id, Model model) {
 		try {
 			AtomicReference<Double> tempPrice = new AtomicReference<>(0.0);
@@ -114,7 +114,7 @@ public class HoaDonController {
 	}
 
 	@PostMapping("/admin/hoadon/update")
-	@PreAuthorize("hasRole('ADMIN')")
+	@PreAuthorize("hasAnyRole('ADMIN','STAFF')")
 	public String updateUser(RedirectAttributes redirectAttributes, @RequestParam("id") Integer id,
 			@RequestParam("action") String action) {
 		try {
