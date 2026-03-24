@@ -112,18 +112,14 @@
   <!-- Secondary nav (desktop) -->
   <div class="nav-strip bg-white d-none d-lg-block">
     <div class="container">
-      <ul class="menu list-unstyled d-flex mb-0">
-        <li><a th:href="@{/san-pham-moi}" class="menu-link"
-            th:classappend="${#request.requestURI == '/san-pham-moi'} ? ' active' : ''">
+      <ul class="menu list-unstyled d-flex mb-0" id="mainNavMenu">
+        <li><a th:href="@{/san-pham-moi}" class="menu-link" data-nav-path="/san-pham-moi">
             <i class="fas fa-star me-1 small"></i>Sản phẩm mới</a></li>
-        <li><a th:href="@{/khuyen-mai}" class="menu-link"
-            th:classappend="${#request.requestURI == '/khuyen-mai'} ? ' active' : ''">
+        <li><a th:href="@{/khuyen-mai}" class="menu-link" data-nav-path="/khuyen-mai">
             <i class="fas fa-tags me-1 small"></i>Khuyến mãi</a></li>
-        <li><a th:href="@{/tin-tuc}" class="menu-link"
-            th:classappend="${#request.requestURI == '/tin-tuc'} ? ' active' : ''">
+        <li><a th:href="@{/tin-tuc}" class="menu-link" data-nav-path="/tin-tuc">
             <i class="fas fa-newspaper me-1 small"></i>Tin tức</a></li>
-        <li><a th:href="@{/lien-he}" class="menu-link"
-            th:classappend="${#request.requestURI == '/lien-he'} ? ' active' : ''">
+        <li><a th:href="@{/lien-he}" class="menu-link" data-nav-path="/lien-he">
             <i class="fas fa-phone-alt me-1 small"></i>Liên hệ</a></li>
       </ul>
     </div>
@@ -507,3 +503,11 @@
     }
   }
 </style>
+<script>
+  (function () {
+    var path = window.location.pathname;
+    document.querySelectorAll('#mainNavMenu .menu-link[data-nav-path]').forEach(function (a) {
+      if (a.getAttribute('data-nav-path') === path) a.classList.add('active');
+    });
+  })();
+</script>
