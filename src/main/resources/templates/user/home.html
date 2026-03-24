@@ -84,9 +84,10 @@
     .flash-viewall:hover { background:#dc3545; color:#fff; }
     .flash-tabs-row { padding:.75rem 1.5rem; border-bottom:1px solid #f5eaeb; display:flex; align-items:center; gap:1rem; overflow-x:auto; scrollbar-width:none; }
     .flash-tabs-row::-webkit-scrollbar { display:none; }
-    .flash-tab { border:1.5px solid #e9ecef; border-radius:.6rem; padding:.4rem .9rem; font-size:.8rem; font-weight:600; cursor:pointer; white-space:nowrap; transition:.2s; background:#fff; color:#6c757d; }
-    .flash-tab.active { border-color:#dc3545; background:#fff5f5; color:#dc3545; }
-    .flash-tab .status { display:block; font-size:.7rem; font-weight:500; }
+    .flash-tab { border:1.5px solid #e9ecef; border-radius:.6rem; padding:.4rem .9rem; font-size:.8rem; font-weight:600; cursor:pointer; white-space:nowrap; transition:.2s; background:#fff; color:#6c757d; user-select:none; }
+    .flash-tab:hover { border-color:#f48fb1; background:#fff8fa; color:#c62828; }
+    .flash-tab.active { border-color:#dc3545; background:#fff5f5; color:#dc3545; box-shadow:0 2px 8px -3px rgba(220,53,69,.25); }
+    .flash-tab .status { display:block; font-size:.7rem; font-weight:500; margin-top:.1rem; }
     .flash-tab.active .status { color:#e74c3c; }
     .flash-countdown-row { padding:.65rem 1.5rem .5rem; display:flex; align-items:center; gap:.6rem; }
     .flash-ct-label { font-size:.82rem; font-weight:600; color:#495057; }
@@ -285,7 +286,7 @@
 
         <!-- Countdown -->
         <div class="flash-countdown-row">
-          <span class="flash-ct-label">Kết thúc sau</span>
+          <span class="flash-ct-label" id="flashCtLabel">Kết thúc sau</span>
           <span class="countdown-box" id="ctH">00</span>
           <span class="countdown-sep">:</span>
           <span class="countdown-box" id="ctM">00</span>
@@ -293,8 +294,25 @@
           <span class="countdown-box" id="ctS">00</span>
         </div>
 
+        <!-- Soon overlay (hidden by default) -->
+        <div id="flashSoonOverlay" style="display:none; padding:2rem 1.5rem; text-align:center;">
+          <div style="background:linear-gradient(135deg,#fff5f5,#fff0f0); border:1.5px dashed #dc3545; border-radius:1rem; padding:2rem; max-width:400px; margin:0 auto;">
+            <div style="font-size:2.5rem; margin-bottom:.75rem;">⏰</div>
+            <h6 class="fw-bold text-danger mb-1" id="flashSoonTitle">Chương trình sắp bắt đầu</h6>
+            <p class="text-muted small mb-2" id="flashSoonDesc">Quay lại lúc 08:00 để săn deal giá tốt!</p>
+            <div class="d-flex align-items-center justify-content-center gap-1">
+              <span style="font-size:.82rem; color:#6c757d; font-weight:600;">Bắt đầu sau</span>
+              <span class="countdown-box" id="ctH2">00</span>
+              <span class="countdown-sep">:</span>
+              <span class="countdown-box" id="ctM2">00</span>
+              <span class="countdown-sep">:</span>
+              <span class="countdown-box" id="ctS2">00</span>
+            </div>
+          </div>
+        </div>
+
         <!-- Products -->
-        <div class="flash-scroll">
+        <div class="flash-scroll" id="flashProductsRow">
           <div th:each="sp,iter : ${listSPGiamGia}" class="flash-card">
             <a th:href="@{/sanpham(id=${sp.idSanpham})}" class="text-decoration-none d-block">
               <div class="flash-img-wrap">
@@ -629,34 +647,108 @@
 
   <script>
     (function () {
-      /* ---- Flash sale date tabs ---- */
       function pad2(n) { return String(n).padStart(2, '0'); }
+
+      /* ---- Build tab date labels ---- */
       var now = new Date();
+      var tabDates = [];
       for (var i = 0; i < 3; i++) {
         var d = new Date(now); d.setDate(d.getDate() + i);
+        tabDates.push(d);
         var label = '08:00 - 22:00, ' + pad2(d.getDate()) + '/' + pad2(d.getMonth() + 1);
         var el = document.getElementById('flashTabDate' + i);
         if (el) el.textContent = label;
       }
 
-      /* ---- Countdown to 22:00 ---- */
-      function getEnd() {
-        var n = new Date(), e = new Date(n);
+      /* ---- State ---- */
+      var activeTab = 0;
+      var countdownTarget = null; // Date object to count down to
+
+      function getEndOfDay(dayOffset) {
+        var e = new Date(); e.setDate(e.getDate() + dayOffset);
         e.setHours(22, 0, 0, 0);
-        if (n >= e) e.setDate(e.getDate() + 1);
         return e;
       }
+      function getStartOfDay(dayOffset) {
+        var e = new Date(); e.setDate(e.getDate() + dayOffset);
+        e.setHours(8, 0, 0, 0);
+        return e;
+      }
+
+      /* ---- Switch tab ---- */
+      function switchTab(idx) {
+        activeTab = idx;
+
+        // Update tab appearance
+        for (var i = 0; i < 3; i++) {
+          var t = document.getElementById('flashTab' + i);
+          if (!t) continue;
+          var statusEl = t.querySelector('.status');
+          t.classList.toggle('active', i === idx);
+          if (i === 0) {
+            statusEl.textContent = 'Đang diễn ra';
+            statusEl.className = 'status text-danger';
+          } else {
+            statusEl.textContent = i === idx ? 'Đã chọn' : 'Sắp diễn ra';
+            statusEl.className = 'status ' + (i === idx ? 'text-danger' : 'text-muted');
+          }
+        }
+
+        var productsRow  = document.getElementById('flashProductsRow');
+        var soonOverlay  = document.getElementById('flashSoonOverlay');
+        var ctLabel      = document.getElementById('flashCtLabel');
+        var topCdRow     = document.querySelector('.flash-countdown-row');
+
+        if (idx === 0) {
+          // Today: show products, countdown to 22:00
+          productsRow.style.display = '';
+          soonOverlay.style.display = 'none';
+          countdownTarget = getEndOfDay(0);
+          if (ctLabel) ctLabel.textContent = 'Kết thúc sau';
+          topCdRow.style.display = '';
+        } else {
+          // Future: hide products, show overlay, countdown to 08:00 of that day
+          productsRow.style.display = 'none';
+          soonOverlay.style.display = '';
+          var targetDate = tabDates[idx];
+          var dd = pad2(targetDate.getDate()), mm = pad2(targetDate.getMonth() + 1);
+          document.getElementById('flashSoonTitle').textContent = 'Chương trình ngày ' + dd + '/' + mm + ' sắp bắt đầu';
+          document.getElementById('flashSoonDesc').textContent = 'Quay lại lúc 08:00 ngày ' + dd + '/' + mm + ' để săn deal giá tốt!';
+          countdownTarget = getStartOfDay(idx);
+          topCdRow.style.display = 'none'; // hide top countdown, overlay has its own
+        }
+      }
+
+      /* ---- Tab click handlers ---- */
+      for (var ti = 0; ti < 3; ti++) {
+        (function(index) {
+          var tab = document.getElementById('flashTab' + index);
+          if (tab) tab.addEventListener('click', function () { switchTab(index); });
+        })(ti);
+      }
+
+      /* ---- Countdown tick ---- */
       function tick() {
-        var diff = Math.max(0, getEnd() - new Date());
+        var target = activeTab === 0 ? getEndOfDay(0) : getStartOfDay(activeTab);
+        var diff = Math.max(0, target - new Date());
         var h = Math.floor(diff / 3600000);
         var m = Math.floor((diff % 3600000) / 60000);
         var s = Math.floor((diff % 60000) / 1000);
+        var vals = [h, m, s];
+        // Main countdown row (tab 0)
         ['ctH','ctM','ctS'].forEach(function(id, i) {
-          var el = document.getElementById(id);
-          if (el) el.textContent = pad2([h,m,s][i]);
+          var el = document.getElementById(id); if (el) el.textContent = pad2(vals[i]);
+        });
+        // Overlay countdown (future tabs)
+        ['ctH2','ctM2','ctS2'].forEach(function(id, i) {
+          var el = document.getElementById(id); if (el) el.textContent = pad2(vals[i]);
         });
       }
-      tick(); setInterval(tick, 1000);
+
+      // Init
+      switchTab(0);
+      tick();
+      setInterval(tick, 1000);
     })();
   </script>
 </body>
