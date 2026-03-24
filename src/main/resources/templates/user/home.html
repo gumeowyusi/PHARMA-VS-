@@ -44,6 +44,40 @@
     .divider-text { text-transform:uppercase; font-size:.7rem; letter-spacing:1px; color:#6c757d; font-weight:600; margin:0 0 1.5rem; display:flex; align-items:center; gap:1rem; }
     .divider-text::before, .divider-text::after { content:""; flex:1; height:1px; background:linear-gradient(90deg,transparent,#d0d7e2,transparent); }
     @media (max-width:991.98px){ .feature-band { margin-top:-30px; } .feature-item p { display:none; } .hero { padding:56px 0 48px; } }
+    /* Quick actions */
+    .quick-action { padding:.75rem .4rem; border-radius:.85rem; transition:.2s; }
+    .quick-action:hover { background:#f0f6ff; }
+    .qa-icon { width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto .5rem;font-size:1.2rem; }
+    .qa-1 { background:linear-gradient(135deg,#e3f0ff,#bdd7ff); color:#0d6efd; }
+    .qa-2 { background:linear-gradient(135deg,#e8f8f0,#b6edd4); color:#198754; }
+    .qa-3 { background:linear-gradient(135deg,#fff3e0,#ffd599); color:#fd7e14; }
+    .qa-4 { background:linear-gradient(135deg,#fce4ec,#f8bad0); color:#e91e63; }
+    .qa-5 { background:linear-gradient(135deg,#e8eaf6,#c5cae9); color:#3f51b5; }
+    .qa-6 { background:linear-gradient(135deg,#e0f7fa,#b2ebf2); color:#00838f; }
+    .quick-action span { font-size:.78rem; color:#344054; font-weight:500; }
+    /* Flash sale */
+    .flash-section { background:linear-gradient(135deg,#fff8f0 0%,#fff0f0 100%); }
+    .flash-header { background:linear-gradient(90deg,#dc3545,#fd7e14); border-radius:1rem; padding:1rem 1.5rem; }
+    .countdown-box { background:#fff; color:#dc3545; font-weight:700; font-size:1.1rem; padding:.3rem .55rem; border-radius:.4rem; min-width:2.2rem; text-align:center; line-height:1.2; }
+    .countdown-sep { color:#fff; font-weight:700; font-size:1.1rem; align-self:center; }
+    .flash-scroll { display:flex; gap:1rem; overflow-x:auto; padding-bottom:.5rem; scroll-snap-type:x mandatory; scrollbar-width:none; }
+    .flash-scroll::-webkit-scrollbar { display:none; }
+    .flash-card { min-width:180px; max-width:180px; flex-shrink:0; scroll-snap-align:start; border-radius:1rem; overflow:hidden; background:#fff; box-shadow:0 2px 12px -4px rgba(0,0,0,.1); transition:.25s; }
+    .flash-card:hover { transform:translateY(-4px); box-shadow:0 8px 24px -6px rgba(0,0,0,.15); }
+    .flash-img { width:100%;height:140px;object-fit:cover; background:#f8f9fa; display:flex;align-items:center;justify-content:center; }
+    .flash-img img { width:100%;height:140px;object-fit:cover; }
+    .flash-discount { position:absolute;top:8px;right:8px;background:#dc3545;color:#fff;font-size:.65rem;font-weight:700;padding:.3rem .5rem;border-radius:.5rem; }
+    /* Bestseller strip */
+    .best-strip { display:flex;gap:1rem;overflow-x:auto;padding-bottom:.5rem;scroll-snap-type:x mandatory;scrollbar-width:none; }
+    .best-strip::-webkit-scrollbar { display:none; }
+    .best-card { min-width:200px;max-width:200px;flex-shrink:0;scroll-snap-align:start;border-radius:1rem;overflow:hidden;background:#fff;box-shadow:0 2px 12px -4px rgba(0,0,0,.1);transition:.25s; }
+    .best-card:hover { transform:translateY(-4px);box-shadow:0 8px 24px -6px rgba(0,0,0,.15); }
+    /* News mini */
+    .mini-news-card { border-radius:.85rem;overflow:hidden;transition:.25s;cursor:pointer; }
+    .mini-news-card:hover { transform:translateY(-4px);box-shadow:0 10px 28px -8px rgba(0,0,0,.12) !important; }
+    .mini-news-thumb { height:100px;display:flex;align-items:center;justify-content:center; }
+    .bg-purple-subtle { background:#ede7f6; }
+    .text-purple { color:#6f42c1; }
   </style>
 </head>
 <body class="bg-light">
@@ -91,6 +125,123 @@
       </div>
     </div>
   </div>
+
+  <!-- QUICK ACTIONS -->
+  <section class="bg-white border-bottom py-3">
+    <div class="container">
+      <div class="row g-2 row-cols-3 row-cols-sm-6 justify-content-center">
+        <div class="col"><a th:href="@{/loai-all}" class="quick-action text-center d-block text-decoration-none">
+          <div class="qa-icon qa-1"><i class="fas fa-prescription-bottle-alt"></i></div>
+          <span>Cần mua thuốc</span></a></div>
+        <div class="col"><a th:href="@{/lien-he}" class="quick-action text-center d-block text-decoration-none">
+          <div class="qa-icon qa-2"><i class="fas fa-user-md"></i></div>
+          <span>Tư vấn Dược sĩ</span></a></div>
+        <div class="col"><a th:href="@{/order}" class="quick-action text-center d-block text-decoration-none">
+          <div class="qa-icon qa-3"><i class="fas fa-clipboard-list"></i></div>
+          <span>Đơn của tôi</span></a></div>
+        <div class="col"><a th:href="@{/lien-he}" class="quick-action text-center d-block text-decoration-none">
+          <div class="qa-icon qa-4"><i class="fas fa-map-marker-alt"></i></div>
+          <span>Tìm nhà thuốc</span></a></div>
+        <div class="col"><a th:href="@{/khuyen-mai}" class="quick-action text-center d-block text-decoration-none">
+          <div class="qa-icon qa-5"><i class="fas fa-syringe"></i></div>
+          <span>Khuyến mãi hot</span></a></div>
+        <div class="col"><a th:href="@{/san-pham-moi}" class="quick-action text-center d-block text-decoration-none">
+          <div class="qa-icon qa-6"><i class="fas fa-check-circle"></i></div>
+          <span>Sản phẩm mới</span></a></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FLASH SALE / GIÁ TỐT MỖI NGÀY -->
+  <section class="flash-section py-4">
+    <div class="container">
+      <div class="flash-header d-flex align-items-center justify-content-between mb-3">
+        <div class="d-flex align-items-center gap-3 flex-wrap">
+          <h4 class="fw-bold text-white mb-0"><i class="fas fa-fire me-2"></i>Giá tốt mỗi ngày</h4>
+          <div class="d-flex align-items-center gap-1">
+            <span class="countdown-box" id="ctH">00</span>
+            <span class="countdown-sep">:</span>
+            <span class="countdown-box" id="ctM">00</span>
+            <span class="countdown-sep">:</span>
+            <span class="countdown-box" id="ctS">00</span>
+          </div>
+        </div>
+        <a th:href="@{/khuyen-mai}" class="btn btn-light btn-sm fw-semibold text-danger">Xem tất cả <i class="fas fa-chevron-right ms-1"></i></a>
+      </div>
+
+      <div class="flash-scroll">
+        <div th:each="sp : ${listSPGiamGia}" class="flash-card position-relative">
+          <a th:href="@{/sanpham(id=${sp.idSanpham})}" class="text-decoration-none">
+            <div class="flash-img position-relative">
+              <img th:if="${sp.hinh != null and !sp.hinh.isEmpty()}"
+                   th:src="@{/image/{url}(url=${sp.hinh})}"
+                   th:alt="${sp.tenSanpham}">
+              <div th:if="${sp.hinh == null or sp.hinh.isEmpty()}"
+                   class="w-100 h-100 d-flex align-items-center justify-content-center bg-light">
+                <i class="fas fa-capsules fa-2x text-primary opacity-50"></i>
+              </div>
+              <span class="flash-discount" th:text="'-' + ${sp.giamgia} + '%'"></span>
+            </div>
+            <div class="p-2">
+              <div class="small text-dark fw-semibold lh-sm mb-1" style="-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;overflow:hidden;"
+                   th:text="${sp.tenSanpham}"></div>
+              <div class="text-danger fw-bold small"
+                   th:text="${#numbers.formatInteger(sp.gia * (100 - sp.giamgia) / 100, 0, 'COMMA') + '₫'}"></div>
+              <div class="text-muted text-decoration-line-through" style="font-size:.72rem;"
+                   th:text="${#numbers.formatInteger(sp.gia, 0, 'COMMA') + '₫'}"></div>
+            </div>
+          </a>
+          <div class="px-2 pb-2">
+            <button class="btn btn-danger btn-sm w-100 add-cart-item"
+                    th:data-id="${sp.idSanpham}" th:data-name="${sp.tenSanpham}">
+              <i class="fas fa-cart-plus me-1"></i>Mua ngay
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BESTSELLER STRIP -->
+  <section class="py-4 bg-white">
+    <div class="container">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <h4 class="fw-bold mb-0">
+          <span class="badge bg-danger me-2 align-middle" style="font-size:.65rem;vertical-align:middle;">HOT</span>Sản phẩm bán chạy
+        </h4>
+        <a th:href="@{/san-pham-moi}" class="btn btn-outline-primary btn-sm">Xem tất cả <i class="fas fa-arrow-right ms-1"></i></a>
+      </div>
+      <div class="best-strip">
+        <div th:each="sp : ${sanphams}" class="best-card">
+          <a th:href="@{/sanpham(id=${sp.idSanpham})}" class="text-decoration-none">
+            <div style="height:150px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#f8f9fa;">
+              <img th:if="${sp.hinh != null and !sp.hinh.isEmpty()}"
+                   th:src="@{/image/{url}(url=${sp.hinh})}"
+                   style="width:100%;height:150px;object-fit:cover;"
+                   th:alt="${sp.tenSanpham}">
+              <i th:if="${sp.hinh == null or sp.hinh.isEmpty()}"
+                 class="fas fa-capsules fa-2x text-primary opacity-50"></i>
+            </div>
+            <div class="p-2">
+              <div class="small text-dark fw-semibold lh-sm mb-1"
+                   style="-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;overflow:hidden;"
+                   th:text="${sp.tenSanpham}"></div>
+              <div th:if="${sp.giamgia > 0}" class="text-primary fw-bold small"
+                   th:text="${#numbers.formatInteger(sp.gia * (100 - sp.giamgia) / 100, 0, 'COMMA') + '₫'}"></div>
+              <div th:if="${sp.giamgia == 0}" class="text-primary fw-bold small"
+                   th:text="${#numbers.formatInteger(sp.gia, 0, 'COMMA') + '₫'}"></div>
+            </div>
+          </a>
+          <div class="px-2 pb-2">
+            <button class="btn btn-primary btn-sm w-100 add-cart-item"
+                    th:data-id="${sp.idSanpham}" th:data-name="${sp.tenSanpham}">
+              <i class="fas fa-cart-plus me-1"></i>Chọn mua
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <!-- Categories Section -->
   <section class="section-categories py-5 bg-white">
@@ -274,8 +425,95 @@
     </div>
   </section>
 
+  <!-- MINI NEWS -->
+  <section class="py-4 bg-light border-top">
+    <div class="container">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <h4 class="fw-bold mb-0"><i class="fas fa-newspaper text-primary me-2"></i>Kiến thức sức khỏe</h4>
+        <a th:href="@{/tin-tuc}" class="btn btn-outline-primary btn-sm">Xem thêm <i class="fas fa-arrow-right ms-1"></i></a>
+      </div>
+      <div class="row g-3">
+        <div class="col-sm-6 col-lg-3">
+          <a th:href="@{/tin-tuc}" class="text-decoration-none">
+            <div class="card border-0 shadow-sm mini-news-card h-100">
+              <div class="mini-news-thumb" style="background:linear-gradient(135deg,#0d6efd,#63a3ff);">
+                <i class="fas fa-pills fa-2x text-white opacity-75"></i></div>
+              <div class="card-body py-2 px-3">
+                <span class="badge bg-primary-subtle text-primary mb-1" style="font-size:.7rem;">Hướng dẫn</span>
+                <div class="small fw-semibold text-dark lh-sm">5 lưu ý khi tự dùng thuốc cảm cúm tại nhà</div>
+              </div>
+            </div>
+          </a>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+          <a th:href="@{/tin-tuc}" class="text-decoration-none">
+            <div class="card border-0 shadow-sm mini-news-card h-100">
+              <div class="mini-news-thumb" style="background:linear-gradient(135deg,#198754,#75b798);">
+                <i class="fas fa-apple-alt fa-2x text-white opacity-75"></i></div>
+              <div class="card-body py-2 px-3">
+                <span class="badge bg-success-subtle text-success mb-1" style="font-size:.7rem;">Dinh dưỡng</span>
+                <div class="small fw-semibold text-dark lh-sm">Tăng đề kháng mùa giao mùa như thế nào?</div>
+              </div>
+            </div>
+          </a>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+          <a th:href="@{/tin-tuc}" class="text-decoration-none">
+            <div class="card border-0 shadow-sm mini-news-card h-100">
+              <div class="mini-news-thumb" style="background:linear-gradient(135deg,#fd7e14,#ffc107);">
+                <i class="fas fa-exclamation-triangle fa-2x text-white opacity-75"></i></div>
+              <div class="card-body py-2 px-3">
+                <span class="badge bg-warning-subtle text-warning mb-1" style="font-size:.7rem;">An toàn thuốc</span>
+                <div class="small fw-semibold text-dark lh-sm">Khi nào không nên dùng chung nhiều thuốc giảm đau?</div>
+              </div>
+            </div>
+          </a>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+          <a th:href="@{/tin-tuc}" class="text-decoration-none">
+            <div class="card border-0 shadow-sm mini-news-card h-100">
+              <div class="mini-news-thumb" style="background:linear-gradient(135deg,#6f42c1,#a78bfa);">
+                <i class="fas fa-heartbeat fa-2x text-white opacity-75"></i></div>
+              <div class="card-body py-2 px-3">
+                <span class="badge bg-purple-subtle text-purple mb-1" style="font-size:.7rem;">Sống khỏe</span>
+                <div class="small fw-semibold text-dark lh-sm">10 thói quen buổi sáng giúp cơ thể khỏe mạnh cả ngày</div>
+              </div>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <th:block th:replace="~{user/_footer}" />
 
   <div class="toast-container position-fixed bottom-0 start-0 p-3"></div>
+
+  <script>
+    /* Countdown: end of today at 22:00 */
+    (function () {
+      function getEnd() {
+        var now = new Date(), end = new Date(now);
+        end.setHours(22, 0, 0, 0);
+        if (now >= end) end.setDate(end.getDate() + 1);
+        return end;
+      }
+      function pad(n) { return String(n).padStart(2, '0'); }
+      function tick() {
+        var diff = Math.max(0, getEnd() - new Date());
+        var h = Math.floor(diff / 3600000);
+        var m = Math.floor((diff % 3600000) / 60000);
+        var s = Math.floor((diff % 60000) / 1000);
+        var hEl = document.getElementById('ctH');
+        var mEl = document.getElementById('ctM');
+        var sEl = document.getElementById('ctS');
+        if (hEl) hEl.textContent = pad(h);
+        if (mEl) mEl.textContent = pad(m);
+        if (sEl) sEl.textContent = pad(s);
+      }
+      tick();
+      setInterval(tick, 1000);
+    })();
+  </script>
 </body>
 </html>
