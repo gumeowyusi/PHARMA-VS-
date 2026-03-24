@@ -55,6 +55,53 @@ public class HomeController {
 		return "user/home";
 	}
 
+	@GetMapping("/san-pham-moi")
+	public String newProducts(@RequestParam(defaultValue = "0", name = "page") int page, Model model) {
+		Page<SanPham> sanPhamPage = sanPhamService.getAllSanPham(page, 12);
+		model.addAttribute("loais", loaiService.getAllLoai(0, 5));
+		model.addAttribute("sanphams", sanPhamPage.getContent());
+		model.addAttribute("currentPage", page);
+		model.addAttribute("totalPages", sanPhamPage.getTotalPages());
+		return "user/newProducts";
+	}
+
+	@GetMapping("/khuyen-mai")
+	public String promotions(@RequestParam(defaultValue = "0", name = "page") int page, Model model) {
+		Page<SanPham> salePage = sanPhamService.getAllSanPhamGiamGia(page, 12);
+		model.addAttribute("loais", loaiService.getAllLoai(0, 5));
+		model.addAttribute("sanphams", salePage.getContent());
+		model.addAttribute("currentPage", page);
+		model.addAttribute("totalPages", salePage.getTotalPages());
+		return "user/promotions";
+	}
+
+	@GetMapping("/tin-tuc")
+	public String news(Model model) {
+		model.addAttribute("loais", loaiService.getAllLoai(0, 5));
+		model.addAttribute("featuredProducts", sanPhamService.getAllSanPham(0, 3).getContent());
+		return "user/news";
+	}
+
+	@GetMapping("/lien-he")
+	public String contact(Model model) {
+		model.addAttribute("loais", loaiService.getAllLoai(0, 5));
+		return "user/contact";
+	}
+
+	@PostMapping("/lien-he")
+	public String submitContact(
+			@RequestParam(name = "name", required = false) String name,
+			@RequestParam(name = "phone", required = false) String phone,
+			@RequestParam(name = "message", required = false) String message,
+			RedirectAttributes redirectAttributes) {
+		String displayName = (name == null || name.isBlank()) ? "bạn" : name.trim();
+		redirectAttributes.addFlashAttribute("successMessage",
+				"Cảm ơn " + displayName + "! Nhà thuốc đã nhận thông tin và sẽ liên hệ sớm.");
+		redirectAttributes.addFlashAttribute("lastPhone", phone);
+		redirectAttributes.addFlashAttribute("lastMessage", message);
+		return "redirect:/lien-he";
+	}
+
 	@GetMapping("/loai-all")
 	public String loaiAll(Model model) {
 		model.addAttribute("loais", loaiService.getAllLoai(0, 100));
