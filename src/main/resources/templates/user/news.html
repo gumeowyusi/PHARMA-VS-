@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <th:block th:replace="~{user/_meta}" />
+  <title>Tin tức sức khỏe - MEDISALE</title>
+</head>
+<body class="bg-light">
+  <th:block th:replace="~{user/_header}" />
+
+  <section class="bg-white border-bottom">
+    <div class="container py-4">
+      <h2 class="fw-bold mb-1"><i class="fas fa-newspaper text-primary me-2"></i>Tin tức & kiến thức sức khỏe</h2>
+      <p class="text-muted mb-0">Các bài viết nổi bật giúp bạn sử dụng thuốc an toàn hơn.</p>
+    </div>
+  </section>
+
+  <section class="py-5">
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-lg-8">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <article class="card border-0 shadow-sm h-100 news-card">
+                <div class="card-body">
+                  <span class="badge bg-primary-subtle text-primary mb-2">Hướng dẫn</span>
+                  <h5 class="fw-bold">5 lưu ý khi tự dùng thuốc cảm cúm tại nhà</h5>
+                  <p class="text-muted mb-0">Đọc nhãn, đúng liều, đúng thời điểm và theo dõi phản ứng bất thường.</p>
+                </div>
+              </article>
+            </div>
+            <div class="col-md-6">
+              <article class="card border-0 shadow-sm h-100 news-card">
+                <div class="card-body">
+                  <span class="badge bg-success-subtle text-success mb-2">Dinh dưỡng</span>
+                  <h5 class="fw-bold">Tăng đề kháng mùa giao mùa như thế nào?</h5>
+                  <p class="text-muted mb-0">Ngủ đủ, uống đủ nước, bổ sung vitamin hợp lý và vận động nhẹ mỗi ngày.</p>
+                </div>
+              </article>
+            </div>
+            <div class="col-md-6">
+              <article class="card border-0 shadow-sm h-100 news-card">
+                <div class="card-body">
+                  <span class="badge bg-warning-subtle text-warning mb-2">An toàn thuốc</span>
+                  <h5 class="fw-bold">Khi nào không nên dùng chung nhiều thuốc giảm đau?</h5>
+                  <p class="text-muted mb-0">Tránh trùng hoạt chất, đặc biệt nhóm paracetamol và NSAIDs.</p>
+                </div>
+              </article>
+            </div>
+            <div class="col-md-6">
+              <article class="card border-0 shadow-sm h-100 news-card">
+                <div class="card-body">
+                  <span class="badge bg-info-subtle text-info mb-2">Mẹo hay</span>
+                  <h5 class="fw-bold">Cách đọc hạn dùng và bảo quản thuốc đúng chuẩn</h5>
+                  <p class="text-muted mb-0">Giữ nơi khô thoáng, tránh nắng trực tiếp và để xa tầm tay trẻ em.</p>
+                </div>
+              </article>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4">
+          <div class="card border-0 shadow-sm mb-3">
+            <div class="card-body">
+              <h6 class="fw-bold mb-3">Sản phẩm mới được quan tâm</h6>
+              <div th:each="sp : ${featuredProducts}" class="d-flex gap-2 mb-3">
+                <img th:src="@{/image/{url}(url=${sp.hinh})}" width="52" height="52" style="border-radius:.6rem;object-fit:cover;">
+                <div>
+                  <a th:href="@{/sanpham(id=${sp.idSanpham})}" class="text-decoration-none text-dark fw-semibold"
+                    th:text="${sp.tenSanpham}"></a>
+                  <div class="text-primary small fw-bold"
+                    th:text="${#numbers.formatInteger(sp.gia * (100 - sp.giamgia) / 100, 0, 'COMMA') + '₫'}"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <a th:href="@{/lien-he}" class="btn btn-primary w-100"><i class="fas fa-headset me-2"></i>Tư vấn dược sĩ</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <th:block th:replace="~{user/_footer}" />
+  <style>
+    .news-card { border-radius: 1rem; transition: .2s; }
+    .news-card:hover { transform: translateY(-3px); }
+  </style>
+</body>
+</html>
+

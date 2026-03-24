@@ -113,10 +113,18 @@
   <div class="nav-strip bg-white d-none d-lg-block">
     <div class="container">
       <ul class="menu list-unstyled d-flex mb-0">
-        <li><a href="#" class="menu-link">Sản phẩm mới</a></li>
-        <li><a href="#" class="menu-link">Khuyến mãi</a></li>
-        <li><a href="#" class="menu-link">Tin tức</a></li>
-        <li><a href="#" class="menu-link">Liên hệ</a></li>
+        <li><a th:href="@{/san-pham-moi}" class="menu-link"
+            th:classappend="${#request.requestURI == '/san-pham-moi'} ? ' active' : ''">
+            <i class="fas fa-star me-1 small"></i>Sản phẩm mới</a></li>
+        <li><a th:href="@{/khuyen-mai}" class="menu-link"
+            th:classappend="${#request.requestURI == '/khuyen-mai'} ? ' active' : ''">
+            <i class="fas fa-tags me-1 small"></i>Khuyến mãi</a></li>
+        <li><a th:href="@{/tin-tuc}" class="menu-link"
+            th:classappend="${#request.requestURI == '/tin-tuc'} ? ' active' : ''">
+            <i class="fas fa-newspaper me-1 small"></i>Tin tức</a></li>
+        <li><a th:href="@{/lien-he}" class="menu-link"
+            th:classappend="${#request.requestURI == '/lien-he'} ? ' active' : ''">
+            <i class="fas fa-phone-alt me-1 small"></i>Liên hệ</a></li>
       </ul>
     </div>
   </div>
@@ -144,6 +152,19 @@
           th:href="@{/loai(id=${loai.idLoai})}" th:text="${loai.tenLoai}"></a>
         <a class="list-group-item list-group-item-action text-primary fw-semibold" th:href="@{/loai-all}"><i
             class="fas fa-th-list me-1"></i>Tất cả</a>
+      </div>
+    </div>
+    <div class="mb-4">
+      <h6 class="text-uppercase small fw-bold text-muted mb-2">Khám phá</h6>
+      <div class="list-group list-group-flush small">
+        <a class="list-group-item list-group-item-action" th:href="@{/san-pham-moi}"><i
+            class="fas fa-star me-2"></i>Sản phẩm mới</a>
+        <a class="list-group-item list-group-item-action" th:href="@{/khuyen-mai}"><i
+            class="fas fa-tags me-2"></i>Khuyến mãi</a>
+        <a class="list-group-item list-group-item-action" th:href="@{/tin-tuc}"><i
+            class="fas fa-newspaper me-2"></i>Tin tức</a>
+        <a class="list-group-item list-group-item-action" th:href="@{/lien-he}"><i
+            class="fas fa-phone-alt me-2"></i>Liên hệ</a>
       </div>
     </div>
     <div class="mt-auto pt-3 border-top small">
@@ -360,6 +381,15 @@
   }
 
   .menu-link:hover:after {
+    width: 60%;
+    left: 20%;
+  }
+
+  .menu-link.active {
+    color: #0d6efd;
+  }
+
+  .menu-link.active:after {
     width: 60%;
     left: 20%;
   }

@@ -53,7 +53,7 @@ public class SecurityConfig {
             .requestMatchers("/", "/signup", "/signin", "/active-account", "/forgot-password",
                 "/reset-password", "/access-denied", "/error", "/api/auth/refresh",
                 "/api/chatbot/**", "/api/support/**", "/api/payments/**", "/api/search/**", "/api/recommend/**",
-                "/guest/**", "/cart", "/quick-buy",
+                "/guest/**", "/cart", "/quick-buy", "/san-pham-moi", "/khuyen-mai", "/tin-tuc", "/lien-he",
                 "/loai-all", "/loai", "/sanpham", "/search",
                 "/css/**", "/js/**", "/img/**", "/image/**", "/fragment/**")
                         .permitAll()
