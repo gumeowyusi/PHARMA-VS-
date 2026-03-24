@@ -1,7 +1,9 @@
 package com.poly.controller.user;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -35,8 +37,13 @@ public class SearchApiController {
         }
 
         List<Map<String, Object>> res = items.stream()
-                .map(sp -> Map.of("idSanpham", sp.getIdSanpham(), "tenSanpham", sp.getTenSanpham()))
-                .toList();
+                .map(sp -> {
+                    Map<String, Object> item = new HashMap<>();
+                    item.put("idSanpham", sp.getIdSanpham());
+                    item.put("tenSanpham", sp.getTenSanpham());
+                    return item;
+                })
+                .collect(Collectors.toList());
 
         return ResponseEntity.ok(res);
     }
