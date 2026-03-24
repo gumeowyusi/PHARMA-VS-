@@ -38,12 +38,12 @@
   <section class="py-4">
     <div class="container">
       <div class="row g-4">
-
         <!-- Left: articles -->
         <div class="col-lg-8">
 
-          <!-- Featured article -->
-          <article class="card border-0 shadow-sm news-featured mb-4" data-cat="huong-dan">
+          <!-- Featured -->
+          <article class="card border-0 shadow-sm news-featured mb-4 article-card" data-cat="huong-dan"
+                   data-id="1" style="cursor:pointer;">
             <div class="row g-0">
               <div class="col-md-5">
                 <div class="news-thumb news-thumb-blue h-100 d-flex align-items-center justify-content-center">
@@ -60,196 +60,212 @@
                     <span><i class="fas fa-calendar me-1"></i>20/03/2026</span>
                     <span><i class="fas fa-clock me-1"></i>5 phút đọc</span>
                   </div>
+                  <button class="btn btn-primary btn-sm mt-3"><i class="fas fa-book-open me-1"></i>Đọc bài viết</button>
                 </div>
               </div>
             </div>
           </article>
 
-          <!-- Article grid -->
+          <!-- Grid -->
           <div class="row g-3" id="articleGrid">
 
             <div class="col-md-6" data-cat="dinh-duong">
-              <article class="card border-0 shadow-sm news-card h-100">
+              <article class="card border-0 shadow-sm news-card h-100 article-card" data-id="2" style="cursor:pointer;">
                 <div class="news-thumb news-thumb-green d-flex align-items-center justify-content-center">
-                  <i class="fas fa-apple-alt fa-2x text-white opacity-75"></i>
-                </div>
+                  <i class="fas fa-apple-alt fa-2x text-white opacity-75"></i></div>
                 <div class="card-body">
                   <span class="news-badge bg-success-subtle text-success">Dinh dưỡng</span>
                   <h6 class="fw-bold mt-2 mb-1">Tăng đề kháng mùa giao mùa: ngủ đủ, uống đủ nước, bổ sung vitamin C</h6>
                   <p class="text-muted small mb-2">Cách tăng cường hệ miễn dịch tự nhiên không cần thuốc với chế độ ăn và sinh hoạt khoa học.</p>
-                  <div class="small text-muted"><i class="fas fa-clock me-1"></i>4 phút đọc · 18/03/2026</div>
+                  <div class="d-flex align-items-center justify-content-between">
+                    <div class="small text-muted"><i class="fas fa-clock me-1"></i>4 phút · 18/03/2026</div>
+                    <button class="btn btn-outline-success btn-sm read-more-btn">Đọc thêm <i class="fas fa-arrow-right ms-1"></i></button>
+                  </div>
                 </div>
               </article>
             </div>
 
             <div class="col-md-6" data-cat="an-toan-thuoc">
-              <article class="card border-0 shadow-sm news-card h-100">
+              <article class="card border-0 shadow-sm news-card h-100 article-card" data-id="3" style="cursor:pointer;">
                 <div class="news-thumb news-thumb-orange d-flex align-items-center justify-content-center">
-                  <i class="fas fa-exclamation-triangle fa-2x text-white opacity-75"></i>
-                </div>
+                  <i class="fas fa-exclamation-triangle fa-2x text-white opacity-75"></i></div>
                 <div class="card-body">
                   <span class="news-badge bg-warning-subtle text-warning">An toàn thuốc</span>
                   <h6 class="fw-bold mt-2 mb-1">Khi nào không nên dùng chung nhiều thuốc giảm đau?</h6>
                   <p class="text-muted small mb-2">Tránh trùng hoạt chất, đặc biệt nhóm paracetamol và NSAIDs — nguy cơ tổn thương gan và dạ dày.</p>
-                  <div class="small text-muted"><i class="fas fa-clock me-1"></i>6 phút đọc · 16/03/2026</div>
+                  <div class="d-flex align-items-center justify-content-between">
+                    <div class="small text-muted"><i class="fas fa-clock me-1"></i>6 phút · 16/03/2026</div>
+                    <button class="btn btn-outline-warning btn-sm read-more-btn">Đọc thêm <i class="fas fa-arrow-right ms-1"></i></button>
+                  </div>
                 </div>
               </article>
             </div>
 
             <div class="col-md-6" data-cat="meo-hay">
-              <article class="card border-0 shadow-sm news-card h-100">
+              <article class="card border-0 shadow-sm news-card h-100 article-card" data-id="4" style="cursor:pointer;">
                 <div class="news-thumb news-thumb-teal d-flex align-items-center justify-content-center">
-                  <i class="fas fa-capsules fa-2x text-white opacity-75"></i>
-                </div>
+                  <i class="fas fa-capsules fa-2x text-white opacity-75"></i></div>
                 <div class="card-body">
                   <span class="news-badge bg-info-subtle text-info">Mẹo hay</span>
                   <h6 class="fw-bold mt-2 mb-1">Cách đọc hạn dùng và bảo quản thuốc đúng chuẩn</h6>
                   <p class="text-muted small mb-2">Giữ nơi khô thoáng, tránh ánh nắng trực tiếp, để xa tầm tay trẻ em và không dùng thuốc đã đổi màu, mùi.</p>
-                  <div class="small text-muted"><i class="fas fa-clock me-1"></i>3 phút đọc · 15/03/2026</div>
+                  <div class="d-flex align-items-center justify-content-between">
+                    <div class="small text-muted"><i class="fas fa-clock me-1"></i>3 phút · 15/03/2026</div>
+                    <button class="btn btn-outline-info btn-sm read-more-btn">Đọc thêm <i class="fas fa-arrow-right ms-1"></i></button>
+                  </div>
                 </div>
               </article>
             </div>
 
             <div class="col-md-6" data-cat="song-khoe">
-              <article class="card border-0 shadow-sm news-card h-100">
+              <article class="card border-0 shadow-sm news-card h-100 article-card" data-id="5" style="cursor:pointer;">
                 <div class="news-thumb news-thumb-purple d-flex align-items-center justify-content-center">
-                  <i class="fas fa-heartbeat fa-2x text-white opacity-75"></i>
-                </div>
+                  <i class="fas fa-heartbeat fa-2x text-white opacity-75"></i></div>
                 <div class="card-body">
                   <span class="news-badge bg-purple-subtle text-purple">Sống khỏe</span>
                   <h6 class="fw-bold mt-2 mb-1">10 thói quen buổi sáng giúp cơ thể khỏe mạnh cả ngày</h6>
                   <p class="text-muted small mb-2">Uống nước ấm, tập thể dục nhẹ, ăn sáng đủ dinh dưỡng — nền tảng cho một ngày năng lượng và tập trung.</p>
-                  <div class="small text-muted"><i class="fas fa-clock me-1"></i>5 phút đọc · 14/03/2026</div>
+                  <div class="d-flex align-items-center justify-content-between">
+                    <div class="small text-muted"><i class="fas fa-clock me-1"></i>5 phút · 14/03/2026</div>
+                    <button class="btn btn-outline-secondary btn-sm read-more-btn">Đọc thêm <i class="fas fa-arrow-right ms-1"></i></button>
+                  </div>
                 </div>
               </article>
             </div>
 
             <div class="col-md-6" data-cat="phong-benh">
-              <article class="card border-0 shadow-sm news-card h-100">
+              <article class="card border-0 shadow-sm news-card h-100 article-card" data-id="6" style="cursor:pointer;">
                 <div class="news-thumb news-thumb-red d-flex align-items-center justify-content-center">
-                  <i class="fas fa-shield-virus fa-2x text-white opacity-75"></i>
-                </div>
+                  <i class="fas fa-shield-virus fa-2x text-white opacity-75"></i></div>
                 <div class="card-body">
                   <span class="news-badge bg-danger-subtle text-danger">Phòng bệnh</span>
                   <h6 class="fw-bold mt-2 mb-1">Phòng ngừa bệnh gout: chế độ ăn và lối sống cần thay đổi ngay</h6>
                   <p class="text-muted small mb-2">Hạn chế đạm động vật, bia rượu, tăng cường nước và rau xanh giúp kiểm soát acid uric hiệu quả.</p>
-                  <div class="small text-muted"><i class="fas fa-clock me-1"></i>7 phút đọc · 13/03/2026</div>
+                  <div class="d-flex align-items-center justify-content-between">
+                    <div class="small text-muted"><i class="fas fa-clock me-1"></i>7 phút · 13/03/2026</div>
+                    <button class="btn btn-outline-danger btn-sm read-more-btn">Đọc thêm <i class="fas fa-arrow-right ms-1"></i></button>
+                  </div>
                 </div>
               </article>
             </div>
 
             <div class="col-md-6" data-cat="huong-dan">
-              <article class="card border-0 shadow-sm news-card h-100">
+              <article class="card border-0 shadow-sm news-card h-100 article-card" data-id="7" style="cursor:pointer;">
                 <div class="news-thumb news-thumb-blue d-flex align-items-center justify-content-center">
-                  <i class="fas fa-syringe fa-2x text-white opacity-75"></i>
-                </div>
+                  <i class="fas fa-syringe fa-2x text-white opacity-75"></i></div>
                 <div class="card-body">
                   <span class="news-badge bg-primary-subtle text-primary">Hướng dẫn</span>
                   <h6 class="fw-bold mt-2 mb-1">Hướng dẫn sử dụng kháng sinh đúng cách, tránh kháng thuốc</h6>
                   <p class="text-muted small mb-2">Uống đủ liệu trình, không tự ý dừng thuốc, không dùng kháng sinh cho bệnh do virus như cúm hay cảm lạnh thông thường.</p>
-                  <div class="small text-muted"><i class="fas fa-clock me-1"></i>6 phút đọc · 11/03/2026</div>
+                  <div class="d-flex align-items-center justify-content-between">
+                    <div class="small text-muted"><i class="fas fa-clock me-1"></i>6 phút · 11/03/2026</div>
+                    <button class="btn btn-outline-primary btn-sm read-more-btn">Đọc thêm <i class="fas fa-arrow-right ms-1"></i></button>
+                  </div>
                 </div>
               </article>
             </div>
 
             <div class="col-md-6" data-cat="dinh-duong">
-              <article class="card border-0 shadow-sm news-card h-100">
+              <article class="card border-0 shadow-sm news-card h-100 article-card" data-id="8" style="cursor:pointer;">
                 <div class="news-thumb news-thumb-green d-flex align-items-center justify-content-center">
-                  <i class="fas fa-seedling fa-2x text-white opacity-75"></i>
-                </div>
+                  <i class="fas fa-seedling fa-2x text-white opacity-75"></i></div>
                 <div class="card-body">
                   <span class="news-badge bg-success-subtle text-success">Dinh dưỡng</span>
                   <h6 class="fw-bold mt-2 mb-1">Bổ sung Omega-3 đúng cách: khi nào, liều lượng bao nhiêu?</h6>
                   <p class="text-muted small mb-2">Omega-3 hỗ trợ tim mạch, não bộ và giảm viêm. Nên dùng sau bữa ăn có chất béo để tăng hấp thu tối đa.</p>
-                  <div class="small text-muted"><i class="fas fa-clock me-1"></i>4 phút đọc · 10/03/2026</div>
+                  <div class="d-flex align-items-center justify-content-between">
+                    <div class="small text-muted"><i class="fas fa-clock me-1"></i>4 phút · 10/03/2026</div>
+                    <button class="btn btn-outline-success btn-sm read-more-btn">Đọc thêm <i class="fas fa-arrow-right ms-1"></i></button>
+                  </div>
                 </div>
               </article>
             </div>
 
             <div class="col-md-6" data-cat="an-toan-thuoc">
-              <article class="card border-0 shadow-sm news-card h-100">
+              <article class="card border-0 shadow-sm news-card h-100 article-card" data-id="9" style="cursor:pointer;">
                 <div class="news-thumb news-thumb-orange d-flex align-items-center justify-content-center">
-                  <i class="fas fa-notes-medical fa-2x text-white opacity-75"></i>
-                </div>
+                  <i class="fas fa-notes-medical fa-2x text-white opacity-75"></i></div>
                 <div class="card-body">
                   <span class="news-badge bg-warning-subtle text-warning">An toàn thuốc</span>
                   <h6 class="fw-bold mt-2 mb-1">Những tương tác thuốc nguy hiểm thường gặp cần biết</h6>
                   <p class="text-muted small mb-2">Warfarin và aspirin, thuốc huyết áp và NSAID, kháng sinh và thuốc tránh thai — các cặp không nên dùng cùng lúc.</p>
-                  <div class="small text-muted"><i class="fas fa-clock me-1"></i>8 phút đọc · 08/03/2026</div>
+                  <div class="d-flex align-items-center justify-content-between">
+                    <div class="small text-muted"><i class="fas fa-clock me-1"></i>8 phút · 08/03/2026</div>
+                    <button class="btn btn-outline-warning btn-sm read-more-btn">Đọc thêm <i class="fas fa-arrow-right ms-1"></i></button>
+                  </div>
                 </div>
               </article>
             </div>
 
             <div class="col-md-6" data-cat="meo-hay">
-              <article class="card border-0 shadow-sm news-card h-100">
+              <article class="card border-0 shadow-sm news-card h-100 article-card" data-id="10" style="cursor:pointer;">
                 <div class="news-thumb news-thumb-teal d-flex align-items-center justify-content-center">
-                  <i class="fas fa-stethoscope fa-2x text-white opacity-75"></i>
-                </div>
+                  <i class="fas fa-stethoscope fa-2x text-white opacity-75"></i></div>
                 <div class="card-body">
                   <span class="news-badge bg-info-subtle text-info">Mẹo hay</span>
                   <h6 class="fw-bold mt-2 mb-1">Cách nhận biết thuốc giả, thuốc kém chất lượng trên thị trường</h6>
                   <p class="text-muted small mb-2">Kiểm tra hộp, lô sản xuất, tem kiểm định và mua tại nhà thuốc uy tín có đăng ký kinh doanh hợp pháp.</p>
-                  <div class="small text-muted"><i class="fas fa-clock me-1"></i>5 phút đọc · 06/03/2026</div>
+                  <div class="d-flex align-items-center justify-content-between">
+                    <div class="small text-muted"><i class="fas fa-clock me-1"></i>5 phút · 06/03/2026</div>
+                    <button class="btn btn-outline-info btn-sm read-more-btn">Đọc thêm <i class="fas fa-arrow-right ms-1"></i></button>
+                  </div>
                 </div>
               </article>
             </div>
 
             <div class="col-md-6" data-cat="song-khoe">
-              <article class="card border-0 shadow-sm news-card h-100">
+              <article class="card border-0 shadow-sm news-card h-100 article-card" data-id="11" style="cursor:pointer;">
                 <div class="news-thumb news-thumb-purple d-flex align-items-center justify-content-center">
-                  <i class="fas fa-brain fa-2x text-white opacity-75"></i>
-                </div>
+                  <i class="fas fa-brain fa-2x text-white opacity-75"></i></div>
                 <div class="card-body">
                   <span class="news-badge bg-purple-subtle text-purple">Sống khỏe</span>
                   <h6 class="fw-bold mt-2 mb-1">Stress mãn tính ảnh hưởng thế nào đến sức khỏe toàn thân?</h6>
                   <p class="text-muted small mb-2">Căng thẳng kéo dài làm suy giảm miễn dịch, tăng huyết áp, rối loạn tiêu hóa và ảnh hưởng đến giấc ngủ.</p>
-                  <div class="small text-muted"><i class="fas fa-clock me-1"></i>6 phút đọc · 04/03/2026</div>
+                  <div class="d-flex align-items-center justify-content-between">
+                    <div class="small text-muted"><i class="fas fa-clock me-1"></i>6 phút · 04/03/2026</div>
+                    <button class="btn btn-outline-secondary btn-sm read-more-btn">Đọc thêm <i class="fas fa-arrow-right ms-1"></i></button>
+                  </div>
                 </div>
               </article>
             </div>
 
             <div class="col-md-6" data-cat="phong-benh">
-              <article class="card border-0 shadow-sm news-card h-100">
+              <article class="card border-0 shadow-sm news-card h-100 article-card" data-id="12" style="cursor:pointer;">
                 <div class="news-thumb news-thumb-red d-flex align-items-center justify-content-center">
-                  <i class="fas fa-lungs fa-2x text-white opacity-75"></i>
-                </div>
+                  <i class="fas fa-lungs fa-2x text-white opacity-75"></i></div>
                 <div class="card-body">
                   <span class="news-badge bg-danger-subtle text-danger">Phòng bệnh</span>
                   <h6 class="fw-bold mt-2 mb-1">Phòng ngừa viêm đường hô hấp trên vào mùa lạnh</h6>
                   <p class="text-muted small mb-2">Giữ ấm cổ họng, rửa tay thường xuyên, súc miệng nước muối và tránh tiếp xúc với người bệnh.</p>
-                  <div class="small text-muted"><i class="fas fa-clock me-1"></i>4 phút đọc · 02/03/2026</div>
+                  <div class="d-flex align-items-center justify-content-between">
+                    <div class="small text-muted"><i class="fas fa-clock me-1"></i>4 phút · 02/03/2026</div>
+                    <button class="btn btn-outline-danger btn-sm read-more-btn">Đọc thêm <i class="fas fa-arrow-right ms-1"></i></button>
+                  </div>
                 </div>
               </article>
             </div>
 
             <div class="col-md-6" data-cat="huong-dan">
-              <article class="card border-0 shadow-sm news-card h-100">
+              <article class="card border-0 shadow-sm news-card h-100 article-card" data-id="13" style="cursor:pointer;">
                 <div class="news-thumb news-thumb-blue d-flex align-items-center justify-content-center">
-                  <i class="fas fa-prescription-bottle-alt fa-2x text-white opacity-75"></i>
-                </div>
+                  <i class="fas fa-prescription-bottle-alt fa-2x text-white opacity-75"></i></div>
                 <div class="card-body">
                   <span class="news-badge bg-primary-subtle text-primary">Hướng dẫn</span>
                   <h6 class="fw-bold mt-2 mb-1">Trẻ em uống thuốc: liều lượng tính theo cân nặng hay tuổi?</h6>
                   <p class="text-muted small mb-2">Liều thuốc cho trẻ luôn nên tính theo cân nặng (mg/kg) để đảm bảo hiệu quả và an toàn, tham khảo dược sĩ nếu không chắc.</p>
-                  <div class="small text-muted"><i class="fas fa-clock me-1"></i>5 phút đọc · 28/02/2026</div>
+                  <div class="d-flex align-items-center justify-content-between">
+                    <div class="small text-muted"><i class="fas fa-clock me-1"></i>5 phút · 28/02/2026</div>
+                    <button class="btn btn-outline-primary btn-sm read-more-btn">Đọc thêm <i class="fas fa-arrow-right ms-1"></i></button>
+                  </div>
                 </div>
               </article>
             </div>
 
           </div><!-- /articleGrid -->
-
-          <!-- Load more button -->
-          <div class="text-center mt-4">
-            <button class="btn btn-outline-primary px-5" id="loadMoreBtn">
-              <i class="fas fa-chevron-down me-2"></i>Xem thêm bài viết
-            </button>
-          </div>
         </div>
 
-        <!-- Right: sidebar -->
+        <!-- Sidebar -->
         <div class="col-lg-4">
-
-          <!-- Search news -->
           <div class="card border-0 shadow-sm mb-3">
             <div class="card-body">
               <div class="input-group">
@@ -259,52 +275,42 @@
             </div>
           </div>
 
-          <!-- Categories -->
           <div class="card border-0 shadow-sm mb-3">
             <div class="card-body">
               <h6 class="fw-bold mb-3"><i class="fas fa-layer-group text-primary me-2"></i>Chuyên mục</h6>
               <div class="list-group list-group-flush small">
                 <a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center border-0 px-0 py-2 news-cat-link" data-cat="all">
-                  Tất cả bài viết <span class="badge bg-primary rounded-pill">12</span>
-                </a>
+                  Tất cả bài viết <span class="badge bg-primary rounded-pill">13</span></a>
                 <a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center border-0 px-0 py-2 news-cat-link" data-cat="huong-dan">
                   <span><i class="fas fa-book-medical me-2 text-primary"></i>Hướng dẫn dùng thuốc</span>
-                  <span class="badge bg-light text-dark rounded-pill">3</span>
-                </a>
+                  <span class="badge bg-light text-dark rounded-pill">3</span></a>
                 <a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center border-0 px-0 py-2 news-cat-link" data-cat="dinh-duong">
                   <span><i class="fas fa-apple-alt me-2 text-success"></i>Dinh dưỡng &amp; Sức khỏe</span>
-                  <span class="badge bg-light text-dark rounded-pill">2</span>
-                </a>
+                  <span class="badge bg-light text-dark rounded-pill">2</span></a>
                 <a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center border-0 px-0 py-2 news-cat-link" data-cat="an-toan-thuoc">
                   <span><i class="fas fa-exclamation-triangle me-2 text-warning"></i>An toàn thuốc</span>
-                  <span class="badge bg-light text-dark rounded-pill">2</span>
-                </a>
+                  <span class="badge bg-light text-dark rounded-pill">2</span></a>
                 <a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center border-0 px-0 py-2 news-cat-link" data-cat="meo-hay">
                   <span><i class="fas fa-lightbulb me-2 text-info"></i>Mẹo hay</span>
-                  <span class="badge bg-light text-dark rounded-pill">2</span>
-                </a>
+                  <span class="badge bg-light text-dark rounded-pill">2</span></a>
                 <a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center border-0 px-0 py-2 news-cat-link" data-cat="song-khoe">
                   <span><i class="fas fa-heartbeat me-2 text-purple"></i>Sống khỏe</span>
-                  <span class="badge bg-light text-dark rounded-pill">2</span>
-                </a>
+                  <span class="badge bg-light text-dark rounded-pill">2</span></a>
                 <a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center border-0 px-0 py-2 news-cat-link" data-cat="phong-benh">
                   <span><i class="fas fa-shield-virus me-2 text-danger"></i>Phòng bệnh</span>
-                  <span class="badge bg-light text-dark rounded-pill">2</span>
-                </a>
+                  <span class="badge bg-light text-dark rounded-pill">2</span></a>
               </div>
             </div>
           </div>
 
-          <!-- Featured products -->
           <div class="card border-0 shadow-sm mb-3">
             <div class="card-body">
               <h6 class="fw-bold mb-3"><i class="fas fa-star text-warning me-2"></i>Sản phẩm được quan tâm</h6>
               <div th:each="sp : ${featuredProducts}" class="d-flex gap-2 mb-3 align-items-center">
-                <div class="news-product-thumb">
+                <div>
                   <img th:if="${sp.hinh != null and !sp.hinh.isEmpty()}"
                        th:src="@{/image/{url}(url=${sp.hinh})}"
-                       width="52" height="52"
-                       style="border-radius:.6rem;object-fit:cover;width:52px;height:52px;">
+                       width="52" height="52" style="border-radius:.6rem;object-fit:cover;width:52px;height:52px;">
                   <div th:if="${sp.hinh == null or sp.hinh.isEmpty()}"
                        class="d-flex align-items-center justify-content-center bg-light rounded"
                        style="width:52px;height:52px;border-radius:.6rem;">
@@ -320,24 +326,20 @@
                 </div>
               </div>
               <a th:href="@{/san-pham-moi}" class="btn btn-outline-primary btn-sm w-100 mt-1">
-                <i class="fas fa-arrow-right me-1"></i>Xem tất cả sản phẩm
-              </a>
+                <i class="fas fa-arrow-right me-1"></i>Xem tất cả sản phẩm</a>
             </div>
           </div>
 
-          <!-- Consultation CTA -->
           <div class="card border-0 shadow-sm consult-card">
             <div class="card-body text-center py-4">
               <div class="consult-icon mb-3"><i class="fas fa-user-md fa-2x text-white"></i></div>
               <h6 class="fw-bold mb-1">Tư vấn dược sĩ miễn phí</h6>
               <p class="text-muted small mb-3">Gửi câu hỏi về thuốc và sức khỏe — dược sĩ MEDISALE trả lời trong 2 giờ.</p>
               <a th:href="@{/lien-he}" class="btn btn-primary w-100">
-                <i class="fas fa-headset me-2"></i>Liên hệ ngay
-              </a>
+                <i class="fas fa-headset me-2"></i>Liên hệ ngay</a>
             </div>
           </div>
 
-          <!-- Hot tags -->
           <div class="card border-0 shadow-sm mt-3">
             <div class="card-body">
               <h6 class="fw-bold mb-3"><i class="fas fa-tags text-muted me-2"></i>Chủ đề hot</h6>
@@ -353,133 +355,426 @@
               </div>
             </div>
           </div>
-
-        </div><!-- /sidebar -->
+        </div>
       </div>
     </div>
   </section>
 
+  <!-- Article Modal -->
+  <div class="modal fade" id="articleModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content border-0 shadow">
+        <div class="modal-header border-0 pb-0">
+          <div>
+            <span class="news-badge mb-2 d-inline-block" id="modalBadge"></span>
+            <h5 class="modal-title fw-bold" id="modalTitle"></h5>
+          </div>
+          <button type="button" class="btn-close ms-3" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body pt-2">
+          <div class="d-flex gap-3 small text-muted mb-3" id="modalMeta"></div>
+          <div class="article-body" id="modalBody"></div>
+          <hr>
+          <div class="d-flex align-items-center justify-content-between">
+            <span class="small text-muted"><i class="fas fa-shield-alt me-1 text-success"></i>Thông tin được kiểm duyệt bởi dược sĩ MEDISALE</span>
+            <a href="/lien-he" class="btn btn-primary btn-sm"><i class="fas fa-headset me-1"></i>Tư vấn thêm</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <th:block th:replace="~{user/_footer}" />
 
   <style>
-    /* Hero */
-    .news-hero {
-      background: linear-gradient(135deg, #f0f7ff 0%, #e8f4fd 100%);
-      border-bottom: 1px solid #dce8f5;
-      padding: 2rem 0;
-    }
-    .news-hero-icon {
-      width: 60px; height: 60px;
-      background: linear-gradient(135deg, #0d6efd, #20c997);
-      border-radius: 16px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.5rem; color: #fff;
-      flex-shrink: 0;
-    }
-
-    /* Sticky tabs */
-    .sticky-tabs { position: sticky; top: 0; z-index: 100; }
-    .news-tabs { gap: 0; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
-    .news-tabs::-webkit-scrollbar { display: none; }
-    .news-tab {
-      padding: .85rem 1.1rem;
-      color: #6c757d; font-weight: 500; font-size: .9rem;
-      text-decoration: none; white-space: nowrap;
-      border-bottom: 2px solid transparent;
-      transition: .2s;
-    }
-    .news-tab:hover { color: #0d6efd; }
-    .news-tab.active { color: #0d6efd; border-bottom-color: #0d6efd; }
-
-    /* Article thumbnails */
-    .news-thumb {
-      height: 140px; border-radius: .75rem .75rem 0 0;
-    }
-    .news-featured .news-thumb {
-      border-radius: .75rem 0 0 .75rem;
-      height: 100%; min-height: 180px;
-    }
-    .news-thumb-blue   { background: linear-gradient(135deg, #0d6efd, #6ea8fe); }
-    .news-thumb-green  { background: linear-gradient(135deg, #198754, #75b798); }
-    .news-thumb-orange { background: linear-gradient(135deg, #fd7e14, #ffc107); }
-    .news-thumb-teal   { background: linear-gradient(135deg, #0dcaf0, #20c997); }
-    .news-thumb-purple { background: linear-gradient(135deg, #6f42c1, #a78bfa); }
-    .news-thumb-red    { background: linear-gradient(135deg, #dc3545, #f1868e); }
-
-    /* Cards */
-    .news-card { border-radius: .85rem; overflow: hidden; transition: .25s; }
-    .news-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,.1) !important; }
-    .news-featured { border-radius: .85rem; overflow: hidden; }
-
-    /* Badge */
-    .news-badge {
-      display: inline-block; padding: .25em .65em; font-size: .75rem;
-      font-weight: 600; border-radius: .4rem;
-    }
-    .bg-purple-subtle { background: #ede7f6; }
-    .text-purple { color: #6f42c1; }
-
-    /* Sidebar */
-    .consult-card { background: linear-gradient(135deg, #f8f9ff, #eef3ff); }
-    .consult-icon {
-      width: 56px; height: 56px; margin: 0 auto;
-      background: linear-gradient(135deg, #0d6efd, #20c997);
-      border-radius: 50%; display: flex; align-items: center; justify-content: center;
-    }
-    .news-tag { cursor: pointer; transition: .2s; }
-    .news-tag:hover { background: #e9ecef !important; }
-    .news-cat-link { border-radius: .4rem; }
-    .news-cat-link:hover { background: #f3f7fb; }
-
-    /* Load more hidden articles */
-    .news-card.d-none-extra { display: none !important; }
+    .news-hero { background:linear-gradient(135deg,#f0f7ff 0%,#e8f4fd 100%); border-bottom:1px solid #dce8f5; padding:2rem 0; }
+    .news-hero-icon { width:60px;height:60px;background:linear-gradient(135deg,#0d6efd,#20c997);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:#fff;flex-shrink:0; }
+    .sticky-tabs { position:sticky;top:0;z-index:100; }
+    .news-tabs { gap:0;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none; }
+    .news-tabs::-webkit-scrollbar { display:none; }
+    .news-tab { padding:.85rem 1.1rem;color:#6c757d;font-weight:500;font-size:.9rem;text-decoration:none;white-space:nowrap;border-bottom:2px solid transparent;transition:.2s; }
+    .news-tab:hover { color:#0d6efd; }
+    .news-tab.active { color:#0d6efd;border-bottom-color:#0d6efd; }
+    .news-thumb { height:140px;border-radius:.75rem .75rem 0 0; }
+    .news-featured .news-thumb { border-radius:.75rem 0 0 .75rem;height:100%;min-height:180px; }
+    .news-thumb-blue   { background:linear-gradient(135deg,#0d6efd,#6ea8fe); }
+    .news-thumb-green  { background:linear-gradient(135deg,#198754,#75b798); }
+    .news-thumb-orange { background:linear-gradient(135deg,#fd7e14,#ffc107); }
+    .news-thumb-teal   { background:linear-gradient(135deg,#0dcaf0,#20c997); }
+    .news-thumb-purple { background:linear-gradient(135deg,#6f42c1,#a78bfa); }
+    .news-thumb-red    { background:linear-gradient(135deg,#dc3545,#f1868e); }
+    .news-card { border-radius:.85rem;overflow:hidden;transition:.25s; }
+    .news-card:hover { transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,.1) !important; }
+    .news-featured { border-radius:.85rem;overflow:hidden;transition:.25s; }
+    .news-featured:hover { box-shadow:0 12px 32px rgba(0,0,0,.1) !important; }
+    .news-badge { display:inline-block;padding:.25em .65em;font-size:.75rem;font-weight:600;border-radius:.4rem; }
+    .bg-purple-subtle { background:#ede7f6; }
+    .text-purple { color:#6f42c1; }
+    .consult-card { background:linear-gradient(135deg,#f8f9ff,#eef3ff); }
+    .consult-icon { width:56px;height:56px;margin:0 auto;background:linear-gradient(135deg,#0d6efd,#20c997);border-radius:50%;display:flex;align-items:center;justify-content:center; }
+    .news-tag { cursor:pointer;transition:.2s; }
+    .news-tag:hover { background:#e9ecef !important; }
+    .news-cat-link { border-radius:.4rem; }
+    .news-cat-link:hover { background:#f3f7fb; }
+    .article-body p { line-height:1.8;color:#444; }
+    .article-body h6 { color:#0d6efd;font-weight:700;margin-top:1.25rem; }
+    .article-body ul { padding-left:1.25rem; }
+    .article-body ul li { margin-bottom:.4rem;color:#444; }
+    .article-body .highlight-box { background:#f0f7ff;border-left:3px solid #0d6efd;padding:.75rem 1rem;border-radius:0 .5rem .5rem 0;margin:1rem 0; }
   </style>
 
   <script>
-    (function () {
-      /* --- Category filter --- */
-      function filterCat(cat) {
-        // tabs
-        document.querySelectorAll('.news-tab').forEach(t => t.classList.toggle('active', t.dataset.cat === cat));
-        document.querySelectorAll('.news-cat-link').forEach(t => t.classList.toggle('fw-bold', t.dataset.cat === cat));
-
-        // featured
-        var featured = document.querySelector('.news-featured');
-        if (featured) featured.style.display = (cat === 'all' || featured.dataset.cat === cat) ? '' : 'none';
-
-        // grid
-        document.querySelectorAll('#articleGrid > [data-cat]').forEach(function (el) {
-          var show = cat === 'all' || el.dataset.cat === cat;
-          el.classList.toggle('d-none', !show);
-        });
+    /* ===== Article data ===== */
+    var ARTICLES = {
+      1: {
+        badge: '<span class="news-badge bg-primary-subtle text-primary">Hướng dẫn</span>',
+        title: '5 lưu ý quan trọng khi tự dùng thuốc cảm cúm tại nhà',
+        meta: '<span><i class="fas fa-user-md me-1"></i>DS. Nguyễn Thị Lan</span><span><i class="fas fa-calendar me-1"></i>20/03/2026</span><span><i class="fas fa-clock me-1"></i>5 phút đọc</span>',
+        body: `<div class="highlight-box"><i class="fas fa-info-circle text-primary me-2"></i><strong>Lưu ý:</strong> Thuốc cảm cúm không trị được virus cúm, chỉ giúp giảm triệu chứng. Hầu hết bệnh nhân sẽ tự khỏi sau 7–10 ngày.</div>
+               <p>Khi bị cảm cúm nhẹ, nhiều người có thói quen tự mua thuốc điều trị tại nhà. Điều này hoàn toàn có thể thực hiện an toàn nếu bạn nắm được các nguyên tắc cơ bản.</p>
+               <h6><i class="fas fa-check-circle me-1"></i>1. Đọc kỹ nhãn thuốc trước khi dùng</h6>
+               <p>Kiểm tra thành phần hoạt chất, đặc biệt chú ý đến hàm lượng <strong>Paracetamol</strong>. Nhiều thuốc cảm tổng hợp đã chứa sẵn paracetamol — nếu dùng thêm Panadol hay Efferalgan sẽ bị quá liều gây độc gan.</p>
+               <h6><i class="fas fa-check-circle me-1"></i>2. Không kết hợp nhiều thuốc cảm cùng lúc</h6>
+               <p>Các thuốc như Theraflu, Coldrex, Decolgen đều chứa paracetamol. Tuyệt đối không dùng 2 loại cùng lúc dù tên khác nhau.</p>
+               <h6><i class="fas fa-check-circle me-1"></i>3. Uống đủ nước và nghỉ ngơi</h6>
+               <p>Uống ít nhất 2 lít nước/ngày giúp hạ sốt tự nhiên và đào thải độc tố. Nghỉ ngơi là liệu pháp tốt nhất cho hệ miễn dịch.</p>
+               <h6><i class="fas fa-check-circle me-1"></i>4. Theo dõi nhiệt độ cơ thể</h6>
+               <p>Nếu sốt trên 39°C liên tục sau 2 ngày dùng thuốc, hoặc xuất hiện khó thở, đau ngực — cần đến cơ sở y tế ngay.</p>
+               <h6><i class="fas fa-check-circle me-1"></i>5. Không tự ý dùng kháng sinh</h6>
+               <p>Cảm cúm do virus gây ra, kháng sinh không có tác dụng và còn gây kháng thuốc nguy hiểm. Chỉ dùng kháng sinh khi có biến chứng nhiễm khuẩn và được bác sĩ kê đơn.</p>`
+      },
+      2: {
+        badge: '<span class="news-badge bg-success-subtle text-success">Dinh dưỡng</span>',
+        title: 'Tăng đề kháng mùa giao mùa: ngủ đủ, uống đủ nước, bổ sung vitamin C',
+        meta: '<span><i class="fas fa-user-md me-1"></i>DS. Trần Minh Khoa</span><span><i class="fas fa-calendar me-1"></i>18/03/2026</span><span><i class="fas fa-clock me-1"></i>4 phút đọc</span>',
+        body: `<p>Mùa giao mùa là thời điểm hệ miễn dịch dễ bị suy yếu nhất. Nhiệt độ thay đổi đột ngột khiến cơ thể khó thích nghi, tạo điều kiện cho virus và vi khuẩn tấn công.</p>
+               <div class="highlight-box"><i class="fas fa-leaf text-success me-2"></i>Tăng đề kháng không nhất thiết cần thuốc bổ đắt tiền — thay đổi lối sống mới là nền tảng bền vững nhất.</div>
+               <h6>Ngủ đủ giấc — liệu pháp miễn dịch tự nhiên</h6>
+               <p>Trong lúc ngủ, cơ thể sản xuất <strong>cytokine</strong> — protein chống viêm và chống nhiễm trùng. Ngủ dưới 6 tiếng/đêm liên tục 2 tuần làm giảm 50% hiệu quả miễn dịch.</p>
+               <h6>Uống đủ 2 lít nước mỗi ngày</h6>
+               <p>Nước giúp vận chuyển dưỡng chất đến tế bào miễn dịch, loại bỏ chất thải và duy trì độ ẩm niêm mạc mũi họng — hàng rào bảo vệ đầu tiên.</p>
+               <h6>Bổ sung Vitamin C và Kẽm</h6>
+               <ul>
+                 <li><strong>Vitamin C:</strong> 500–1000mg/ngày từ trái cây (cam, bưởi, ổi) hoặc thực phẩm bổ sung</li>
+                 <li><strong>Kẽm:</strong> Có trong hàu, thịt bò, hạt bí — giúp tạo và kích hoạt tế bào T miễn dịch</li>
+                 <li><strong>Vitamin D:</strong> Phơi nắng nhẹ 15 phút/ngày hoặc bổ sung theo chỉ định</li>
+               </ul>
+               <h6>Vận động nhẹ mỗi ngày</h6>
+               <p>30 phút đi bộ hoặc tập thể dục cường độ vừa phải mỗi ngày giúp tăng tuần hoàn máu và kích hoạt tế bào miễn dịch hiệu quả hơn.</p>`
+      },
+      3: {
+        badge: '<span class="news-badge bg-warning-subtle text-warning">An toàn thuốc</span>',
+        title: 'Khi nào không nên dùng chung nhiều thuốc giảm đau?',
+        meta: '<span><i class="fas fa-user-md me-1"></i>DS. Lê Thị Hương</span><span><i class="fas fa-calendar me-1"></i>16/03/2026</span><span><i class="fas fa-clock me-1"></i>6 phút đọc</span>',
+        body: `<div class="highlight-box"><i class="fas fa-exclamation-triangle text-warning me-2"></i><strong>Cảnh báo:</strong> Dùng quá liều paracetamol (trên 4g/ngày) là nguyên nhân hàng đầu gây suy gan cấp không do rượu tại Việt Nam.</div>
+               <p>Khi đau, nhiều người có xu hướng dùng nhiều loại thuốc cùng lúc để "cho nhanh khỏi". Thực tế, đây là thói quen cực kỳ nguy hiểm.</p>
+               <h6>Nhóm Paracetamol — cần đặc biệt chú ý</h6>
+               <p>Paracetamol có mặt trong rất nhiều loại thuốc: Panadol, Efferalgan, Tylenol, và hầu hết các thuốc cảm tổng hợp. Nếu dùng đồng thời, tổng liều có thể vượt ngưỡng an toàn mà bạn không biết.</p>
+               <h6>Nhóm NSAIDs — nguy cơ với dạ dày và thận</h6>
+               <ul>
+                 <li>Ibuprofen (Advil, Nurofen) + Aspirin: tăng nguy cơ chảy máu dạ dày</li>
+                 <li>NSAIDs + thuốc huyết áp (ACE inhibitor): giảm hiệu quả hạ áp, hại thận</li>
+                 <li>NSAIDs + Warfarin: nguy cơ xuất huyết nghiêm trọng</li>
+               </ul>
+               <h6>Nguyên tắc an toàn</h6>
+               <ul>
+                 <li>Chỉ dùng một loại thuốc giảm đau tại một thời điểm</li>
+                 <li>Luôn đọc thành phần trước khi kết hợp</li>
+                 <li>Nếu một loại không hiệu quả, hỏi dược sĩ thay vì tự ý thêm thuốc</li>
+                 <li>Bệnh nhân cao tuổi, suy thận, suy gan cần thận trọng gấp đôi</li>
+               </ul>`
+      },
+      4: {
+        badge: '<span class="news-badge bg-info-subtle text-info">Mẹo hay</span>',
+        title: 'Cách đọc hạn dùng và bảo quản thuốc đúng chuẩn',
+        meta: '<span><i class="fas fa-user-md me-1"></i>DS. Phạm Văn Đức</span><span><i class="fas fa-calendar me-1"></i>15/03/2026</span><span><i class="fas fa-clock me-1"></i>3 phút đọc</span>',
+        body: `<p>Việc bảo quản thuốc sai cách có thể làm giảm hiệu lực thậm chí biến thuốc thành có hại. Sau đây là những điều cần biết để dùng thuốc đúng cách.</p>
+               <h6>Đọc hạn dùng đúng cách</h6>
+               <ul>
+                 <li><strong>EXP 03/2027</strong>: Dùng đến hết tháng 3/2027 (hết vào ngày cuối tháng)</li>
+                 <li><strong>EXP 03.03.2027</strong>: Hết hạn ngày 03/03/2027 cụ thể</li>
+                 <li>Sau khi mở nắp, nhiều loại thuốc có hạn dùng ngắn hơn — đọc hướng dẫn sử dụng</li>
+               </ul>
+               <h6>Bảo quản đúng nhiệt độ</h6>
+               <ul>
+                 <li>Nhiệt độ phòng (15–25°C): phần lớn viên nén, viên nang</li>
+                 <li>Tủ lạnh (2–8°C): insulin, vaccine, một số thuốc nhỏ mắt</li>
+                 <li>Tránh đặt trong phòng tắm, gần bếp — nhiệt độ và độ ẩm cao phá hủy thuốc</li>
+               </ul>
+               <div class="highlight-box"><i class="fas fa-lightbulb text-info me-2"></i>Không để thuốc trong xe hơi dưới nắng — nhiệt độ trong xe có thể lên đến 60–70°C, phá hủy hoàn toàn hoạt chất thuốc.</div>
+               <h6>Dấu hiệu thuốc đã hỏng — cần bỏ ngay</h6>
+               <ul>
+                 <li>Thay đổi màu sắc, mùi, hình dạng</li>
+                 <li>Viên nén bị vỡ, dính vào nhau</li>
+                 <li>Thuốc nước bị đục hoặc kết tủa bất thường</li>
+               </ul>`
+      },
+      5: {
+        badge: '<span class="news-badge bg-purple-subtle text-purple">Sống khỏe</span>',
+        title: '10 thói quen buổi sáng giúp cơ thể khỏe mạnh cả ngày',
+        meta: '<span><i class="fas fa-user-md me-1"></i>BS. Nguyễn Hồng Nhung</span><span><i class="fas fa-calendar me-1"></i>14/03/2026</span><span><i class="fas fa-clock me-1"></i>5 phút đọc</span>',
+        body: `<p>Buổi sáng là thời điểm vàng để thiết lập năng lượng và sức đề kháng cho cả ngày. 10 thói quen sau đây có thể thay đổi sức khỏe của bạn nếu thực hiện đều đặn.</p>
+               <ul>
+                 <li><strong>1. Uống 1 ly nước ấm sau khi thức dậy</strong> — kích hoạt hệ tiêu hóa, đào thải độc tố qua đêm</li>
+                 <li><strong>2. Không xem điện thoại trong 30 phút đầu</strong> — giảm cortisol (hormone stress) buổi sáng</li>
+                 <li><strong>3. Tập hít thở sâu 5 phút</strong> — tăng oxygen não, cải thiện tập trung</li>
+                 <li><strong>4. Tập thể dục nhẹ 15–30 phút</strong> — đi bộ, yoga, giãn cơ</li>
+                 <li><strong>5. Ăn sáng đầy đủ dinh dưỡng</strong> — protein + tinh bột phức hợp, tránh bỏ bữa</li>
+                 <li><strong>6. Phơi nắng 10–15 phút</strong> — tổng hợp Vitamin D tự nhiên</li>
+                 <li><strong>7. Lên kế hoạch 3 việc quan trọng nhất trong ngày</strong></li>
+                 <li><strong>8. Đánh răng và súc miệng nước muối</strong> — loại bỏ vi khuẩn tích tụ qua đêm</li>
+                 <li><strong>9. Tắm nước mát 30 giây cuối</strong> — kích thích tuần hoàn, tỉnh táo</li>
+                 <li><strong>10. Viết 3 điều biết ơn</strong> — cải thiện tâm trạng và sức khỏe tinh thần</li>
+               </ul>
+               <div class="highlight-box"><i class="fas fa-info-circle text-purple me-2"></i>Nghiên cứu cho thấy chỉ cần duy trì 5/10 thói quen trên trong 21 ngày liên tục, não sẽ tự động hóa chúng thành phản xạ.</div>`
+      },
+      6: {
+        badge: '<span class="news-badge bg-danger-subtle text-danger">Phòng bệnh</span>',
+        title: 'Phòng ngừa bệnh gout: chế độ ăn và lối sống cần thay đổi ngay',
+        meta: '<span><i class="fas fa-user-md me-1"></i>BS. Trần Thanh Tâm</span><span><i class="fas fa-calendar me-1"></i>13/03/2026</span><span><i class="fas fa-clock me-1"></i>7 phút đọc</span>',
+        body: `<p>Gout (gút) là bệnh do sự tích tụ acid uric trong máu vượt ngưỡng, hình thành tinh thể muối urat tại các khớp gây đau dữ dội. Bệnh đang ngày càng phổ biến ở người trẻ Việt Nam.</p>
+               <div class="highlight-box"><i class="fas fa-exclamation-triangle text-danger me-2"></i>Nồng độ acid uric bình thường: Nam < 7mg/dL, Nữ < 6mg/dL. Trên ngưỡng này cần theo dõi và điều chỉnh.</div>
+               <h6>Thực phẩm cần hạn chế</h6>
+               <ul>
+                 <li>Nội tạng động vật (gan, thận, não, lưỡi)</li>
+                 <li>Hải sản (tôm, cua, sò, cá trích, cá mòi)</li>
+                 <li>Thịt đỏ (bò, heo, cừu) — ăn dưới 150g/ngày</li>
+                 <li>Bia và rượu — đặc biệt bia làm tăng acid uric nhanh nhất</li>
+                 <li>Nước ngọt có đường fructose cao</li>
+               </ul>
+               <h6>Thực phẩm có lợi</h6>
+               <ul>
+                 <li>Anh đào (cherry) — giảm viêm và hạ acid uric tự nhiên</li>
+                 <li>Rau xanh lá đậm (cải xanh, bắp cải)</li>
+                 <li>Sản phẩm từ sữa ít béo</li>
+                 <li>Uống 2–3 lít nước/ngày để đào thải acid uric qua thận</li>
+               </ul>
+               <h6>Lối sống cần thay đổi</h6>
+               <ul>
+                 <li>Giảm cân nếu thừa cân (BMI > 23)</li>
+                 <li>Tập thể dục đều đặn — tránh tập cường độ cao làm tăng đột biến acid uric</li>
+                 <li>Kiểm tra nồng độ acid uric máu định kỳ 6 tháng/lần</li>
+               </ul>`
+      },
+      7: {
+        badge: '<span class="news-badge bg-primary-subtle text-primary">Hướng dẫn</span>',
+        title: 'Hướng dẫn sử dụng kháng sinh đúng cách, tránh kháng thuốc',
+        meta: '<span><i class="fas fa-user-md me-1"></i>DS. Nguyễn Quang Huy</span><span><i class="fas fa-calendar me-1"></i>11/03/2026</span><span><i class="fas fa-clock me-1"></i>6 phút đọc</span>',
+        body: `<div class="highlight-box"><i class="fas fa-exclamation-circle text-primary me-2"></i>WHO cảnh báo: kháng kháng sinh là một trong 10 mối đe dọa sức khỏe toàn cầu lớn nhất. Việt Nam là một trong các quốc gia có tỷ lệ kháng thuốc cao nhất khu vực.</div>
+               <p>Kháng sinh là vũ khí mạnh chống vi khuẩn, nhưng nếu dùng sai cách sẽ tạo ra các siêu vi khuẩn kháng thuốc — nguy hiểm cho cả cộng đồng.</p>
+               <h6>Những sai lầm phổ biến</h6>
+               <ul>
+                 <li><strong>Tự mua kháng sinh không có đơn:</strong> Hầu hết nhà thuốc Việt Nam vẫn bán kháng sinh tự do — đây là thói quen cần loại bỏ</li>
+                 <li><strong>Tự ý dừng thuốc khi thấy đỡ:</strong> Vi khuẩn chưa bị tiêu diệt hết sẽ đột biến kháng thuốc</li>
+                 <li><strong>Dùng kháng sinh cho bệnh do virus:</strong> Cảm cúm, cảm lạnh, COVID-19 đều do virus — kháng sinh hoàn toàn vô dụng</li>
+                 <li><strong>Dùng thuốc thừa của người khác:</strong> Mỗi loại kháng sinh nhắm đúng loại vi khuẩn cụ thể</li>
+               </ul>
+               <h6>Nguyên tắc "5 đúng" khi dùng kháng sinh</h6>
+               <ul>
+                 <li>Đúng thuốc — theo chỉ định của bác sĩ/dược sĩ</li>
+                 <li>Đúng liều — không tự ý tăng/giảm liều</li>
+                 <li>Đúng thời điểm — giữ khoảng cách đều giữa các lần uống</li>
+                 <li>Đúng thời gian — uống đủ liệu trình (thường 5–10 ngày)</li>
+                 <li>Đúng đường dùng — uống với nhiều nước, không nghiền viên nang</li>
+               </ul>`
+      },
+      8: {
+        badge: '<span class="news-badge bg-success-subtle text-success">Dinh dưỡng</span>',
+        title: 'Bổ sung Omega-3 đúng cách: khi nào, liều lượng bao nhiêu?',
+        meta: '<span><i class="fas fa-user-md me-1"></i>DS. Lê Thu Hà</span><span><i class="fas fa-calendar me-1"></i>10/03/2026</span><span><i class="fas fa-clock me-1"></i>4 phút đọc</span>',
+        body: `<p>Omega-3 là nhóm acid béo không bão hòa đa có vai trò thiết yếu với tim mạch, não bộ và hệ miễn dịch. Cơ thể không tự tổng hợp được mà phải lấy từ thực phẩm hoặc thực phẩm bổ sung.</p>
+               <h6>Lợi ích đã được chứng minh của Omega-3</h6>
+               <ul>
+                 <li>Giảm triglycerid máu, bảo vệ tim mạch</li>
+                 <li>Hỗ trợ phát triển não bộ và thị lực ở trẻ em</li>
+                 <li>Giảm viêm, hỗ trợ bệnh viêm khớp</li>
+                 <li>Cải thiện tâm trạng, giảm nguy cơ trầm cảm</li>
+               </ul>
+               <div class="highlight-box"><i class="fas fa-fish text-success me-2"></i>Nguồn Omega-3 tốt nhất từ thực phẩm: cá hồi, cá thu, cá trích (2–3 lần/tuần). Hạt lanh, quả óc chó cho nguồn ALA thực vật.</div>
+               <h6>Liều lượng khuyến nghị</h6>
+               <ul>
+                 <li>Người khỏe mạnh: 250–500mg EPA+DHA/ngày</li>
+                 <li>Bệnh tim mạch: 1000mg EPA+DHA/ngày (theo chỉ định)</li>
+                 <li>Triglycerid cao: 2000–4000mg/ngày (bác sĩ kê đơn)</li>
+               </ul>
+               <h6>Uống Omega-3 đúng cách</h6>
+               <ul>
+                 <li>Uống <strong>sau bữa ăn có chất béo</strong> — tăng hấp thu 3 lần so với uống lúc đói</li>
+                 <li>Bảo quản trong tủ lạnh sau khi mở — chống oxy hóa</li>
+                 <li>Chọn sản phẩm có chứng nhận IFOS hoặc USP để đảm bảo chất lượng</li>
+               </ul>`
+      },
+      9: {
+        badge: '<span class="news-badge bg-warning-subtle text-warning">An toàn thuốc</span>',
+        title: 'Những tương tác thuốc nguy hiểm thường gặp cần biết',
+        meta: '<span><i class="fas fa-user-md me-1"></i>DS. Hoàng Minh Tuấn</span><span><i class="fas fa-calendar me-1"></i>08/03/2026</span><span><i class="fas fa-clock me-1"></i>8 phút đọc</span>',
+        body: `<p>Tương tác thuốc xảy ra khi hai hoặc nhiều thuốc dùng cùng lúc ảnh hưởng lẫn nhau, có thể làm giảm hiệu quả điều trị hoặc tăng độc tính nguy hiểm.</p>
+               <div class="highlight-box"><i class="fas fa-exclamation-triangle text-warning me-2"></i>Luôn thông báo cho bác sĩ và dược sĩ tất cả thuốc đang dùng, kể cả thuốc bổ, thảo dược và thực phẩm chức năng.</div>
+               <h6>Các cặp tương tác nguy hiểm phổ biến</h6>
+               <ul>
+                 <li><strong>Warfarin + Aspirin/NSAID:</strong> Tăng nguy cơ xuất huyết nặng</li>
+                 <li><strong>Thuốc huyết áp (ACE inhibitor) + NSAID:</strong> Giảm hiệu quả hạ áp, suy thận</li>
+                 <li><strong>Kháng sinh Fluoroquinolone + Antacid (thuốc dạ dày):</strong> Giảm hấp thu kháng sinh 90%</li>
+                 <li><strong>Statin + Clarithromycin:</strong> Tăng nồng độ statin gây tiêu cơ</li>
+                 <li><strong>Thuốc tránh thai + Rifampicin:</strong> Rifampicin làm giảm hiệu quả tránh thai</li>
+                 <li><strong>Digoxin + Amiodarone:</strong> Tăng nồng độ digoxin gây ngộ độc tim</li>
+               </ul>
+               <h6>Tương tác thuốc-thực phẩm cần lưu ý</h6>
+               <ul>
+                 <li><strong>Bưởi + Statin/Thuốc huyết áp:</strong> Bưởi ức chế enzyme CYP3A4, làm tăng nồng độ thuốc trong máu</li>
+                 <li><strong>Sữa + Kháng sinh Tetracycline/Fluoroquinolone:</strong> Canxi trong sữa cản trở hấp thu</li>
+                 <li><strong>Rượu + Metronidazole/Paracetamol:</strong> Gây phản ứng độc hại nghiêm trọng</li>
+               </ul>`
+      },
+      10: {
+        badge: '<span class="news-badge bg-info-subtle text-info">Mẹo hay</span>',
+        title: 'Cách nhận biết thuốc giả, thuốc kém chất lượng trên thị trường',
+        meta: '<span><i class="fas fa-user-md me-1"></i>DS. Võ Thị Bích Liên</span><span><i class="fas fa-calendar me-1"></i>06/03/2026</span><span><i class="fas fa-clock me-1"></i>5 phút đọc</span>',
+        body: `<p>Thuốc giả và thuốc kém chất lượng không chỉ không chữa được bệnh mà còn có thể gây nguy hiểm tính mạng. Đây là vấn đề nhức nhối tại nhiều quốc gia đang phát triển.</p>
+               <h6>Kiểm tra bao bì và nhãn mác</h6>
+               <ul>
+                 <li>Số đăng ký lưu hành thuốc (ví dụ: VD-xxxxx-xx) — tra cứu trên cục quản lý dược</li>
+                 <li>Thông tin nhà sản xuất, địa chỉ đầy đủ, website kiểm tra</li>
+                 <li>In ấn sắc nét, không mờ nhòe, không lỗi chính tả</li>
+                 <li>Tem hologram chống giả (nếu có)</li>
+               </ul>
+               <div class="highlight-box"><i class="fas fa-mobile-alt text-info me-2"></i>Nhiều nhà sản xuất uy tín có app hoặc QR code để xác minh hàng chính hãng. Quét QR trước khi mua.</div>
+               <h6>Dấu hiệu nghi ngờ thuốc giả</h6>
+               <ul>
+                 <li>Giá thấp bất thường so với thị trường (thường dưới 50% giá thật)</li>
+                 <li>Mua qua mạng xã hội, fanpage không rõ nguồn gốc</li>
+                 <li>Viên thuốc có màu sắc, mùi vị khác thường</li>
+                 <li>Nhà thuốc không có biển hiệu GPP, không xuất hóa đơn</li>
+               </ul>
+               <h6>Mua thuốc an toàn ở đâu?</h6>
+               <p>Ưu tiên nhà thuốc đạt chuẩn GPP (Good Pharmacy Practice), chuỗi nhà thuốc lớn có pháp nhân rõ ràng. Với thuốc đặc trị, hãy mua theo đơn bác sĩ tại nhà thuốc bệnh viện.</p>`
+      },
+      11: {
+        badge: '<span class="news-badge bg-purple-subtle text-purple">Sống khỏe</span>',
+        title: 'Stress mãn tính ảnh hưởng thế nào đến sức khỏe toàn thân?',
+        meta: '<span><i class="fas fa-user-md me-1"></i>BS. Nguyễn Văn Thành</span><span><i class="fas fa-calendar me-1"></i>04/03/2026</span><span><i class="fas fa-clock me-1"></i>6 phút đọc</span>',
+        body: `<p>Stress ngắn hạn là phản ứng bình thường giúp con người ứng phó với nguy hiểm. Nhưng khi stress kéo dài không được giải tỏa, nó trở thành kẻ thù thầm lặng phá hoại sức khỏe toàn diện.</p>
+               <div class="highlight-box"><i class="fas fa-brain text-purple me-2"></i>Cortisol — "hormone stress" — khi tăng mãn tính sẽ ức chế gần như tất cả hệ thống trong cơ thể.</div>
+               <h6>Ảnh hưởng lên từng cơ quan</h6>
+               <ul>
+                 <li><strong>Tim mạch:</strong> Tăng huyết áp, nhịp tim bất thường, tăng nguy cơ đột quỵ</li>
+                 <li><strong>Tiêu hóa:</strong> Hội chứng ruột kích thích (IBS), loét dạ dày, buồn nôn mãn tính</li>
+                 <li><strong>Miễn dịch:</strong> Suy giảm 40–70% chức năng, dễ mắc bệnh nhiễm trùng</li>
+                 <li><strong>Giấc ngủ:</strong> Khó ngủ, ngủ không sâu, thức dậy mệt mỏi</li>
+                 <li><strong>Cân nặng:</strong> Tăng cân vùng bụng do cortisol kích thích tích mỡ</li>
+                 <li><strong>Da:</strong> Mụn trứng cá, chàm, vảy nến bùng phát</li>
+               </ul>
+               <h6>Chiến lược quản lý stress hiệu quả</h6>
+               <ul>
+                 <li>Tập thể dục 30 phút/ngày — giải phóng endorphin tự nhiên</li>
+                 <li>Thiền định hoặc mindfulness 10 phút/ngày</li>
+                 <li>Ngủ đủ 7–8 giờ — giảm cortisol hiệu quả nhất</li>
+                 <li>Kết nối xã hội — tương tác với người thân, bạn bè</li>
+                 <li>Giới hạn thời gian xem tin tức, mạng xã hội</li>
+                 <li>Nếu cần, tham vấn chuyên gia tâm lý — không có gì đáng xấu hổ</li>
+               </ul>`
+      },
+      12: {
+        badge: '<span class="news-badge bg-danger-subtle text-danger">Phòng bệnh</span>',
+        title: 'Phòng ngừa viêm đường hô hấp trên vào mùa lạnh',
+        meta: '<span><i class="fas fa-user-md me-1"></i>BS. Trần Thị Mai</span><span><i class="fas fa-calendar me-1"></i>02/03/2026</span><span><i class="fas fa-clock me-1"></i>4 phút đọc</span>',
+        body: `<p>Viêm đường hô hấp trên (viêm họng, viêm mũi, viêm xoang) là bệnh phổ biến nhất vào mùa lạnh và thời điểm giao mùa. Phòng ngừa đúng cách có thể giảm 70% nguy cơ mắc bệnh.</p>
+               <h6>Hàng rào bảo vệ đầu tiên</h6>
+               <ul>
+                 <li><strong>Rửa tay thường xuyên:</strong> 20 giây với xà phòng, đặc biệt trước ăn và sau khi về nhà</li>
+                 <li><strong>Không chạm tay lên mặt:</strong> Mắt, mũi, miệng là cửa ngõ chính của virus</li>
+                 <li><strong>Đeo khẩu trang:</strong> Ở nơi đông người, kín gió, tiếp xúc người bệnh</li>
+               </ul>
+               <div class="highlight-box"><i class="fas fa-tint text-danger me-2"></i>Súc miệng nước muối 0.9% ngày 2–3 lần giúp loại bỏ 99% vi khuẩn trong họng và giảm nguy cơ viêm họng.</div>
+               <h6>Tăng cường sức đề kháng</h6>
+               <ul>
+                 <li>Giữ ấm cổ, ngực khi ra ngoài trời lạnh</li>
+                 <li>Uống nước ấm, tránh nước đá lạnh</li>
+                 <li>Bổ sung Vitamin C, D và Kẽm theo liều khuyến nghị</li>
+                 <li>Tiêm vaccine cúm hàng năm — giảm 60% nguy cơ biến chứng nặng</li>
+               </ul>
+               <h6>Khi nào cần đến gặp bác sĩ?</h6>
+               <ul>
+                 <li>Sốt trên 38.5°C kéo dài hơn 3 ngày</li>
+                 <li>Khó thở, đau ngực</li>
+                 <li>Đau họng dữ dội không nuốt được</li>
+                 <li>Trẻ em dưới 3 tuổi hoặc người cao tuổi bị bệnh</li>
+               </ul>`
+      },
+      13: {
+        badge: '<span class="news-badge bg-primary-subtle text-primary">Hướng dẫn</span>',
+        title: 'Trẻ em uống thuốc: liều lượng tính theo cân nặng hay tuổi?',
+        meta: '<span><i class="fas fa-user-md me-1"></i>DS. Phạm Thị Thu Trang</span><span><i class="fas fa-calendar me-1"></i>28/02/2026</span><span><i class="fas fa-clock me-1"></i>5 phút đọc</span>',
+        body: `<p>Liều thuốc cho trẻ em không thể tính theo kinh nghiệm hay "ước chừng". Sai một chút có thể gây dưới liều (không hiệu quả) hoặc quá liều (ngộ độc).</p>
+               <div class="highlight-box"><i class="fas fa-child text-primary me-2"></i><strong>Nguyên tắc vàng:</strong> Luôn tính liều theo <strong>cân nặng (mg/kg)</strong>, không phải theo tuổi hay kích thước cơ thể.</div>
+               <h6>Tại sao tính theo cân nặng quan trọng hơn tuổi?</h6>
+               <p>Hai trẻ 5 tuổi có thể nặng 15kg và 25kg — cùng một liều sẽ quá cao cho bé nhỏ và quá thấp cho bé lớn. Liều theo tuổi chỉ là ước tính thô.</p>
+               <h6>Công thức tính liều Paracetamol cho trẻ</h6>
+               <ul>
+                 <li>Liều chuẩn: <strong>10–15mg/kg/lần</strong>, mỗi 4–6 giờ</li>
+                 <li>Liều tối đa trong ngày: <strong>60mg/kg/ngày</strong></li>
+                 <li>Ví dụ: Trẻ 20kg → 200–300mg/lần, tối đa 4–5 lần/ngày</li>
+               </ul>
+               <h6>Lưu ý khi dùng thuốc cho trẻ</h6>
+               <ul>
+                 <li>Dùng thìa đo hoặc xylanh đo liều — không dùng thìa ăn thông thường</li>
+                 <li>Không dùng thuốc dạng người lớn và cắt nhỏ ra cho trẻ</li>
+                 <li>Không pha thuốc vào sữa hay nước ép trái cây — có thể làm giảm hiệu lực</li>
+                 <li>Luôn tham khảo dược sĩ nếu không chắc về liều lượng</li>
+               </ul>`
       }
+    };
 
-      document.querySelectorAll('.news-tab, .news-cat-link, .news-tag').forEach(function (el) {
-        el.addEventListener('click', function (e) {
-          e.preventDefault();
-          filterCat(this.dataset.cat);
-        });
+    /* ===== Category filter ===== */
+    function filterCat(cat) {
+      document.querySelectorAll('.news-tab').forEach(t => t.classList.toggle('active', t.dataset.cat === cat));
+      document.querySelectorAll('.news-cat-link').forEach(t => t.classList.toggle('fw-bold', t.dataset.cat === cat));
+      var featured = document.querySelector('.news-featured');
+      if (featured) featured.parentElement.style.display = (cat === 'all' || featured.dataset.cat === cat) ? '' : 'none';
+      document.querySelectorAll('#articleGrid > [data-cat]').forEach(function (el) {
+        el.classList.toggle('d-none', cat !== 'all' && el.dataset.cat !== cat);
       });
+    }
 
-      /* --- Search filter --- */
-      document.getElementById('newsSearch').addEventListener('input', function () {
-        var q = this.value.trim().toLowerCase();
-        document.querySelectorAll('#articleGrid > [data-cat]').forEach(function (el) {
-          var title = (el.querySelector('h6') || el.querySelector('h5') || { textContent: '' }).textContent.toLowerCase();
-          el.classList.toggle('d-none', q !== '' && !title.includes(q));
-        });
-        if (q) {
-          document.querySelectorAll('.news-tab').forEach(t => t.classList.remove('active'));
-        }
-      });
+    document.querySelectorAll('.news-tab, .news-cat-link, .news-tag').forEach(function (el) {
+      el.addEventListener('click', function (e) { e.preventDefault(); filterCat(this.dataset.cat); });
+    });
 
-      /* --- Load more (shows all hidden cards) --- */
-      var loadMoreBtn = document.getElementById('loadMoreBtn');
-      loadMoreBtn.addEventListener('click', function () {
-        document.querySelectorAll('.news-card.d-none-extra').forEach(el => el.classList.remove('d-none-extra'));
-        this.style.display = 'none';
+    /* ===== Search ===== */
+    document.getElementById('newsSearch').addEventListener('input', function () {
+      var q = this.value.trim().toLowerCase();
+      document.querySelectorAll('#articleGrid > [data-cat]').forEach(function (el) {
+        var title = (el.querySelector('h6') || { textContent: '' }).textContent.toLowerCase();
+        el.classList.toggle('d-none', q !== '' && !title.includes(q));
       });
-    })();
+    });
+
+    /* ===== Article modal ===== */
+    function openArticle(id) {
+      var art = ARTICLES[id];
+      if (!art) return;
+      document.getElementById('modalBadge').innerHTML = art.badge;
+      document.getElementById('modalTitle').textContent = art.title;
+      document.getElementById('modalMeta').innerHTML = art.meta;
+      document.getElementById('modalBody').innerHTML = art.body;
+      var modal = new bootstrap.Modal(document.getElementById('articleModal'));
+      modal.show();
+    }
+
+    document.querySelectorAll('.article-card').forEach(function (card) {
+      card.addEventListener('click', function (e) {
+        if (e.target.closest('a')) return;
+        openArticle(parseInt(this.dataset.id));
+      });
+    });
+
+    document.querySelectorAll('.read-more-btn').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var card = this.closest('.article-card');
+        if (card) openArticle(parseInt(card.dataset.id));
+      });
+    });
   </script>
 </body>
 </html>
