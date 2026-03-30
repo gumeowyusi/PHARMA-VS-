@@ -46,6 +46,9 @@
                         th:text="${order.giaohang == 'Giao hàng nhanh'?'Giao hàng nhanh (+50.000₫)':'Giao hàng tiêu chuẩn (+20.000₫)'}">
                       </td>
                       <td>
+                        <th:block th:if="${order.trangthai == 'awaiting_payment'}">
+                          <span class="badge bg-warning text-dark"><i class="fas fa-hourglass-half me-1"></i>Chờ thanh toán</span>
+                        </th:block>
                         <th:block th:if="${order.trangthai == 'pending'}">
                           <span class="badge bg-secondary"><i class="fas fa-clock me-1"></i>Chờ xác nhận</span>
                         </th:block>

@@ -73,8 +73,8 @@ public class HoaDonService {
 			String giaoHang = orderRequest.getDeliveryMethod() == 1 ? "Giao hàng tiêu chuẩn" : "Giao hàng nhanh";
 			String pm = isPayOS ? "PayOS (Chuyển khoản)" : "COD (Tiền mặt)";
 			String giaohangWithPayment = giaoHang + " | Thanh toán: " + pm;
-			// PayOS đã thanh toán online → "paid"; COD chờ xác nhận → "pending"
-			String initialStatus = isPayOS ? "paid" : "pending";
+			// PayOS: chờ thanh toán online → "awaiting_payment"; COD → "pending"
+			String initialStatus = isPayOS ? "awaiting_payment" : "pending";
 
 			HoaDon hoaDon = new HoaDon(users, new Date(), initialStatus, orderRequest.getAddress(), giaohangWithPayment);
 			if (khachHang != null) {
@@ -123,6 +123,37 @@ public class HoaDonService {
 	public HoaDon getHoaDonById(Integer id) {
 		return hoaDonRepository.findById(id)
 				.orElseThrow(() -> new IllegalArgumentException("Mã hóa đơn không tồn tại!"));
+	}
+
+	/** Gọi khi PayOS xác nhận thanh toán thành công */
+	public void markOrderAsPaid(Integer orderId) {
+		HoaDon hoaDon = getHoaDonById(orderId);
+		if ("awaiting_payment".equals(hoaDon.getTrangthai())) {
+			hoaDon.setTrangthai("paid");
+			hoaDonRepository.save(hoaDon);
+			// Gửi email xác nhận
+			try {
+				List<HoaDonChiTiet> items = hoaDon.getHoaDonChiTiets();
+				double deliveryPrice = 0;
+				if (hoaDon.getGiaohang() != null && hoaDon.getGiaohang().contains("nhanh")) deliveryPrice = 50000;
+				else if (hoaDon.getGiaohang() != null) deliveryPrice = 20000;
+				String toEmail = null;
+				if (hoaDon.getUsers() != null) toEmail = hoaDon.getUsers().getIdUser();
+				else if (hoaDon.getKhachHang() != null && hoaDon.getKhachHang().getEmail() != null)
+					toEmail = hoaDon.getKhachHang().getEmail();
+				if (toEmail != null) {
+					emailService.sendOrderConfirmationEmail(
+							toEmail,
+							"[MEDISALE] Xác nhận đơn hàng #" + orderId + " - Đã thanh toán PayOS",
+							hoaDon, items, deliveryPrice);
+				}
+			} catch (Exception ignored) {}
+		}
+	}
+
+	public HoaDon getHoaDonById(Integer id) {
+		return hoaDonRepository.findById(id)
+				.orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng #" + id));
 	}
 
 	public void cancelOrder(Integer id) {

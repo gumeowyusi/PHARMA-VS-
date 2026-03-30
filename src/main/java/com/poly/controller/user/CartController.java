@@ -18,6 +18,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+
+import org.springframework.beans.factory.annotation.Value;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.poly.entity.CartItemRequest;
 import com.poly.entity.CartItemResponse;
 import com.poly.entity.OrderRequest;
@@ -41,8 +50,50 @@ public class CartController {
 	@Autowired
 	HoaDonService hoaDonService;
 
+	@Value("${PAYOS_CLIENT_ID:}")
+	private String payosClientId;
+	@Value("${PAYOS_API_KEY:}")
+	private String payosApiKey;
+
+	private final HttpClient httpClient = HttpClient.newHttpClient();
+	private final ObjectMapper mapper = new ObjectMapper();
+
 	@GetMapping("/cart")
-	public String cart(Model model) {
+	public String cart(Model model,
+			@RequestParam(required = false) String pay,
+			@RequestParam(required = false) Long code,
+			@RequestParam(required = false) Integer orderId) {
+
+		// Xử lý callback từ PayOS
+		if ("success".equals(pay) && code != null && orderId != null) {
+			try {
+				// Verify với PayOS
+				String url = "https://api-merchant.payos.vn/v2/payment-requests/" + code;
+				HttpRequest req = HttpRequest.newBuilder().uri(URI.create(url))
+						.header("x-client-id", payosClientId)
+						.header("x-api-key", payosApiKey)
+						.GET().build();
+				HttpResponse<String> resp = httpClient.send(req, HttpResponse.BodyHandlers.ofString());
+				JsonNode node = mapper.readTree(resp.body());
+				String status = node.path("data").path("status").asText("UNKNOWN");
+				if ("PAID".equalsIgnoreCase(status)) {
+					hoaDonService.markOrderAsPaid(orderId);
+					model.addAttribute("paySuccess", true);
+					model.addAttribute("payOrderId", orderId);
+				} else {
+					model.addAttribute("payFailed", true);
+				}
+			} catch (Exception e) {
+				model.addAttribute("payFailed", true);
+			}
+		} else if ("cancel".equals(pay) && orderId != null) {
+			// Hủy đơn awaiting_payment
+			try {
+				hoaDonService.cancelOrder(orderId);
+			} catch (Exception ignored) {}
+			model.addAttribute("payCancelled", true);
+		}
+
 		model.addAttribute("loais", loaiService.getAllLoai(0, 5));
 		return "user/cart";
 	}

@@ -27,9 +27,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.poly.entity.GioHang;
-import com.poly.entity.GioHangChiTiet;
-import com.poly.service.CartService;
+import com.poly.entity.HoaDon;
+import com.poly.entity.HoaDonChiTiet;
+import com.poly.service.HoaDonService;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -48,15 +48,15 @@ public class PaymentController {
     @Value("${PAYOS_CHECKSUM_KEY}")
     private String checksumKey;
 
-    private final CartService cartService;
+    private final HoaDonService hoaDonService;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final HttpClient httpClient = HttpClient.newHttpClient();
 
-    public PaymentController(CartService cartService) {
-        this.cartService = cartService;
+    public PaymentController(HoaDonService hoaDonService) {
+        this.hoaDonService = hoaDonService;
     }
 
-    record CreateBankTransferRequest(int cartId, int deliveryMethod, double deliveryPrice, String note) {}
+    record CreateBankTransferRequest(int orderId, double deliveryPrice) {}
 
     /** Tính HMAC-SHA256 signature cho PayOS request */
     private String hmacSha256(String data) throws Exception {
@@ -73,22 +73,21 @@ public class PaymentController {
     public ResponseEntity<?> createBankTransfer(@RequestBody CreateBankTransferRequest req,
                                                  HttpServletRequest request) {
         try {
-            GioHang cart = cartService.getCartById(req.cartId());
-            if (cart == null)
-                return ResponseEntity.status(404).body(Map.of("message", "Không tìm thấy giỏ hàng"));
+            HoaDon hoaDon = hoaDonService.getHoaDonById(req.orderId());
+            if (hoaDon == null)
+                return ResponseEntity.status(404).body(Map.of("message", "Không tìm thấy đơn hàng"));
 
-            List<GioHangChiTiet> items = cart.getGioHangChiTiets();
+            List<HoaDonChiTiet> items = hoaDon.getHoaDonChiTiets();
             if (items == null || items.isEmpty())
-                return ResponseEntity.status(400).body(Map.of("message", "Giỏ hàng trống"));
+                return ResponseEntity.status(400).body(Map.of("message", "Đơn hàng trống"));
 
-            // Tính tổng tiền
-            int tempTotal = items.stream().mapToInt(ct -> {
-                int unit = ct.getSanPham().getGia() * (100 - ct.getSanPham().getGiamgia()) / 100;
-                return unit * ct.getSoluong();
-            }).sum();
+            // Tính tổng tiền từ DB
+            int tempTotal = items.stream().mapToInt(ct ->
+                ct.getGia() * (100 - ct.getGiamgia()) / 100 * ct.getSoluong()
+            ).sum();
             int amount = (int) Math.max(1000, Math.round(tempTotal + req.deliveryPrice()));
 
-            // Tạo orderCode từ timestamp (10 chữ số cuối)
+            // Tạo orderCode từ timestamp
             String ts = String.valueOf(new Date().getTime());
             long orderCode = Long.parseLong(ts.substring(Math.max(0, ts.length() - 10)));
 
@@ -97,15 +96,16 @@ public class PaymentController {
                     + (request.getServerPort() == 80 ? "" : ":" + request.getServerPort())
                     + request.getContextPath();
 
-            String returnUrl = baseUrl + "/cart?pay=success&code=" + orderCode;
-            String cancelUrl = baseUrl + "/cart?pay=cancel&code=" + orderCode;
+            // Truyền orderId vào returnUrl để server xử lý sau khi thanh toán
+            String returnUrl = baseUrl + "/cart?pay=success&code=" + orderCode + "&orderId=" + req.orderId();
+            String cancelUrl = baseUrl + "/cart?pay=cancel&code=" + orderCode + "&orderId=" + req.orderId();
 
             // Description: chỉ A-Z, 0-9, space; max 25 ký tự
-            String desc = ("THANH TOAN " + orderCode);
+            String desc = "THANH TOAN " + orderCode;
             if (desc.length() > 25) desc = "DH " + orderCode;
             if (desc.length() > 25) desc = String.valueOf(orderCode).substring(0, Math.min(25, String.valueOf(orderCode).length()));
 
-            // Tính signature (sort theo alphabet)
+            // Tính signature
             String sigData = "amount=" + amount
                     + "&cancelUrl=" + cancelUrl
                     + "&description=" + desc
@@ -123,11 +123,11 @@ public class PaymentController {
             body.put("signature", signature);
 
             ArrayNode itemsNode = body.putArray("items");
-            for (GioHangChiTiet ct : items) {
+            for (HoaDonChiTiet ct : items) {
                 ObjectNode item = objectMapper.createObjectNode();
                 item.put("name", ct.getSanPham().getTenSanpham());
                 item.put("quantity", ct.getSoluong());
-                item.put("price", ct.getSanPham().getGia() * (100 - ct.getSanPham().getGiamgia()) / 100);
+                item.put("price", ct.getGia() * (100 - ct.getGiamgia()) / 100);
                 itemsNode.add(item);
             }
 
