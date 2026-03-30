@@ -46,14 +46,23 @@
                         th:text="${order.giaohang == 'Giao hàng nhanh'?'Giao hàng nhanh (+50.000₫)':'Giao hàng tiêu chuẩn (+20.000₫)'}">
                       </td>
                       <td>
+                        <th:block th:if="${order.trangthai == 'pending'}">
+                          <span class="badge bg-secondary"><i class="fas fa-clock me-1"></i>Chờ xác nhận</span>
+                        </th:block>
+                        <th:block th:if="${order.trangthai == 'paid'}">
+                          <span class="badge bg-info text-dark"><i class="fas fa-credit-card me-1"></i>Đã thanh toán</span>
+                        </th:block>
+                        <th:block th:if="${order.trangthai == 'confirmed'}">
+                          <span class="badge bg-primary"><i class="fas fa-clipboard-check me-1"></i>Đã xác nhận</span>
+                        </th:block>
                         <th:block th:if="${order.trangthai == 'ondelivery'}">
-                          <span class="badge bg-warning text-dark">Đang giao hàng</span>
+                          <span class="badge bg-warning text-dark"><i class="fas fa-truck me-1"></i>Đang giao hàng</span>
                         </th:block>
                         <th:block th:if="${order.trangthai == 'received'}">
-                          <span class="badge bg-success">Giao hàng thành công</span>
+                          <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Giao hàng thành công</span>
                         </th:block>
                         <th:block th:if="${order.trangthai == 'cancel'}">
-                          <span class="badge bg-danger">Hủy đơn hàng</span>
+                          <span class="badge bg-danger"><i class="fas fa-times-circle me-1"></i>Đã hủy</span>
                         </th:block>
                       </td>
                       <td class="text-center text-nowrap">
