@@ -233,9 +233,9 @@ async function _fetchUpdateCartItem(cartItemId, quantity, productId) {
 
 async function _fetchPostAddOrder() {
   const address = document.querySelector("#diachi");
-  if (address.value.length === 0) {
-    createToast(toastComponent("Vui lòng nhập số địa chỉ giao hàng", "danger"));
-    return;
+  if (!address || address.value.trim().length === 0) {
+    createToast(toastComponent("Vui lòng nhập địa chỉ giao hàng", "danger"));
+    return [null, null];
   }
   const orderItems = state.cart.cartItems.map((cartItem) => ({
     productId: cartItem.productId,
@@ -524,92 +524,51 @@ const state = {
   checkoutCart: async () => {
     if (state.order.paymentMethod === "BANK_TRANSFER") {
       try {
+        // Bước 1: Tạo đơn hàng trước (status: awaiting_payment)
+        const orderResult = await _fetchPostAddOrder();
+        if (!orderResult || orderResult[0] === null) return; // address error shown above
+        const [orderStatus, orderData] = orderResult;
+        if (orderStatus === 422) {
+          createToast(toastComponent("Số lượng tồn kho không đủ", "danger"));
+          return;
+        }
+        if (orderStatus !== 200 || !orderData?.orderId) {
+          createToast(toastComponent(FAILED_OPERATION_MESSAGE, "danger"));
+          return;
+        }
+        const orderId = orderData.orderId;
+
+        // Bước 2: Tạo link PayOS với orderId
         const resp = await fetch("/api/payments/bank-transfer", {
           method: "POST",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
+          headers: { Accept: "application/json", "Content-Type": "application/json" },
           credentials: "same-origin",
           body: JSON.stringify({
-            cartId: state.cart.cartItems[0]?.cartId,
-            deliveryMethod: state.order.deliveryMethod,
+            orderId: orderId,
             deliveryPrice: state.order.deliveryPrice,
-            note: "",
           }),
         });
         if (resp.status !== 200) {
           let errMsg = "Không tạo được liên kết thanh toán";
-          try {
-            const errBody = await resp.json();
-            if (errBody && errBody.message) errMsg = errBody.message;
-          } catch (_) {}
+          try { const b = await resp.json(); if (b?.message) errMsg = b.message; } catch (_) {}
           createToast(toastComponent(errMsg, "danger"));
           return;
         }
         const data = await resp.json();
-        const checkoutUrl = data.checkoutUrl;
-        const orderCode = data.orderCode;
-        window.open(checkoutUrl, "_blank");
-        const deadline = Date.now() + 10 * 60 * 1000;
-        let paid = false;
-        while (Date.now() < deadline) {
-          await new Promise((r) => setTimeout(r, 5000));
-          const stResp = await fetch(
-            `/api/payments/status?orderCode=${orderCode}`,
-            { credentials: "same-origin" }
-          );
-          if (stResp.status === 200) {
-            const st = await stResp.json();
-            if (st.status && st.status.toUpperCase() === "PAID") {
-              paid = true;
-              break;
-            }
-            if (
-              st.status &&
-              (st.status.toUpperCase() === "CANCELLED" ||
-                st.status.toUpperCase() === "EXPIRED")
-            ) {
-              break;
-            }
-          }
-        }
-        if (!paid) {
-          createToast(
-            toastComponent(
-              "Thanh toán chưa hoàn tất hoặc đã hủy/hết hạn",
-              "warning"
-            )
-          );
-          return;
-        }
-        const [status, result] = await _fetchPostAddOrder();
-        if (status === 200) {
-          state.cart = { ...initialCart };
-          state.order = { ...initialOrder };
-          render();
-          const orderIdText = result?.orderId
-            ? ` Mã đơn hàng: #${result.orderId}`
-            : "";
-          createToast(
-            toastComponent(
-              `Đã nhận thanh toán. ${SUCCESS_ADD_ORDER_MESSAGE}${orderIdText}`,
-              "success"
-            )
-          );
-          setTotalCartItemsQuantity(state.cart);
-        } else if (status === 422) {
-          createToast(toastComponent("Số lượng tồn kho không đủ", "danger"));
-        } else {
-          createToast(toastComponent(FAILED_OPERATION_MESSAGE, "danger"));
-        }
+
+        // Bước 3: Redirect toàn trang sang PayOS (server sẽ xử lý khi quay lại)
+        state.cart = { ...initialCart };
+        state.order = { ...initialOrder };
+        window.location.href = data.checkoutUrl;
       } catch (e) {
-        createToast(toastComponent("Lỗi khi xử lý thanh toán", "danger"));
+        createToast(toastComponent("Lỗi khi xử lý thanh toán: " + e.message, "danger"));
       }
       return;
     }
     // Cash on delivery -> place order immediately
-    const [status, data] = await _fetchPostAddOrder();
+    const codResult = await _fetchPostAddOrder();
+    if (!codResult || codResult[0] === null) return;
+    const [status, data] = codResult;
     if (status === 200) {
       state.cart = { ...initialCart };
       state.order = { ...initialOrder };
