@@ -1,11 +1,20 @@
 package com.poly.controller.user;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,90 +23,149 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.poly.entity.GioHang;
 import com.poly.entity.GioHangChiTiet;
 import com.poly.service.CartService;
 
 import jakarta.servlet.http.HttpServletRequest;
-import vn.payos.PayOS;
-import vn.payos.type.CheckoutResponseData;
-import vn.payos.type.ItemData;
-import vn.payos.type.PaymentData;
 
 @Controller
 public class PaymentController {
 
     private static final Logger log = LoggerFactory.getLogger(PaymentController.class);
+    private static final String PAYOS_API = "https://api-merchant.payos.vn/v2/payment-requests";
 
-    private final PayOS payOS;
+    @Value("${PAYOS_CLIENT_ID}")
+    private String clientId;
+
+    @Value("${PAYOS_API_KEY}")
+    private String apiKey;
+
+    @Value("${PAYOS_CHECKSUM_KEY}")
+    private String checksumKey;
+
     private final CartService cartService;
+    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final HttpClient httpClient = HttpClient.newHttpClient();
 
-    public PaymentController(PayOS payOS, CartService cartService) {
-        this.payOS = payOS;
+    public PaymentController(CartService cartService) {
         this.cartService = cartService;
     }
 
     record CreateBankTransferRequest(int cartId, int deliveryMethod, double deliveryPrice, String note) {}
 
+    /** Tính HMAC-SHA256 signature cho PayOS request */
+    private String hmacSha256(String data) throws Exception {
+        Mac mac = Mac.getInstance("HmacSHA256");
+        mac.init(new SecretKeySpec(checksumKey.getBytes(StandardCharsets.UTF_8), "HmacSHA256"));
+        byte[] bytes = mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
+        StringBuilder sb = new StringBuilder();
+        for (byte b : bytes) sb.append(String.format("%02x", b));
+        return sb.toString();
+    }
+
     @ResponseBody
     @PostMapping("/api/payments/bank-transfer")
-    public ResponseEntity<?> createBankTransfer(@RequestBody CreateBankTransferRequest req, HttpServletRequest request) {
+    public ResponseEntity<?> createBankTransfer(@RequestBody CreateBankTransferRequest req,
+                                                 HttpServletRequest request) {
         try {
             GioHang cart = cartService.getCartById(req.cartId());
-            if (cart == null) return ResponseEntity.status(404).body(Map.of("message", "Không tìm thấy giỏ hàng"));
-            List<GioHangChiTiet> items = cart.getGioHangChiTiets();
-            if (items == null || items.isEmpty()) {
-                return ResponseEntity.status(400).body(Map.of("message", "Giỏ hàng trống"));
-            }
+            if (cart == null)
+                return ResponseEntity.status(404).body(Map.of("message", "Không tìm thấy giỏ hàng"));
 
+            List<GioHangChiTiet> items = cart.getGioHangChiTiets();
+            if (items == null || items.isEmpty())
+                return ResponseEntity.status(400).body(Map.of("message", "Giỏ hàng trống"));
+
+            // Tính tổng tiền
             int tempTotal = items.stream().mapToInt(ct -> {
                 int unit = ct.getSanPham().getGia() * (100 - ct.getSanPham().getGiamgia()) / 100;
                 return unit * ct.getSoluong();
             }).sum();
-            long amount = Math.max(0, Math.round(tempTotal + req.deliveryPrice()));
+            int amount = (int) Math.max(1000, Math.round(tempTotal + req.deliveryPrice()));
 
-            String currentTimeString = String.valueOf(new Date().getTime());
-            long orderCode = Long.parseLong(currentTimeString.substring(Math.max(0, currentTimeString.length() - 10)));
+            // Tạo orderCode từ timestamp (10 chữ số cuối)
+            String ts = String.valueOf(new Date().getTime());
+            long orderCode = Long.parseLong(ts.substring(Math.max(0, ts.length() - 10)));
 
+            // Base URL
             String baseUrl = request.getScheme() + "://" + request.getServerName()
-                    + (request.getServerPort() == 80 ? "" : ":" + request.getServerPort()) + request.getContextPath();
+                    + (request.getServerPort() == 80 ? "" : ":" + request.getServerPort())
+                    + request.getContextPath();
 
-            List<ItemData> payItems = items.stream().map(ct -> ItemData.builder()
-                    .name(ct.getSanPham().getTenSanpham())
-                    .quantity(ct.getSoluong())
-                    .price(ct.getSanPham().getGia() * (100 - ct.getSanPham().getGiamgia()) / 100)
-                    .build()).toList();
+            String returnUrl = baseUrl + "/cart?pay=success&code=" + orderCode;
+            String cancelUrl = baseUrl + "/cart?pay=cancel&code=" + orderCode;
 
-        // PayOS description: uppercase A-Z, digits 0-9, spaces only, max 25 chars
-        String codeStr = String.valueOf(orderCode);
-        String shortDescription = "THANH TOAN " + codeStr;
-        if (shortDescription.length() > 25) {
-            shortDescription = "DH " + codeStr;
-        }
-        if (shortDescription.length() > 25) {
-            shortDescription = codeStr.substring(Math.max(0, codeStr.length() - 25));
-        }
+            // Description: chỉ A-Z, 0-9, space; max 25 ký tự
+            String desc = ("THANH TOAN " + orderCode);
+            if (desc.length() > 25) desc = "DH " + orderCode;
+            if (desc.length() > 25) desc = String.valueOf(orderCode).substring(0, Math.min(25, String.valueOf(orderCode).length()));
 
-        PaymentData paymentData = PaymentData.builder()
-                    .orderCode(orderCode)
-                    .amount((int) amount)
-            .description(shortDescription)
-                    .returnUrl(baseUrl + "/cart?pay=success&code=" + orderCode)
-                    .cancelUrl(baseUrl + "/cart?pay=cancel&code=" + orderCode)
-                    .items(payItems)
+            // Tính signature (sort theo alphabet)
+            String sigData = "amount=" + amount
+                    + "&cancelUrl=" + cancelUrl
+                    + "&description=" + desc
+                    + "&orderCode=" + orderCode
+                    + "&returnUrl=" + returnUrl;
+            String signature = hmacSha256(sigData);
+
+            // Build JSON body
+            ObjectNode body = objectMapper.createObjectNode();
+            body.put("orderCode", orderCode);
+            body.put("amount", amount);
+            body.put("description", desc);
+            body.put("returnUrl", returnUrl);
+            body.put("cancelUrl", cancelUrl);
+            body.put("signature", signature);
+
+            ArrayNode itemsNode = body.putArray("items");
+            for (GioHangChiTiet ct : items) {
+                ObjectNode item = objectMapper.createObjectNode();
+                item.put("name", ct.getSanPham().getTenSanpham());
+                item.put("quantity", ct.getSoluong());
+                item.put("price", ct.getSanPham().getGia() * (100 - ct.getSanPham().getGiamgia()) / 100);
+                itemsNode.add(item);
+            }
+
+            String bodyStr = objectMapper.writeValueAsString(body);
+            log.info("[PayOS] POST {} | orderCode={} amount={} desc='{}'", PAYOS_API, orderCode, amount, desc);
+
+            // Gọi PayOS HTTP API trực tiếp
+            HttpRequest httpReq = HttpRequest.newBuilder()
+                    .uri(URI.create(PAYOS_API))
+                    .header("Content-Type", "application/json")
+                    .header("x-client-id", clientId)
+                    .header("x-api-key", apiKey)
+                    .POST(HttpRequest.BodyPublishers.ofString(bodyStr, StandardCharsets.UTF_8))
                     .build();
 
-            log.info("[PayOS] Creating link: orderCode={}, amount={}, desc='{}'", orderCode, amount, shortDescription);
-            CheckoutResponseData data = payOS.createPaymentLink(paymentData);
-            log.info("[PayOS] Link created: {}", data.getCheckoutUrl());
+            HttpResponse<String> httpResp = httpClient.send(httpReq, HttpResponse.BodyHandlers.ofString());
+            log.info("[PayOS] Response {}: {}", httpResp.statusCode(), httpResp.body());
+
+            JsonNode respNode = objectMapper.readTree(httpResp.body());
+            String code = respNode.path("code").asText();
+
+            if (!"00".equals(code)) {
+                String errDesc = respNode.path("desc").asText("Lỗi không xác định từ PayOS");
+                log.error("[PayOS] Error code={} desc={}", code, errDesc);
+                return ResponseEntity.status(400).body(Map.of("message", "PayOS lỗi: " + errDesc));
+            }
+
+            String checkoutUrl = respNode.path("data").path("checkoutUrl").asText();
+            log.info("[PayOS] checkoutUrl={}", checkoutUrl);
 
             return ResponseEntity.ok(Map.of(
-                "orderCode", orderCode,
-                "checkoutUrl", data.getCheckoutUrl()
+                    "orderCode", orderCode,
+                    "checkoutUrl", checkoutUrl
             ));
+
         } catch (Exception e) {
-            log.error("[PayOS] Failed to create payment link: {}", e.getMessage(), e);
-            return ResponseEntity.status(500).body(Map.of("message", "Không tạo được liên kết thanh toán: " + e.getMessage()));
+            log.error("[PayOS] Exception: {}", e.getMessage(), e);
+            return ResponseEntity.status(500).body(Map.of("message", "Lỗi tạo link PayOS: " + e.getMessage()));
         }
     }
 
@@ -105,8 +173,16 @@ public class PaymentController {
     @GetMapping("/api/payments/status")
     public ResponseEntity<?> getPaymentStatus(@RequestParam("orderCode") long orderCode) {
         try {
-            var info = payOS.getPaymentLinkInformation(orderCode);
-            String status = info.getStatus();
+            String url = "https://api-merchant.payos.vn/v2/payment-requests/" + orderCode;
+            HttpRequest httpReq = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .header("x-client-id", clientId)
+                    .header("x-api-key", apiKey)
+                    .GET()
+                    .build();
+            HttpResponse<String> httpResp = httpClient.send(httpReq, HttpResponse.BodyHandlers.ofString());
+            JsonNode node = objectMapper.readTree(httpResp.body());
+            String status = node.path("data").path("status").asText("UNKNOWN");
             return ResponseEntity.ok(Map.of("status", status));
         } catch (Exception e) {
             return ResponseEntity.status(404).body(Map.of("message", "Không tìm thấy thông tin thanh toán"));
