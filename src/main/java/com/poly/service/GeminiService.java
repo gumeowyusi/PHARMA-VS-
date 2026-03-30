@@ -25,10 +25,10 @@ public class GeminiService {
 
     public GeminiService(
             @Value("${GEMINI_API_KEY:${gemini.api-key:}}") String apiKey,
-            @Value("${GEMINI_MODEL_ID:${gemini.model-id:gemini-2.5-flash-lite}}") String modelId,
+            @Value("${GEMINI_MODEL_ID:${gemini.model-id:gemini-1.5-flash}}") String modelId,
             @Value("${GEMINI_SYSTEM_PROMPT:${gemini.system-prompt:}}") String systemPrompt) {
         this.apiKey = apiKey == null ? "" : apiKey.trim();
-        this.modelId = (modelId == null || modelId.isBlank()) ? "gemini-2.5-flash-lite" : modelId.trim();
+        this.modelId = (modelId == null || modelId.isBlank()) ? "gemini-1.5-flash" : modelId.trim();
         this.systemPrompt = (systemPrompt == null || systemPrompt.isBlank()) ? defaultSystemPrompt()
                 : systemPrompt.trim();
         this.httpClient = HttpClient.newHttpClient();
@@ -65,8 +65,7 @@ public class GeminiService {
 
         ObjectNode generationConfig = root.putObject("generationConfig");
         generationConfig.put("temperature", 0.7);
-        ArrayNode modalities = generationConfig.putArray("responseModalities");
-        modalities.add("TEXT");
+        generationConfig.put("maxOutputTokens", 1024);
 
         String body = mapper.writeValueAsString(root);
         String url = "https://generativelanguage.googleapis.com/v1beta/models/" + modelId + ":generateContent?key="
