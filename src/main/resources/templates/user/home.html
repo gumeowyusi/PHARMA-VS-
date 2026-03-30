@@ -93,8 +93,13 @@
     .flash-ct-label { font-size:.82rem; font-weight:600; color:#495057; }
     .countdown-box { background:#dc3545; color:#fff; font-weight:800; font-size:1rem; padding:.3rem .55rem; border-radius:.4rem; min-width:2.1rem; text-align:center; line-height:1.3; }
     .countdown-sep { color:#dc3545; font-weight:800; font-size:1.1rem; }
-    .flash-scroll { display:flex; gap:1rem; overflow-x:auto; padding:1rem 1.5rem 1.25rem; scroll-snap-type:x mandatory; scrollbar-width:none; }
+    .flash-scroll { display:flex; gap:1rem; overflow-x:auto; padding:1rem 1.5rem 1.25rem; scroll-snap-type:x mandatory; scrollbar-width:none; scroll-behavior:smooth; }
     .flash-scroll::-webkit-scrollbar { display:none; }
+    .flash-nav-wrap { position:relative; }
+    .flash-arrow { position:absolute; top:50%; transform:translateY(-50%); z-index:10; width:36px; height:36px; border-radius:50%; border:none; background:#fff; box-shadow:0 2px 12px rgba(0,0,0,.18); display:flex; align-items:center; justify-content:center; cursor:pointer; color:#dc3545; font-size:1rem; transition:.2s; }
+    .flash-arrow:hover { background:#dc3545; color:#fff; box-shadow:0 4px 16px rgba(220,53,69,.35); }
+    .flash-arrow.prev { left:4px; }
+    .flash-arrow.next { right:4px; }
     .flash-card { min-width:175px; max-width:175px; flex-shrink:0; scroll-snap-align:start; border-radius:.85rem; overflow:hidden; background:#fff; border:1.5px solid #f5eaeb; transition:.25s; }
     .flash-card:hover { transform:translateY(-4px); box-shadow:0 10px 24px -6px rgba(220,53,69,.15); border-color:#dc3545; }
     .flash-img-wrap { position:relative; height:140px; background:#f9f9fb; display:flex; align-items:center; justify-content:center; overflow:hidden; }
@@ -312,6 +317,13 @@
         </div>
 
         <!-- Products -->
+        <div class="flash-nav-wrap">
+          <button class="flash-arrow prev" id="flashPrev" onclick="scrollFlash(-1)" title="Trước">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          <button class="flash-arrow next" id="flashNext" onclick="scrollFlash(1)" title="Tiếp">
+            <i class="fas fa-chevron-right"></i>
+          </button>
         <div class="flash-scroll" id="flashProductsRow">
           <div th:each="sp,iter : ${listSPGiamGia}" class="flash-card">
             <a th:href="@{/sanpham(id=${sp.idSanpham})}" class="text-decoration-none d-block">
@@ -354,6 +366,7 @@
             </div>
           </div>
         </div>
+        </div><!-- end flash-nav-wrap -->
       </div>
     </div>
   </section>
@@ -749,6 +762,31 @@
       switchTab(0);
       tick();
       setInterval(tick, 1000);
+    })();
+
+    /* ---- Flash sale scroll arrows ---- */
+    function scrollFlash(dir) {
+      var row = document.getElementById('flashProductsRow');
+      if (!row) return;
+      var cardW = 175 + 16; // card width + gap
+      row.scrollBy({ left: dir * cardW * 3, behavior: 'smooth' });
+    }
+
+    /* Hide/show arrows based on scroll position */
+    (function() {
+      var row  = document.getElementById('flashProductsRow');
+      var prev = document.getElementById('flashPrev');
+      var next = document.getElementById('flashNext');
+      if (!row || !prev || !next) return;
+      function updateArrows() {
+        prev.style.opacity = row.scrollLeft <= 10 ? '0.35' : '1';
+        prev.style.pointerEvents = row.scrollLeft <= 10 ? 'none' : 'auto';
+        var atEnd = row.scrollLeft + row.clientWidth >= row.scrollWidth - 10;
+        next.style.opacity = atEnd ? '0.35' : '1';
+        next.style.pointerEvents = atEnd ? 'none' : 'auto';
+      }
+      row.addEventListener('scroll', updateArrows);
+      updateArrows();
     })();
   </script>
 </body>
