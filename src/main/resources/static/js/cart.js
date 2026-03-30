@@ -539,9 +539,12 @@ const state = {
           }),
         });
         if (resp.status !== 200) {
-          createToast(
-            toastComponent("Không tạo được liên kết thanh toán", "danger")
-          );
+          let errMsg = "Không tạo được liên kết thanh toán";
+          try {
+            const errBody = await resp.json();
+            if (errBody && errBody.message) errMsg = errBody.message;
+          } catch (_) {}
+          createToast(toastComponent(errMsg, "danger"));
           return;
         }
         const data = await resp.json();
