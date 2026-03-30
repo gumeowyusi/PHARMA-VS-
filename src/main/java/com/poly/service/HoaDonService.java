@@ -69,13 +69,14 @@ public class HoaDonService {
 				}
 			});
 
+			boolean isPayOS = "BANK_TRANSFER".equalsIgnoreCase(orderRequest.getPaymentMethod());
 			String giaoHang = orderRequest.getDeliveryMethod() == 1 ? "Giao hàng tiêu chuẩn" : "Giao hàng nhanh";
-			String pm = (orderRequest.getPaymentMethod() == null || orderRequest.getPaymentMethod().isBlank())
-					? "Tiền mặt"
-					: ("BANK_TRANSFER".equalsIgnoreCase(orderRequest.getPaymentMethod()) ? "Chuyển khoản" : "Tiền mặt");
+			String pm = isPayOS ? "PayOS (Chuyển khoản)" : "COD (Tiền mặt)";
 			String giaohangWithPayment = giaoHang + " | Thanh toán: " + pm;
+			// PayOS đã thanh toán online → "paid"; COD chờ xác nhận → "pending"
+			String initialStatus = isPayOS ? "paid" : "pending";
 
-			HoaDon hoaDon = new HoaDon(users, new Date(), "ondelivery", orderRequest.getAddress(), giaohangWithPayment);
+			HoaDon hoaDon = new HoaDon(users, new Date(), initialStatus, orderRequest.getAddress(), giaohangWithPayment);
 			if (khachHang != null) {
 				hoaDon.setKhachHang(khachHang);
 			}
@@ -94,14 +95,15 @@ public class HoaDonService {
 
 			});
 			try {
-				if (users != null) {
-					emailService.sendOrderConfirmationEmail(users.getIdUser(),
-							"Thông tin đơn hàng #" + hoaDon.getIdHoadon(),
-							listHoaDonChiTiets);
-				} else if (khachHang != null && khachHang.getEmail() != null && !khachHang.getEmail().isBlank()) {
-					emailService.sendOrderConfirmationEmail(khachHang.getEmail(),
-							"Thông tin đơn hàng #" + hoaDon.getIdHoadon(),
-							listHoaDonChiTiets);
+				String toEmail = null;
+				if (users != null) toEmail = users.getIdUser();
+				else if (khachHang != null && khachHang.getEmail() != null && !khachHang.getEmail().isBlank())
+					toEmail = khachHang.getEmail();
+				if (toEmail != null) {
+					emailService.sendOrderConfirmationEmail(
+							toEmail,
+							"[MEDISALE] Xác nhận đơn hàng #" + hoaDon.getIdHoadon(),
+							hoaDon, listHoaDonChiTiets, orderRequest.getDeliveryPrice());
 				}
 			} catch (Exception ignored) {
 			}
@@ -146,35 +148,43 @@ public class HoaDonService {
 
 	public String updateHoadon(Integer id, String action) throws IllegalArgumentException {
 		HoaDon hoaDon = getHoaDonById(id);
-		if ("CONFIRM".equals(action)) {
+		if ("APPROVE".equals(action)) {
+			// pending/paid → confirmed (xác nhận đơn, chưa giao)
+			hoaDon.setTrangthai("confirmed");
+			hoaDonRepository.save(hoaDon);
+			return "Đã xác nhận đơn hàng #" + id + "!";
+		} else if ("SHIP".equals(action)) {
+			// confirmed → ondelivery
+			if (hoaDon.getTrangthai().equals("cancel")) {
+				hoaDon.getHoaDonChiTiets().forEach(item -> {
+					SanPham sp = sanPhamService.getSanPhamById(item.getId().getIdSanpham());
+					sp.setSoluong(sp.getSoluong() - item.getSoluong());
+					sanPhamRepository.save(sp);
+				});
+			}
+			hoaDon.setTrangthai("ondelivery");
+			hoaDonRepository.save(hoaDon);
+			return "Đã chuyển sang đang giao hàng cho đơn #" + id + "!";
+		} else if ("CONFIRM".equals(action)) {
+			// ondelivery → received
 			hoaDon.setTrangthai("received");
 			hoaDonRepository.save(hoaDon);
-			return "Đã xác nhận đã giao đơn hàng #" + id + " thành công!";
+			return "Đã xác nhận giao hàng thành công cho đơn #" + id + "!";
 		} else if ("CANCEL".equals(action)) {
 			hoaDon.setTrangthai("cancel");
 			hoaDonRepository.save(hoaDon);
-
 			hoaDon.getHoaDonChiTiets().forEach(item -> {
 				SanPham sanPham = sanPhamService.getSanPhamById(item.getId().getIdSanpham());
 				sanPham.setSoluong(sanPham.getSoluong() + item.getSoluong());
 				sanPhamRepository.save(sanPham);
 			});
-			try {
-				voucherService.rollbackUsageOnCancel(hoaDon);
-			} catch (Exception ignored) {
-			}
-			return "Đã hủy đơn hàng #" + id + " thành công!";
+			try { voucherService.rollbackUsageOnCancel(hoaDon); } catch (Exception ignored) {}
+			return "Đã hủy đơn hàng #" + id + "!";
 		} else {
-			if (hoaDon.getTrangthai().equals("cancel")) {
-				hoaDon.getHoaDonChiTiets().forEach(item -> {
-					SanPham sanPham = sanPhamService.getSanPhamById(item.getId().getIdSanpham());
-					sanPham.setSoluong(sanPham.getSoluong() - item.getSoluong());
-					sanPhamRepository.save(sanPham);
-				});
-			}
+			// legacy fallback
 			hoaDon.setTrangthai("ondelivery");
 			hoaDonRepository.save(hoaDon);
-			return "Đã đặt lại trạng thái là đang giao hàng cho đơn hàng #" + id + " thành công!";
+			return "Đã cập nhật trạng thái đơn hàng #" + id + "!";
 		}
 	}
 

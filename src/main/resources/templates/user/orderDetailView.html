@@ -48,19 +48,34 @@
                   </p>
                 </div>
                 <div>
+                  <th:block th:if="${order.trangthai == 'pending'}">
+                    <span class="badge bg-secondary fs-6 px-3 py-2">
+                      <i class="fas fa-clock me-1"></i>Chờ xác nhận
+                    </span>
+                  </th:block>
+                  <th:block th:if="${order.trangthai == 'paid'}">
+                    <span class="badge bg-info text-dark fs-6 px-3 py-2">
+                      <i class="fas fa-credit-card me-1"></i>Đã thanh toán — Chờ giao
+                    </span>
+                  </th:block>
+                  <th:block th:if="${order.trangthai == 'confirmed'}">
+                    <span class="badge bg-primary fs-6 px-3 py-2">
+                      <i class="fas fa-clipboard-check me-1"></i>Đã xác nhận
+                    </span>
+                  </th:block>
                   <th:block th:if="${order.trangthai == 'ondelivery'}">
-                    <span class="badge bg-warning text-dark">
+                    <span class="badge bg-warning text-dark fs-6 px-3 py-2">
                       <i class="fas fa-truck me-1"></i>Đang giao hàng
                     </span>
                   </th:block>
                   <th:block th:if="${order.trangthai == 'received'}">
-                    <span class="badge bg-success">
+                    <span class="badge bg-success fs-6 px-3 py-2">
                       <i class="fas fa-check-circle me-1"></i>Giao hàng thành công
                     </span>
                   </th:block>
                   <th:block th:if="${order.trangthai == 'cancel'}">
-                    <span class="badge bg-danger">
-                      <i class="fas fa-times-circle me-1"></i>Hủy đơn hàng
+                    <span class="badge bg-danger fs-6 px-3 py-2">
+                      <i class="fas fa-times-circle me-1"></i>Đã hủy
                     </span>
                   </th:block>
                 </div>
@@ -82,16 +97,17 @@
                 <!-- Step 2: Xác nhận -->
                 <div class="timeline-step text-center flex-fill">
                   <div class="step-circle mx-auto mb-2"
-                       th:classappend="${order.trangthai != 'cancel'} ? 'bg-primary text-white' : 'bg-light text-muted border'">
+                       th:classappend="${order.trangthai == 'confirmed' or order.trangthai == 'ondelivery' or order.trangthai == 'received'} ? 'bg-primary text-white' : (${order.trangthai == 'paid'} ? 'bg-info text-dark' : 'bg-light text-muted border')">
                     <i class="fas fa-clipboard-check"></i>
                   </div>
                   <div class="small fw-semibold">Xác nhận</div>
-                  <div class="text-muted" style="font-size:.75rem;">Đang xử lý</div>
+                  <div class="text-muted" style="font-size:.75rem;"
+                       th:text="${order.trangthai == 'pending'} ? 'Chờ xác nhận' : (${order.trangthai == 'paid'} ? 'Đã thanh toán' : 'Đã xác nhận')"></div>
                 </div>
                 <!-- Step 3: Đang giao -->
                 <div class="timeline-step text-center flex-fill">
                   <div class="step-circle mx-auto mb-2"
-                       th:classappend="${order.trangthai == 'ondelivery' or order.trangthai == 'received'} ? 'bg-primary text-white' : 'bg-light text-muted border'">
+                       th:classappend="${order.trangthai == 'ondelivery' or order.trangthai == 'received'} ? 'bg-warning text-dark' : 'bg-light text-muted border'">
                     <i class="fas fa-truck"></i>
                   </div>
                   <div class="small fw-semibold">Đang giao</div>
