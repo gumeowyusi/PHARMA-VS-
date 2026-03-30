@@ -35,14 +35,23 @@ import com.poly.service.UserService;
 import com.poly.service.KhachHangService;
 import com.poly.service.VoucherService;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import com.poly.service.CurrentUserService;
-import vn.payos.PayOS;
-import vn.payos.type.CheckoutResponseData;
-import vn.payos.type.ItemData;
-import vn.payos.type.PaymentData;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 
@@ -60,8 +69,17 @@ public class BanHangTaiQuayController {
 	@Autowired
 	CurrentUserService currentUserService;
 
-	@Autowired
-	private PayOS payOS;
+	@Value("${PAYOS_CLIENT_ID}")
+	private String payosClientId;
+
+	@Value("${PAYOS_API_KEY}")
+	private String payosApiKey;
+
+	@Value("${PAYOS_CHECKSUM_KEY}")
+	private String payosChecksumKey;
+
+	private final HttpClient payosHttpClient = HttpClient.newHttpClient();
+	private final ObjectMapper payosMapper = new ObjectMapper();
 
 	@Autowired
 	private GioHangRepository gioHangRepository;
@@ -269,26 +287,65 @@ public class BanHangTaiQuayController {
 		int tongTienSauGiam = (int) Math.max(0, Math.round(tongTienTruocGiam - tongGiam));
 
 		if ("BANK".equals(phuongThuc)) {
-			String currentTimeString = String.valueOf(new Date().getTime());
-			long orderCode = Long.parseLong(currentTimeString.substring(currentTimeString.length() - 6));
+			String ts = String.valueOf(new Date().getTime());
+			long orderCode = Long.parseLong(ts.substring(Math.max(0, ts.length() - 10)));
 
 			String baseUrl = request.getScheme() + "://" + request.getServerName()
 					+ (request.getServerPort() == 80 ? "" : ":" + request.getServerPort()) + request.getContextPath();
 
 			try {
-				List<ItemData> items = chiTietList.stream()
-						.map(ct -> ItemData.builder().name(ct.getSanPham().getTenSanpham()).quantity(ct.getSoluong())
-								.price(ct.getSanPham().getGia() * (100 - ct.getSanPham().getGiamgia()) / 100).build())
-						.toList();
-				System.out.println(baseUrl + "/banhangtaiquay/success");
-				PaymentData paymentData = PaymentData.builder().orderCode(orderCode).amount(tongTienSauGiam)
-						.description("Thanh toán đơn hàng")
-						.returnUrl(baseUrl + "/banhangtaiquay/success?idUser=" + currentUser.getIdUser())
-						.cancelUrl(baseUrl + "/banhangtaiquay").items(items).build();
+				String returnUrl = baseUrl + "/banhangtaiquay/success?idUser=" + currentUser.getIdUser();
+				String cancelUrl = baseUrl + "/banhangtaiquay";
+				int amount = Math.max(1000, tongTienSauGiam);
+				String desc = "THANH TOAN " + orderCode;
+				if (desc.length() > 25) desc = "DH " + orderCode;
 
-				CheckoutResponseData data = payOS.createPaymentLink(paymentData);
+				// Tính signature theo spec PayOS
+				String sigData = "amount=" + amount
+						+ "&cancelUrl=" + cancelUrl
+						+ "&description=" + desc
+						+ "&orderCode=" + orderCode
+						+ "&returnUrl=" + returnUrl;
+				Mac mac = Mac.getInstance("HmacSHA256");
+				mac.init(new SecretKeySpec(payosChecksumKey.getBytes(StandardCharsets.UTF_8), "HmacSHA256"));
+				byte[] sigBytes = mac.doFinal(sigData.getBytes(StandardCharsets.UTF_8));
+				StringBuilder sigHex = new StringBuilder();
+				for (byte b : sigBytes) sigHex.append(String.format("%02x", b));
 
-				return "redirect:" + data.getCheckoutUrl();
+				// Build JSON body
+				ObjectNode body = payosMapper.createObjectNode();
+				body.put("orderCode", orderCode);
+				body.put("amount", amount);
+				body.put("description", desc);
+				body.put("returnUrl", returnUrl);
+				body.put("cancelUrl", cancelUrl);
+				body.put("signature", sigHex.toString());
+				ArrayNode itemsNode = body.putArray("items");
+				for (GioHangChiTiet ct : chiTietList) {
+					ObjectNode item = payosMapper.createObjectNode();
+					item.put("name", ct.getSanPham().getTenSanpham());
+					item.put("quantity", ct.getSoluong());
+					item.put("price", ct.getSanPham().getGia() * (100 - ct.getSanPham().getGiamgia()) / 100);
+					itemsNode.add(item);
+				}
+
+				HttpRequest httpReq = HttpRequest.newBuilder()
+						.uri(URI.create("https://api-merchant.payos.vn/v2/payment-requests"))
+						.header("Content-Type", "application/json")
+						.header("x-client-id", payosClientId)
+						.header("x-api-key", payosApiKey)
+						.POST(HttpRequest.BodyPublishers.ofString(payosMapper.writeValueAsString(body), StandardCharsets.UTF_8))
+						.build();
+
+				HttpResponse<String> httpResp = payosHttpClient.send(httpReq, HttpResponse.BodyHandlers.ofString());
+				JsonNode respNode = payosMapper.readTree(httpResp.body());
+				if ("00".equals(respNode.path("code").asText())) {
+					String checkoutUrl = respNode.path("data").path("checkoutUrl").asText();
+					return "redirect:" + checkoutUrl;
+				} else {
+					System.err.println("[PayOS admin] Error: " + httpResp.body());
+					return "redirect:/banhangtaiquay";
+				}
 			} catch (Exception e) {
 				e.printStackTrace();
 				return "redirect:/banhangtaiquay";
