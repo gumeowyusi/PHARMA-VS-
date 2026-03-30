@@ -139,9 +139,51 @@ Write-Host " Lan dau bien dich co the 2-8 phut (antivirus/SSD). Cho den khi thay
 Write-Host "===============================================" -ForegroundColor Cyan
 Write-Host ""
 
-$mvnArgs = @("spring-boot:run")
-if ($SkipTests) {
-    $mvnArgs = @("-DskipTests") + $mvnArgs
+# ---------- Chuan bi Maven (bypass mvnw PowerShell bug) ----------
+$mavenVersion = "3.9.9"
+$mavenHome    = "$env:USERPROFILE\.m2\wrapper\dists\apache-maven-$mavenVersion"
+$mavenBin     = "$mavenHome\bin\mvn.cmd"
+$mavenZipUrl  = "https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/$mavenVersion/apache-maven-$mavenVersion-bin.zip"
+$mavenZip     = "$env:TEMP\apache-maven-$mavenVersion-bin.zip"
+
+if (-not (Test-Path $mavenBin)) {
+    Write-Host ""
+    Write-Host "Maven $mavenVersion chua co. Dang tai xuong (~10MB)..." -ForegroundColor Yellow
+    try {
+        # Dung Invoke-WebRequest thay the PowerShell managed module bi loi
+        $ProgressPreference = 'SilentlyContinue'
+        Invoke-WebRequest -Uri $mavenZipUrl -OutFile $mavenZip -UseBasicParsing
+        Write-Host "Giai nen Maven..." -ForegroundColor Yellow
+        if (Test-Path $mavenHome) { Remove-Item $mavenHome -Recurse -Force }
+        Add-Type -AssemblyName System.IO.Compression.FileSystem
+        $zip = [System.IO.Compression.ZipFile]::OpenRead($mavenZip)
+        # Extract vao parent folder, sau do rename
+        $parentDir = Split-Path $mavenHome -Parent
+        [System.IO.Compression.ZipFileExtensions]::ExtractToDirectory($zip, $parentDir)
+        $zip.Dispose()
+        # ZipFile giai nen thanh apache-maven-x.x.x, rename lai
+        $extracted = Join-Path $parentDir "apache-maven-$mavenVersion"
+        if ((Test-Path $extracted) -and ($extracted -ne $mavenHome)) {
+            Rename-Item $extracted $mavenHome -Force
+        }
+        Remove-Item $mavenZip -Force -ErrorAction SilentlyContinue
+        Write-Host "[OK] Maven $mavenVersion da san sang." -ForegroundColor Green
+    } catch {
+        Write-Host "[X] Khong tai duoc Maven: $($_.Exception.Message)" -ForegroundColor Red
+        Write-Host "    Thu tai tay: $mavenZipUrl" -ForegroundColor Yellow
+        Write-Host "    Giai nen vao: $mavenHome" -ForegroundColor Yellow
+        exit 1
+    }
+} else {
+    Write-Host "[OK] Maven $mavenVersion da co san." -ForegroundColor Green
 }
 
-& .\mvnw.cmd @mvnArgs
+# ---------- Chay Spring Boot ----------
+$env:PATH = "$mavenHome\bin;$env:PATH"
+
+$mvnArgs = @("spring-boot:run")
+if ($SkipTests) { $mvnArgs = @("-DskipTests") + $mvnArgs }
+
+Write-Host ""
+Write-Host "Dang chay: mvn $($mvnArgs -join ' ')" -ForegroundColor Cyan
+& "$mavenBin" @mvnArgs
