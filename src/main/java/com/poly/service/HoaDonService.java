@@ -151,11 +151,6 @@ public class HoaDonService {
 		}
 	}
 
-	public HoaDon getHoaDonById(Integer id) {
-		return hoaDonRepository.findById(id)
-				.orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng #" + id));
-	}
-
 	public void cancelOrder(Integer id) {
 		HoaDon hoaDon = getHoaDonById(id);
 		hoaDon.setTrangthai("cancel");
