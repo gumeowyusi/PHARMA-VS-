@@ -4,6 +4,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,6 +26,8 @@ import vn.payos.type.PaymentData;
 
 @Controller
 public class PaymentController {
+
+    private static final Logger log = LoggerFactory.getLogger(PaymentController.class);
 
     private final PayOS payOS;
     private final CartService cartService;
@@ -64,9 +68,14 @@ public class PaymentController {
                     .price(ct.getSanPham().getGia() * (100 - ct.getSanPham().getGiamgia()) / 100)
                     .build()).toList();
 
-        String shortDescription = "Thanh toan #" + orderCode;
+        // PayOS description: uppercase A-Z, digits 0-9, spaces only, max 25 chars
+        String codeStr = String.valueOf(orderCode);
+        String shortDescription = "THANH TOAN " + codeStr;
         if (shortDescription.length() > 25) {
-        shortDescription = ("DH#" + orderCode);
+            shortDescription = "DH " + codeStr;
+        }
+        if (shortDescription.length() > 25) {
+            shortDescription = codeStr.substring(Math.max(0, codeStr.length() - 25));
         }
 
         PaymentData paymentData = PaymentData.builder()
@@ -78,15 +87,17 @@ public class PaymentController {
                     .items(payItems)
                     .build();
 
+            log.info("[PayOS] Creating link: orderCode={}, amount={}, desc='{}'", orderCode, amount, shortDescription);
             CheckoutResponseData data = payOS.createPaymentLink(paymentData);
+            log.info("[PayOS] Link created: {}", data.getCheckoutUrl());
 
             return ResponseEntity.ok(Map.of(
                 "orderCode", orderCode,
                 "checkoutUrl", data.getCheckoutUrl()
             ));
         } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(500).body(Map.of("message", "Không tạo được liên kết thanh toán"));
+            log.error("[PayOS] Failed to create payment link: {}", e.getMessage(), e);
+            return ResponseEntity.status(500).body(Map.of("message", "Không tạo được liên kết thanh toán: " + e.getMessage()));
         }
     }
 
