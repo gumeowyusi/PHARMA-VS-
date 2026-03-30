@@ -686,6 +686,22 @@ function render() {
     radio.checked = radio.value === String(state.order.paymentMethod);
   });
 
+  // Sync PayOS/COD card UI
+  document.querySelectorAll('.payment-card').forEach((card) => {
+    const val = card.dataset.value;
+    card.classList.toggle('selected', val === state.order.paymentMethod);
+    if (isCartItemsEmpty) {
+      card.style.opacity = '0.5';
+      card.style.pointerEvents = 'none';
+    } else {
+      card.style.opacity = '';
+      card.style.pointerEvents = '';
+    }
+    card.onclick = () => {
+      if (!isCartItemsEmpty) state.changePaymentMethod(val);
+    };
+  });
+
   // Attach event handlers for delete cart item buttons
   state.cart.cartItems.forEach((cartItem) => {
     const deleteCartItemBtnElement = document.querySelector(
@@ -798,8 +814,8 @@ function attachEventHandlersForNoneRerenderElements() {
         : "Giao hàng nhanh";
     const paymentText =
       state.order.paymentMethod === "BANK_TRANSFER"
-        ? "Chuyển khoản"
-        : "Tiền mặt";
+        ? "PayOS"
+        : "COD (Tiền mặt)";
     ckAddress.textContent = addressEl?.value || "";
     ckDelivery.textContent = deliveryText;
     ckPayment.textContent = paymentText;

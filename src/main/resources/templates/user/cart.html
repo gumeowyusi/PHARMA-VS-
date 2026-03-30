@@ -132,27 +132,72 @@
             </div>
 
             <!-- Payment Method -->
-            <div class="card shadow-sm border-0 mb-4" style="border-radius: 14px;">
+            <div class="card shadow-sm border-0 mb-4" style="border-radius:14px;">
               <div class="card-body p-4">
-                <h5 class="card-title mb-4">
-                  <i class="fas fa-money-check-alt me-2"></i>Hình thức thanh toán
+                <h5 class="card-title mb-3">
+                  <i class="fas fa-credit-card me-2 text-primary"></i>Hình thức thanh toán
                 </h5>
-                <form>
-                  <div class="form-check mb-3">
-                    <input class="form-check-input" type="radio" name="payment-method" id="payment-method-cash" value="CASH" disabled>
-                    <label class="form-check-label" for="payment-method-cash">
-                      <i class="fas fa-wallet me-2 text-muted"></i>Tiền mặt khi nhận hàng (COD)
-                    </label>
-                  </div>
-                  <div class="form-check">
-                    <input class="form-check-input" type="radio" name="payment-method" id="payment-method-bank" value="BANK_TRANSFER" disabled>
-                    <label class="form-check-label" for="payment-method-bank">
-                      <i class="fas fa-university me-2 text-muted"></i>Chuyển khoản
-                    </label>
-                  </div>
-                </form>
+                <!-- Hidden radio inputs for JS compatibility -->
+                <input type="radio" name="payment-method" id="payment-method-cash"     value="CASH"          style="display:none" disabled>
+                <input type="radio" name="payment-method" id="payment-method-bank"     value="BANK_TRANSFER" style="display:none" disabled>
+
+                <div class="d-flex flex-column gap-3" id="paymentMethodCards">
+
+                  <!-- PayOS card -->
+                  <label for="payment-method-bank" class="payment-card" id="paycard-payos" data-value="BANK_TRANSFER">
+                    <div class="d-flex align-items-center gap-3">
+                      <div class="paycard-icon paycard-icon-payos">
+                        <svg viewBox="0 0 36 36" width="28" height="28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <rect width="36" height="36" rx="8" fill="#0d6efd"/>
+                          <text x="5" y="25" font-size="14" font-weight="700" fill="white" font-family="Arial">Pay</text>
+                        </svg>
+                      </div>
+                      <div class="flex-grow-1">
+                        <div class="fw-bold" style="font-size:.95rem;">Thanh toán qua PayOS</div>
+                        <div class="text-muted small">QR Code · Thẻ ATM · Thẻ tín dụng · Internet Banking</div>
+                      </div>
+                      <span class="paycard-check"><i class="fas fa-check-circle"></i></span>
+                    </div>
+                    <div class="paycard-badges mt-2 ms-5 ps-1">
+                      <img src="https://cdn.haitrieu.com/wp-content/uploads/2022/10/Logo-VNPAY-QR-1.png" height="20" alt="VNPay" style="opacity:.75;border-radius:3px;">
+                      <img src="https://cdn.haitrieu.com/wp-content/uploads/2022/10/Icon-Thanh-Toan-MoMo.png" height="20" alt="MoMo" style="opacity:.75;border-radius:3px;">
+                      <img src="https://cdn.haitrieu.com/wp-content/uploads/2022/10/Logo-ZaloPay-Square.png" height="20" alt="ZaloPay" style="opacity:.75;border-radius:3px;">
+                      <span class="small text-muted">và nhiều hơn</span>
+                    </div>
+                  </label>
+
+                  <!-- COD card -->
+                  <label for="payment-method-cash" class="payment-card" id="paycard-cod" data-value="CASH">
+                    <div class="d-flex align-items-center gap-3">
+                      <div class="paycard-icon paycard-icon-cod">
+                        <i class="fas fa-truck" style="font-size:1.1rem;color:#198754;"></i>
+                      </div>
+                      <div class="flex-grow-1">
+                        <div class="fw-bold" style="font-size:.95rem;">Thanh toán khi nhận hàng (COD)</div>
+                        <div class="text-muted small">Trả tiền mặt khi nhận hàng · Không mất phí</div>
+                      </div>
+                      <span class="paycard-check"><i class="fas fa-check-circle"></i></span>
+                    </div>
+                  </label>
+                </div>
               </div>
             </div>
+
+            <style>
+              .payment-card {
+                display:block; border:2px solid #e9ecef; border-radius:12px;
+                padding:.9rem 1rem; cursor:pointer; transition:.2s;
+                background:#fff; user-select:none;
+              }
+              .payment-card:hover { border-color:#86b7fe; background:#f8fbff; }
+              .payment-card.selected { border-color:#0d6efd; background:#f0f6ff; }
+              .payment-card.selected .paycard-check { color:#0d6efd; opacity:1; }
+              .paycard-check { font-size:1.15rem; opacity:.2; transition:.2s; }
+              .paycard-icon { width:44px; height:44px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+              .paycard-icon-payos { background:#e8f0fe; }
+              .paycard-icon-cod { background:#e8f7ee; }
+              .paycard-badges img { margin-right:4px; }
+            </style>
 
             <!-- Order Summary -->
             <div class="card shadow-sm border-0 mb-4" style="border-radius: 14px;">
