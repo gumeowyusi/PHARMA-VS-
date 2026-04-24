@@ -28,7 +28,7 @@ public class GeminiService {
             @Value("${GEMINI_MODEL_ID:${gemini.model-id:gemini-1.5-flash}}") String modelId,
             @Value("${GEMINI_SYSTEM_PROMPT:${gemini.system-prompt:}}") String systemPrompt) {
         this.apiKey = apiKey == null ? "" : apiKey.trim();
-        this.modelId = (modelId == null || modelId.isBlank()) ? "gemini-2.5-flash-preview-04-17" : modelId.trim();
+        this.modelId = (modelId == null || modelId.isBlank()) ? "gemini-2.0-flash" : modelId.trim();
         this.systemPrompt = (systemPrompt == null || systemPrompt.isBlank()) ? defaultSystemPrompt()
                 : systemPrompt.trim();
         this.httpClient = HttpClient.newHttpClient();
