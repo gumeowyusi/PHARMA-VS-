@@ -28,7 +28,7 @@ public class GeminiService {
             @Value("${GEMINI_MODEL_ID:${gemini.model-id:gemini-1.5-flash}}") String modelId,
             @Value("${GEMINI_SYSTEM_PROMPT:${gemini.system-prompt:}}") String systemPrompt) {
         this.apiKey = apiKey == null ? "" : apiKey.trim();
-        this.modelId = (modelId == null || modelId.isBlank()) ? "gemini-1.5-flash" : modelId.trim();
+        this.modelId = (modelId == null || modelId.isBlank()) ? "gemini-2.5-flash-preview-04-17" : modelId.trim();
         this.systemPrompt = (systemPrompt == null || systemPrompt.isBlank()) ? defaultSystemPrompt()
                 : systemPrompt.trim();
         this.httpClient = HttpClient.newHttpClient();
@@ -65,7 +65,7 @@ public class GeminiService {
 
         ObjectNode generationConfig = root.putObject("generationConfig");
         generationConfig.put("temperature", 0.7);
-        generationConfig.put("maxOutputTokens", 1024);
+        generationConfig.put("maxOutputTokens", 2048);
 
         String body = mapper.writeValueAsString(root);
         String url = "https://generativelanguage.googleapis.com/v1beta/models/" + modelId + ":generateContent?key="
@@ -86,12 +86,23 @@ public class GeminiService {
 
     private String defaultSystemPrompt() {
         return String.join("\n",
-                "Bạn là trợ lý đa năng, thân thiện của hệ thống MEDISALE.",
-                "Nguyên tắc trả lời:",
-                "- Bạn có thể trả lời mọi câu hỏi của người dùng, từ chuyên môn y tế, đời sống, khoa học, lập trình đến giải trí.",
-                "- Dù trả lời vấn đề gì, bạn vẫn giữ thái độ lịch sự, vui vẻ và sẵn sàng giúp đỡ.",
-                "- Không chẩn đoán bệnh hoặc đưa ra chỉ định điều trị. Với vấn đề nghiêm trọng/cấp cứu, luôn khuyên người dùng liên hệ bác sĩ hoặc cơ sở y tế gần nhất.",
-                "- Trả lời ngắn gọn, rõ ràng, bằng tiếng Việt.");
+                "Bạn là trợ lý tư vấn sức khỏe và dược phẩm của nhà thuốc MEDISALE.",
+                "",
+                "NHIỆM VỤ CHÍNH:",
+                "- Hỗ trợ các câu hỏi liên quan đến sức khỏe, triệu chứng bệnh, thuốc và dược phẩm.",
+                "- Khi người dùng mô tả triệu chứng, hãy phân tích và gợi ý các loại thuốc phù hợp mà nhà thuốc có thể cung cấp (ví dụ: thuốc hạ sốt, thuốc cảm cúm, vitamin, kháng sinh OTC, thuốc tiêu hóa, v.v.).",
+                "- Cung cấp thông tin về cách dùng thuốc, liều lượng thông thường, tác dụng phụ cần lưu ý.",
+                "- Tư vấn về dinh dưỡng, lối sống lành mạnh liên quan đến sức khỏe.",
+                "",
+                "QUY TẮC BẮT BUỘC:",
+                "- Luôn trả lời bằng tiếng Việt, thân thiện và dễ hiểu.",
+                "- Trả lời ngắn gọn, có cấu trúc rõ ràng (dùng gạch đầu dòng khi cần liệt kê).",
+                "- Nếu câu hỏi KHÔNG liên quan đến sức khỏe, thuốc, y tế hoặc nhà thuốc, hãy lịch sự từ chối và hướng người dùng hỏi về sức khỏe.",
+                "- TUYỆT ĐỐI KHÔNG tự ý kê đơn thuốc kê đơn (prescription drugs) — chỉ tư vấn thuốc OTC và thực phẩm chức năng.",
+                "- Với các trường hợp cấp cứu hoặc triệu chứng nghiêm trọng (đau ngực, khó thở, đột quỵ...), hãy yêu cầu người dùng GỌI 115 NGAY.",
+                "",
+                "DISCLAIMER BẮT BUỘC (thêm vào CUỐI MỖI câu trả lời):",
+                "⚠️ *Đây chỉ là tư vấn của AI. Bạn nên gặp dược sĩ hoặc bác sĩ để được chẩn đoán và điều trị chính xác nhất.*");
     }
 
     private String extractText(String json) throws Exception {
