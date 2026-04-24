@@ -10,369 +10,779 @@
 	<th:block th:replace="~{admin/_headerAdmin}" />
 
 	<style>
-		.pos-shell {
+		/* ===== POS SHELL ===== */
+		:root {
+			--pos-bg: #f0f4f8;
+			--pos-card: #ffffff;
+			--pos-accent: #0d6efd;
+			--pos-accent2: #20c997;
+			--pos-radius: 16px;
+			--pos-shadow: 0 4px 24px rgba(13,110,253,.07);
+			--pos-shadow-hover: 0 8px 32px rgba(13,110,253,.14);
+		}
+		body { background: var(--pos-bg) !important; }
+
+		.pos-wrapper {
 			display: flex;
-			gap: 1rem;
+			gap: 1.25rem;
 			align-items: stretch;
+			min-height: calc(100vh - 130px);
 		}
 
+		/* LEFT */
 		.pos-left {
 			flex: 1 1 auto;
 			min-width: 0;
 			display: flex;
 			flex-direction: column;
+			gap: 1rem;
 		}
 
+		/* RIGHT */
 		.pos-right {
-			width: 380px;
+			width: 390px;
 			flex: 0 0 auto;
 			display: flex;
 			flex-direction: column;
+			gap: .75rem;
 		}
 
-		@media (max-width: 1200px) {
-			.pos-right {
-				width: 340px;
-			}
-		}
-
+		@media (max-width: 1200px) { .pos-right { width: 350px; } }
 		@media (max-width: 992px) {
-			.pos-shell {
-				flex-direction: column;
-			}
-
-			.pos-right {
-				width: 100%;
-				order: -1;
-			}
+			.pos-wrapper { flex-direction: column; }
+			.pos-right { width: 100%; order: -1; }
 		}
 
+		/* PANEL CARDS */
+		.pos-panel {
+			background: var(--pos-card);
+			border-radius: var(--pos-radius);
+			box-shadow: var(--pos-shadow);
+			overflow: hidden;
+		}
+		.pos-panel-header {
+			padding: .85rem 1.25rem;
+			background: linear-gradient(135deg, var(--pos-accent) 0%, #4facfe 100%);
+			color: #fff;
+			display: flex;
+			align-items: center;
+			gap: .6rem;
+		}
+		.pos-panel-header h6 {
+			margin: 0;
+			font-weight: 700;
+			font-size: .95rem;
+			letter-spacing: .3px;
+		}
+		.pos-panel-body { padding: 1rem 1.1rem; }
+
+		/* SEARCH BAR */
+		.pos-search-bar {
+			background: var(--pos-card);
+			border-radius: var(--pos-radius);
+			box-shadow: var(--pos-shadow);
+			padding: .85rem 1.25rem;
+			display: flex;
+			align-items: flex-end;
+			gap: .75rem;
+			flex-wrap: wrap;
+		}
+		.pos-search-bar .form-control,
+		.pos-search-bar .form-select {
+			border-radius: 10px;
+			border: 1.5px solid #e2e8f0;
+			font-size: .875rem;
+			height: 38px;
+			transition: border-color .2s, box-shadow .2s;
+		}
+		.pos-search-bar .form-control:focus,
+		.pos-search-bar .form-select:focus {
+			border-color: var(--pos-accent);
+			box-shadow: 0 0 0 3px rgba(13,110,253,.1);
+		}
+		.pos-search-bar .btn-search {
+			height: 38px;
+			border-radius: 10px;
+			background: var(--pos-accent);
+			color: #fff;
+			border: none;
+			padding: 0 1.1rem;
+			font-weight: 600;
+			font-size: .875rem;
+			display: flex;
+			align-items: center;
+			gap: .4rem;
+			transition: background .2s, transform .15s, box-shadow .2s;
+		}
+		.pos-search-bar .btn-search:hover {
+			background: #0b5ed7;
+			transform: translateY(-1px);
+			box-shadow: 0 4px 12px rgba(13,110,253,.3);
+		}
+
+		/* PRODUCT GRID */
 		.product-grid {
 			display: grid;
-			gap: .75rem;
-			grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+			gap: .85rem;
+			grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
 		}
 
 		.product-card {
-			border: 1px solid var(--color-border);
-			border-radius: var(--radius);
-			background: #fff;
-			position: relative;
+			background: var(--pos-card);
+			border-radius: 14px;
 			overflow: hidden;
 			cursor: pointer;
 			display: flex;
 			flex-direction: column;
+			position: relative;
+			border: 1.5px solid transparent;
+			transition: transform .2s cubic-bezier(.34,1.56,.64,1), box-shadow .2s, border-color .2s;
+			box-shadow: 0 2px 10px rgba(0,0,0,.06);
 		}
-
-		.product-card img {
+		.product-card:hover {
+			transform: translateY(-4px) scale(1.015);
+			box-shadow: var(--pos-shadow-hover);
+			border-color: rgba(13,110,253,.25);
+		}
+		.product-card-img {
+			position: relative;
 			width: 100%;
-			height: 110px;
-			object-fit: cover;
+			height: 118px;
+			background: linear-gradient(135deg, #f0f7ff, #e8f4fd);
+			overflow: hidden;
 		}
-
-		.product-card h6 {
+		.product-card-img img {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+			transition: transform .35s ease;
+		}
+		.product-card:hover .product-card-img img {
+			transform: scale(1.07);
+		}
+		.discount-ribbon {
+			position: absolute;
+			top: 7px;
+			left: -1px;
+			background: linear-gradient(90deg, #ef4444, #f97316);
+			color: #fff;
+			font-size: .65rem;
+			font-weight: 700;
+			padding: .18em .55em .18em .45em;
+			border-radius: 0 6px 6px 0;
+			box-shadow: 1px 1px 4px rgba(0,0,0,.18);
+			letter-spacing: .3px;
+		}
+		.out-of-stock-overlay {
+			position: absolute;
+			inset: 0;
+			background: rgba(0,0,0,.42);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+		.out-of-stock-overlay span {
+			background: #dc3545;
+			color: #fff;
+			font-size: .7rem;
+			font-weight: 700;
+			padding: .3em .8em;
+			border-radius: 20px;
+			letter-spacing: .5px;
+		}
+		.product-card-body {
+			padding: .6rem .75rem .75rem;
+			display: flex;
+			flex-direction: column;
+			flex-grow: 1;
+		}
+		.product-card-name {
 			font-size: .8rem;
 			font-weight: 600;
-			margin: .25rem 0 .25rem;
-			line-height: 1.2;
+			color: #1e293b;
+			line-height: 1.3;
+			margin-bottom: .3rem;
+			display: -webkit-box;
+			-webkit-line-clamp: 2;
+			-webkit-box-orient: vertical;
+			overflow: hidden;
+		}
+		.product-card-stock {
+			font-size: .68rem;
+			color: #64748b;
+			margin-bottom: .35rem;
+		}
+		.product-card-stock .stock-num {
+			font-weight: 700;
+			color: #0f766e;
+		}
+		.product-card-price {
+			font-size: .85rem;
+			font-weight: 700;
+			color: var(--pos-accent);
+			margin-top: auto;
+		}
+		.product-card-price .original-price {
+			font-size: .68rem;
+			font-weight: 400;
+			color: #94a3b8;
+			text-decoration: line-through;
+			margin-left: .3rem;
 		}
 
-		.product-card .meta {
-			font-size: .65rem;
-			color: var(--color-muted);
-			line-height: 1.2;
-		}
-
-		.product-card .price-new {
-			font-weight: 600;
-			color: var(--color-primary);
-		}
-
-		.product-card .badge-stock {
-			position: absolute;
-			top: .4rem;
-			right: .4rem;
-		}
-
+		/* Click animation */
 		.product-card.added-animate {
-			animation: pulseAdd .5s;
+			animation: pulseAdd .55s cubic-bezier(.36,.07,.19,.97);
 		}
-
 		@keyframes pulseAdd {
-			0% {
-				box-shadow: 0 0 0 0 rgba(var(--color-primary-rgb), .5);
-			}
-
-			100% {
-				box-shadow: 0 0 0 12px rgba(var(--color-primary-rgb), 0);
-			}
+			0%   { box-shadow: 0 0 0 0 rgba(13,110,253,.5); }
+			50%  { box-shadow: 0 0 0 12px rgba(13,110,253,.15); }
+			100% { box-shadow: 0 0 0 0 rgba(13,110,253,0); }
 		}
 
-		.fade-out-row {
-			animation: fadeOut .45s forwards;
+		/* CART PANEL */
+		.cart-panel-body {
+			padding: .85rem 1rem;
+			display: flex;
+			flex-direction: column;
+			height: 100%;
 		}
 
-		@keyframes fadeOut {
-			to {
-				opacity: 0;
-				transform: translateX(6px);
-			}
+		.cart-table {
+			font-size: .8rem;
+			border-collapse: separate;
+			border-spacing: 0;
+			width: 100%;
 		}
-
-		.row-highlight {
-			animation: hiLite 1.2s;
-		}
-
-		@keyframes hiLite {
-			0% {
-				background: #fffbdc;
-			}
-
-			100% {
-				background: transparent;
-			}
-		}
-
-		.section-label {
+		.cart-table thead tr th {
 			font-size: .65rem;
+			font-weight: 700;
+			text-transform: uppercase;
+			letter-spacing: .6px;
+			color: #94a3b8;
+			padding: .4rem .5rem;
+			border-bottom: 1.5px solid #e2e8f0;
+			background: transparent;
+		}
+		.cart-table tbody tr td {
+			padding: .5rem .5rem;
+			vertical-align: middle;
+			border-bottom: 1px solid #f1f5f9;
+			color: #334155;
+		}
+		.cart-table tbody tr:last-child td { border-bottom: none; }
+		.cart-table .item-name-cell {
 			font-weight: 600;
+			max-width: 115px;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+		.cart-total-row td { font-size: .8rem; font-weight: 700; padding: .5rem .5rem 0; border-bottom: none !important; }
+		.cart-summary-box {
+			background: linear-gradient(135deg, #f0f7ff, #e8f5f1);
+			border-radius: 12px;
+			padding: .7rem .9rem;
+			margin-bottom: .75rem;
+			border: 1px solid #bfdbfe;
+		}
+		.cart-summary-row {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			font-size: .82rem;
+			margin-bottom: .2rem;
+		}
+		.cart-summary-row:last-child { margin-bottom: 0; }
+		.cart-summary-row .lbl { color: #64748b; font-weight: 500; }
+		.cart-summary-row .val { font-weight: 700; }
+		.cart-summary-row.total-row { 
+			font-size: .95rem; 
+			padding-top: .35rem; 
+			border-top: 1.5px dashed #bfdbfe; 
+			margin-top: .25rem; 
+		}
+		.cart-summary-row.total-row .val { color: var(--pos-accent); font-size: 1.05rem; }
+
+		/* VOUCHER */
+		.voucher-input-row {
+			display: flex;
+			gap: .4rem;
+			align-items: center;
+			margin-bottom: .3rem;
+		}
+		.voucher-input-row input {
+			flex: 1;
+			border-radius: 9px;
+			border: 1.5px solid #e2e8f0;
+			font-size: .82rem;
+			height: 34px;
+			padding: 0 .65rem;
+			transition: border-color .2s;
+		}
+		.voucher-input-row input:focus {
+			border-color: var(--pos-accent);
+			box-shadow: 0 0 0 3px rgba(13,110,253,.08);
+			outline: none;
+		}
+		.voucher-input-row .btn-voucher {
+			height: 34px;
+			width: 34px;
+			border-radius: 9px;
+			border: none;
+			background: #e8f4fd;
+			color: var(--pos-accent);
+			font-size: .9rem;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			transition: background .2s;
+			cursor: pointer;
+		}
+		.voucher-input-row .btn-voucher:hover { background: #bfdbfe; }
+		.voucher-input-row .btn-voucher.danger { background: #fee2e2; color: #dc3545; }
+		.voucher-input-row .btn-voucher.danger:hover { background: #fecaca; }
+
+		/* PAYMENT METHODS */
+		.payment-methods {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: .45rem;
+			margin-bottom: .75rem;
+		}
+		.pay-method-label {
+			display: flex;
+			align-items: center;
+			gap: .5rem;
+			padding: .5rem .75rem;
+			border-radius: 10px;
+			border: 1.5px solid #e2e8f0;
+			cursor: pointer;
+			font-size: .8rem;
+			font-weight: 600;
+			color: #475569;
+			background: #f8fafc;
+			transition: all .2s;
+			user-select: none;
+		}
+		.pay-method-label:hover { border-color: #93c5fd; background: #eff6ff; }
+		input[type=radio].pay-radio { display: none; }
+		input[type=radio].pay-radio:checked + .pay-method-label {
+			border-color: var(--pos-accent);
+			background: #eff6ff;
+			color: var(--pos-accent);
+			box-shadow: 0 0 0 2px rgba(13,110,253,.15);
+		}
+		.pay-method-label .pay-icon { font-size: 1rem; }
+
+		/* CUSTOMER SEARCH */
+		.customer-search-row {
+			display: flex;
+			gap: .4rem;
+			align-items: center;
+		}
+		.customer-search-row input {
+			flex: 1;
+			border-radius: 9px;
+			border: 1.5px solid #e2e8f0;
+			font-size: .82rem;
+			height: 34px;
+			padding: 0 .65rem;
+			transition: border-color .2s;
+		}
+		.customer-search-row input:focus {
+			border-color: var(--pos-accent);
+			box-shadow: 0 0 0 3px rgba(13,110,253,.08);
+			outline: none;
+		}
+		.customer-search-row .btn-add-customer {
+			height: 34px;
+			width: 34px;
+			border-radius: 9px;
+			border: none;
+			background: #e8f4fd;
+			color: var(--pos-accent);
+			font-size: .9rem;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			cursor: pointer;
+			transition: background .2s;
+		}
+		.customer-search-row .btn-add-customer:hover { background: #bfdbfe; }
+
+		/* CHECKOUT BUTTON */
+		.btn-checkout {
+			width: 100%;
+			height: 46px;
+			border-radius: 12px;
+			background: linear-gradient(135deg, var(--pos-accent) 0%, #20c997 100%);
+			color: #fff;
+			border: none;
+			font-size: .95rem;
+			font-weight: 700;
+			letter-spacing: .3px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: .5rem;
+			transition: transform .2s, box-shadow .2s, opacity .2s;
+			box-shadow: 0 4px 16px rgba(13,110,253,.3);
+		}
+		.btn-checkout:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 8px 24px rgba(13,110,253,.4);
+		}
+		.btn-checkout:active { transform: translateY(0); }
+
+		/* SECTION LABEL */
+		.pos-section-label {
+			font-size: .67rem;
+			font-weight: 700;
 			text-transform: uppercase;
-			letter-spacing: .05em;
-			color: var(--color-muted);
-			margin-bottom: .25rem;
+			letter-spacing: .7px;
+			color: #94a3b8;
+			margin-bottom: .4rem;
 		}
 
-		.cart-table thead th {
-			font-size: .65rem;
-			text-transform: uppercase;
-			letter-spacing: .05em;
+		/* DISCOUNT INPUT */
+		.discount-input {
+			border-radius: 9px;
+			border: 1.5px solid #e2e8f0;
+			font-size: .82rem;
+			height: 34px;
+			width: 100%;
+			padding: 0 .65rem;
+			transition: border-color .2s;
+		}
+		.discount-input:focus {
+			border-color: var(--pos-accent);
+			box-shadow: 0 0 0 3px rgba(13,110,253,.08);
+			outline: none;
 		}
 
-		.voucher-box-success {
-			animation: popScale .4s;
+		/* EMPTY CART */
+		.empty-cart {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			padding: 2rem 0;
+			color: #94a3b8;
 		}
+		.empty-cart i { font-size: 2.5rem; margin-bottom: .75rem; opacity: .5; }
 
-		@keyframes popScale {
-			0% {
-				transform: scale(.95);
-			}
+		/* ANIMATIONS */
+		.fade-out-row { animation: fadeOut .45s forwards; }
+		@keyframes fadeOut { to { opacity: 0; transform: translateX(8px); } }
+		.row-highlight { animation: hiLite 1.2s; }
+		@keyframes hiLite { 0% { background: #fef9c3; } 100% { background: transparent; } }
 
-			100% {
-				transform: scale(1);
-			}
+		/* PAGINATION */
+		.pos-pagination .page-link {
+			border-radius: 8px !important;
+			font-size: .8rem;
+			padding: .3rem .65rem;
+			color: var(--pos-accent);
+			border: 1.5px solid #e2e8f0;
+			margin: 0 .15rem;
+			transition: all .2s;
+		}
+		.pos-pagination .page-item.active .page-link {
+			background: var(--pos-accent);
+			border-color: var(--pos-accent);
+			color: #fff;
+		}
+		.pos-pagination .page-item.disabled .page-link { color: #cbd5e1; }
+		.pos-pagination .page-link:hover:not(.active) { background: #eff6ff; border-color: #93c5fd; }
+
+		/* PAGE TITLE */
+		.pos-page-title {
+			display: flex;
+			align-items: center;
+			gap: .75rem;
+			padding: .75rem 0 .5rem;
+		}
+		.pos-title-icon {
+			width: 40px;
+			height: 40px;
+			background: linear-gradient(135deg, var(--pos-accent), #4facfe);
+			border-radius: 12px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			color: #fff;
+			font-size: 1.1rem;
+			flex-shrink: 0;
+		}
+		.pos-page-title h5 { margin: 0; font-weight: 700; font-size: 1.1rem; color: #1e293b; }
+
+		/* DIVIDER */
+		.pos-divider {
+			border: none;
+			height: 1.5px;
+			background: linear-gradient(90deg, #e2e8f0, transparent);
+			margin: .6rem 0;
 		}
 	</style>
 
-	<div class="container-fluid px-4 py-3">
-		<div class="d-flex align-items-center mb-3 gap-2 flex-wrap">
-			<h5 class="mb-0">Bán hàng tại quầy</h5>
+	<div class="container-fluid px-3 px-lg-4 pb-4">
+
+		<!-- Page title -->
+		<div class="pos-page-title">
+			<div class="pos-title-icon"><i class="fas fa-cash-register"></i></div>
+			<div>
+				<h5>Bán hàng tại quầy</h5>
+				<div class="text-muted" style="font-size:.78rem;">Click vào sản phẩm để thêm • Double-click để chọn số lượng</div>
+			</div>
 			<div class="ms-auto d-flex gap-2">
 				<a th:if="${idHoaDon != null}" th:href="@{/admin/hoadon/print/{id}(id=${idHoaDon})}" target="_blank"
-					class="btn btn-soft-primary btn-sm"><i class="fas fa-print me-1"></i> In hóa đơn</a>
+					class="btn btn-sm" style="background:#e8f4fd;color:var(--pos-accent);border-radius:10px;font-weight:600;border:1.5px solid #bfdbfe;">
+					<i class="fas fa-print me-1"></i>In hóa đơn
+				</a>
 			</div>
 		</div>
 
-		<div class="flash-container" th:if="${successMessage != null or errorMessage != null}">
-			<div th:if="${successMessage}" class="alert alert-success py-2 px-3 d-flex align-items-center gap-2 mb-2">
+		<!-- Alerts -->
+		<div th:if="${successMessage != null or errorMessage != null}" class="mb-2">
+			<div th:if="${successMessage}" class="alert alert-success py-2 px-3 d-flex align-items-center gap-2 mb-1" style="border-radius:12px;border:none;background:#ecfdf5;color:#047857;">
 				<i class="fas fa-check-circle"></i><span th:text="${successMessage}"></span>
 			</div>
-			<div th:if="${errorMessage}" class="alert alert-danger py-2 px-3 d-flex align-items-center gap-2 mb-2">
+			<div th:if="${errorMessage}" class="alert alert-danger py-2 px-3 d-flex align-items-center gap-2 mb-1" style="border-radius:12px;border:none;background:#fef2f2;color:#b91c1c;">
 				<i class="fas fa-exclamation-circle"></i><span th:text="${errorMessage}"></span>
 			</div>
 		</div>
 
-		<div class="pos-shell">
-			<!-- LEFT PANEL: Products -->
+		<div class="pos-wrapper">
+			<!-- ===== LEFT: Products ===== -->
 			<div class="pos-left">
-				<div class="card-elevated p-3 mb-3">
-					<form method="get" th:action="@{/banhangtaiquay}" class="row g-2 align-items-end">
-						<div class="col-auto">
-							<label class="form-section-title mb-1">Từ khóa</label>
-							<input type="text" name="keyword" class="form-control form-control-sm"
-								placeholder="Tên sản phẩm" th:value="${keyword}">
-						</div>
-						<div class="col-auto">
-							<label class="form-section-title mb-1">Loại</label>
-							<select class="form-select form-select-sm" name="idLoai">
-								<option value="" th:selected="${idLoai == null}">Tất cả</option>
-								<option th:each="loai : ${dsLoai}" th:value="${loai.idLoai}" th:text="${loai.tenLoai}"
-									th:selected="${idLoai == loai.idLoai}"></option>
-							</select>
-						</div>
-						<div class="col-auto">
-							<button class="btn btn-primary btn-sm mt-3"><i class="fas fa-search me-1"></i>Tìm</button>
-						</div>
-					</form>
-				</div>
 
-				<div id="product-list-area" class="card-elevated p-3 flex-grow-1 d-flex flex-column">
-					<div class="product-grid mb-3">
-						<div th:each="sp : ${dsSanPham.content}" class="product-card clickable-card-body"
-							th:attr="data-tonkho=${sp.soluong},data-idsanpham=${sp.idSanpham}">
-							<img th:src="@{/image/{url}(url=${sp.hinh})}" loading="lazy" />
-							<div class="p-2 d-flex flex-column flex-grow-1">
-								<h6 th:text="${sp.tenSanpham}"></h6>
-								<div class="meta mb-1">Kho: <strong th:text="${sp.soluong}"></strong></div>
-								<div class="mt-auto">
-									<div class="meta">Giá: <strong
-											th:text="${#numbers.formatInteger(sp.gia, 0, 'COMMA')} + '₫'"></strong>
+				<!-- Search bar -->
+				<form method="get" th:action="@{/banhangtaiquay}" class="pos-search-bar">
+					<div style="flex:1;min-width:160px;">
+						<div class="pos-section-label">Tên thuốc</div>
+						<input type="text" name="keyword" class="form-control" style="height:38px;border-radius:10px;"
+							placeholder="Tìm tên sản phẩm..." th:value="${keyword}">
+					</div>
+					<div style="width:160px;">
+						<div class="pos-section-label">Phân loại</div>
+						<select class="form-select" name="idLoai" style="height:38px;border-radius:10px;">
+							<option value="" th:selected="${idLoai == null}">Tất cả</option>
+							<option th:each="loai : ${dsLoai}" th:value="${loai.idLoai}" th:text="${loai.tenLoai}"
+								th:selected="${idLoai == loai.idLoai}"></option>
+						</select>
+					</div>
+					<button class="btn-search" type="submit">
+						<i class="fas fa-search"></i>Tìm kiếm
+					</button>
+				</form>
+
+				<!-- Product list -->
+				<div class="pos-panel flex-grow-1 d-flex flex-column" id="product-list-area">
+					<div class="pos-panel-header">
+						<i class="fas fa-capsules"></i>
+						<h6>Danh sách sản phẩm</h6>
+						<span class="ms-auto badge rounded-pill" style="background:rgba(255,255,255,.25);font-size:.72rem;"
+							th:text="${dsSanPham.totalElements} + ' sản phẩm'"></span>
+					</div>
+					<div style="padding:1rem;" class="flex-grow-1 d-flex flex-column">
+						<div class="product-grid mb-3">
+							<div th:each="sp : ${dsSanPham.content}"
+								class="product-card clickable-card-body"
+								th:attr="data-tonkho=${sp.soluong},data-idsanpham=${sp.idSanpham}">
+								<div class="product-card-img">
+									<img th:src="@{/image/{url}(url=${sp.hinh})}" loading="lazy" alt="" />
+									<div th:if="${sp.giamgia > 0}" class="discount-ribbon">
+										-<span th:text="${sp.giamgia}"></span>%
 									</div>
-									<div th:if="${sp.giamgia > 0}" class="meta"><span class="text-danger">Giảm <strong
-												th:text="${sp.giamgia + '%'}"></strong></span></div>
-									<div th:if="${sp.soluong == 0}"
-										class="badge badge-soft-danger badge-xs badge-stock">Hết hàng</div>
+									<div th:if="${sp.soluong == 0}" class="out-of-stock-overlay">
+										<span>Hết hàng</span>
+									</div>
+								</div>
+								<div class="product-card-body">
+									<div class="product-card-name" th:text="${sp.tenSanpham}"></div>
+									<div class="product-card-stock">
+										Kho: <span class="stock-num" th:text="${sp.soluong}"></span>
+									</div>
+									<div class="product-card-price">
+										<span th:text="${#numbers.formatInteger(sp.gia * (100 - sp.giamgia) / 100, 0, 'COMMA')} + '₫'"></span>
+										<span th:if="${sp.giamgia > 0}" class="original-price"
+											th:text="${#numbers.formatInteger(sp.gia, 0, 'COMMA')} + '₫'"></span>
+									</div>
 								</div>
 							</div>
 						</div>
-					</div>
-					<!-- pagination -->
-					<div class="mt-auto pt-2">
-						<nav th:if="${dsSanPham.totalPages > 1}">
-							<ul class="pagination pagination-sm mb-0">
-								<li class="page-item" th:classappend="${dsSanPham.first} ? 'disabled'">
-									<a class="page-link"
-										th:href="@{/banhangtaiquay(page=${dsSanPham.number - 1}, keyword=${keyword}, idLoai=${idLoai})}">«</a>
-								</li>
-								<li class="page-item" th:each="i : ${#numbers.sequence(0, dsSanPham.totalPages - 1)}"
-									th:classappend="${i == dsSanPham.number} ? 'active'">
-									<a class="page-link"
-										th:href="@{/banhangtaiquay(page=${i}, keyword=${keyword}, idLoai=${idLoai})}"
-										th:text="${i + 1}"></a>
-								</li>
-								<li class="page-item" th:classappend="${dsSanPham.last} ? 'disabled'">
-									<a class="page-link"
-										th:href="@{/banhangtaiquay(page=${dsSanPham.number + 1}, keyword=${keyword}, idLoai=${idLoai})}">»</a>
-								</li>
-							</ul>
-						</nav>
+						<!-- pagination -->
+						<div class="mt-auto pt-2">
+							<nav th:if="${dsSanPham.totalPages > 1}">
+								<ul class="pagination pagination-sm mb-0 pos-pagination flex-wrap">
+									<li class="page-item" th:classappend="${dsSanPham.first} ? 'disabled'">
+										<a class="page-link" th:href="@{/banhangtaiquay(page=${dsSanPham.number - 1}, keyword=${keyword}, idLoai=${idLoai})}">«</a>
+									</li>
+									<li class="page-item" th:each="i : ${#numbers.sequence(0, dsSanPham.totalPages - 1)}"
+										th:classappend="${i == dsSanPham.number} ? 'active'">
+										<a class="page-link" th:href="@{/banhangtaiquay(page=${i}, keyword=${keyword}, idLoai=${idLoai})}" th:text="${i + 1}"></a>
+									</li>
+									<li class="page-item" th:classappend="${dsSanPham.last} ? 'disabled'">
+										<a class="page-link" th:href="@{/banhangtaiquay(page=${dsSanPham.number + 1}, keyword=${keyword}, idLoai=${idLoai})}">»</a>
+									</li>
+								</ul>
+							</nav>
+						</div>
 					</div>
 				</div>
 			</div>
 
-			<!-- RIGHT PANEL: Cart & Checkout -->
+			<!-- ===== RIGHT: Cart & Checkout ===== -->
 			<div class="pos-right">
-				<div class="card-elevated p-3 mb-3 d-flex flex-column flex-grow-1" style="max-height:100%;">
-					<div class="d-flex align-items-center mb-2">
-						<h6 class="mb-0">Hóa đơn tạm</h6>
-						<div class="ms-auto small text-muted" id="cartItemCount"></div>
-					</div>
-					<div class="mb-3">
-						<div class="section-label">Voucher</div>
-						<div class="input-group input-group-sm">
-							<input type="text" class="form-control" id="voucherCodeInput" placeholder="Nhập mã..."
-								autocomplete="off">
-							<button type="button" class="btn btn-outline-secondary" id="applyVoucherBtn"><i
-									class="fas fa-ticket-alt"></i></button>
-							<button type="button" class="btn btn-outline-danger d-none" id="removeVoucherBtn"><i
-									class="fas fa-times"></i></button>
-						</div>
-						<div id="voucherFeedback" class="small mt-1 text-muted"></div>
-					</div>
-					<div id="cart-area" class="flex-grow-1 overflow-auto mb-3">
-						<table class="table table-sm table-modern cart-table">
-							<thead>
-								<tr>
-									<th>Sản phẩm</th>
-									<th class="text-center">SL</th>
-									<th class="text-center">Giảm (%)</th>
-									<th class="text-end">Giá</th>
-									<th></th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr th:each="ct : ${gioHang}">
-									<td th:text="${ct.sanPham.tenSanpham}"></td>
-									<td class="text-center" th:text="${ct.soluong}"></td>
-									<td class="discount-cell text-center">0%</td>
-									<td class="text-end"
-										th:text="${#numbers.formatInteger((ct.sanPham.gia * (100 - ct.sanPham.giamgia) / 100) * ct.soluong, 0, 'COMMA')} + '₫'">
-									</td>
-									<td class="text-end">
-										<form th:action="@{/giohang/xoa}" method="post" class="d-inline">
-											<input type="hidden" name="idSanpham" th:value="${ct.sanPham.idSanpham}">
-											<button class="btn btn-soft-danger btn-sm" title="Xóa"><i
-													class="fas fa-trash"></i></button>
-										</form>
-									</td>
-								</tr>
-								<tr th:if="${!#lists.isEmpty(gioHang)}" class="table-active">
-									<td colspan="3" class="text-end fw-semibold">Tổng cộng:</td>
-									<td class="fw-semibold text-danger text-end"
-										th:text="${#numbers.formatInteger(tongCong, 0, 'COMMA')} + '₫'"></td>
-									<td></td>
-								</tr>
-								<tr id="rowTongGiam">
-									<td colspan="3" class="text-end fw-semibold">Tổng giảm:</td>
-									<td class="fw-semibold text-danger text-end" id="tongGiam">0₫ (0%)</td>
-									<td></td>
-								</tr>
-								<tr id="rowTongTienSauGiam">
-									<td colspan="3" class="text-end fw-semibold">Sau giảm:</td>
-									<td class="fw-semibold text-success text-end" id="tongTienSauGiam">0₫</td>
-									<td></td>
-								</tr>
-								<tr th:if="${#lists.isEmpty(gioHang)}">
-									<td colspan="5" class="text-center text-muted py-4">Chưa có sản phẩm</td>
-								</tr>
-							</tbody>
-						</table>
+				<div class="pos-panel d-flex flex-column" style="flex:1;">
+					<!-- Header -->
+					<div class="pos-panel-header" style="background:linear-gradient(135deg,#1e293b 0%,#334155 100%);">
+						<i class="fas fa-receipt"></i>
+						<h6>Hóa đơn tạm</h6>
+						<span class="ms-auto small opacity-75" id="cartItemCount"></span>
 					</div>
 
-					<div class="mb-3">
-					<div class="section-label">Thanh toán</div>
-					<div class="d-flex flex-wrap gap-2">
-						<div class="form-check">
-							<input class="form-check-input" type="radio" id="CASH" name="phuongthuc" value="CASH" checked>
-							<label for="CASH" class="form-check-label"><i class="fas fa-money-bill-wave text-success me-1"></i>Tiền mặt</label>
-						</div>
-						<div class="form-check">
-							<input class="form-check-input" id="BANK" type="radio" name="phuongthuc" value="BANK">
-							<label for="BANK" class="form-check-label"><i class="fas fa-university text-primary me-1"></i>Ngân hàng</label>
-						</div>
-						<div class="form-check">
-							<input class="form-check-input" id="MOMO" type="radio" name="phuongthuc" value="MOMO">
-							<label for="MOMO" class="form-check-label" style="color:#ae2070;font-weight:600;">&#9679; MoMo</label>
-						</div>
-						<div class="form-check">
-							<input class="form-check-input" id="ZALOPAY" type="radio" name="phuongthuc" value="ZALOPAY">
-							<label for="ZALOPAY" class="form-check-label" style="color:#0068ff;font-weight:600;">&#9679; ZaloPay</label>
-						</div>
-					</div>
-				</div>
+					<div class="cart-panel-body">
 
-					<div class="mb-3">
-						<div class="section-label">Khách hàng (SĐT)</div>
-						<div class="input-group input-group-sm">
-							<input type="text" class="form-control" id="searchKhachHangInput" placeholder="Nhập SĐT...">
-							<button class="btn btn-outline-primary" type="button" id="createKhachHangBtn"><i
-									class="fas fa-user-plus"></i></button>
+						<!-- Voucher -->
+						<div class="mb-3">
+							<div class="pos-section-label"><i class="fas fa-ticket-alt me-1"></i>Mã giảm giá</div>
+							<div class="voucher-input-row">
+								<input type="text" id="voucherCodeInput" placeholder="Nhập mã voucher..." autocomplete="off">
+								<button type="button" class="btn-voucher" id="applyVoucherBtn" title="Áp dụng">
+									<i class="fas fa-check"></i>
+								</button>
+								<button type="button" class="btn-voucher danger d-none" id="removeVoucherBtn" title="Xóa">
+									<i class="fas fa-times"></i>
+								</button>
+							</div>
+							<div id="voucherFeedback" class="small mt-1 text-muted"></div>
 						</div>
-						<div id="khachHangResult" class="mt-2 small"></div>
-					</div>
 
-					<div class="mb-3">
-						<div class="section-label">Giảm giá hóa đơn (%)</div>
-						<input type="number" class="form-control form-control-sm" id="adminDiscountInput"
-							name="adminDiscount" min="0" max="100" placeholder="% hoặc để trống auto">
-					</div>
+						<hr class="pos-divider">
 
-					<!-- Hidden config for QR -->
-					<span id="cfg-bank-bin" th:text="${bankBin}" class="d-none"></span>
-					<span id="cfg-bank-account" th:text="${bankAccount}" class="d-none"></span>
-					<span id="cfg-bank-name" th:text="${bankName}" class="d-none"></span>
-					<span id="cfg-bank-account-name" th:text="${bankAccountName}" class="d-none"></span>
-					<span id="cfg-momo-phone" th:text="${momoPhone}" class="d-none"></span>
-					<span id="cfg-momo-name" th:text="${momoName}" class="d-none"></span>
-					<span id="cfg-zalopay-phone" th:text="${zalopayPhone}" class="d-none"></span>
-					<span id="cfg-zalopay-name" th:text="${zalopayName}" class="d-none"></span>
-					<form th:action="@{/banhangtaiquay/thanh-toan}" method="post" class="mt-auto" id="payForm">
-						<input type="hidden" name="phuongthuc" value="CASH" id="selectedPayment">
-						<input type="hidden" name="khachHangId" id="selectedKhachHangId">
-						<input type="hidden" name="adminDiscount" id="adminDiscountHidden">
-						<input type="hidden" name="voucherCode" id="voucherCodeHidden">
-						<input type="hidden" name="voucherDiscount" id="voucherDiscountHidden">
-						<button type="button" id="btnThanhToan" class="btn btn-primary w-100"><i class="fas fa-check-circle me-1"></i> Thanh toán</button>
-					</form>
+						<!-- Cart items -->
+						<div id="cart-area" class="overflow-auto mb-2" style="max-height:220px;min-height:80px;">
+							<div th:if="${#lists.isEmpty(gioHang)}" class="empty-cart">
+								<i class="fas fa-shopping-basket"></i>
+								<span class="fw-semibold" style="font-size:.85rem;">Chưa có sản phẩm</span>
+								<span style="font-size:.75rem;">Click vào sản phẩm để thêm</span>
+							</div>
+							<table th:if="${!#lists.isEmpty(gioHang)}" class="cart-table">
+								<thead>
+									<tr>
+										<th>Sản phẩm</th>
+										<th class="text-center">SL</th>
+										<th class="text-center">Giảm</th>
+										<th class="text-end">Tiền</th>
+										<th></th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr th:each="ct : ${gioHang}">
+										<td class="item-name-cell" th:text="${ct.sanPham.tenSanpham}"></td>
+										<td class="text-center fw-bold" th:text="${ct.soluong}"></td>
+										<td class="discount-cell text-center" style="color:#f97316;font-weight:600;">0%</td>
+										<td class="text-end fw-semibold" style="color:#0d6efd;"
+											th:text="${#numbers.formatInteger((ct.sanPham.gia * (100 - ct.sanPham.giamgia) / 100) * ct.soluong, 0, 'COMMA')} + '₫'"></td>
+										<td class="text-end">
+											<form th:action="@{/giohang/xoa}" method="post" class="d-inline">
+												<input type="hidden" name="idSanpham" th:value="${ct.sanPham.idSanpham}">
+												<button class="btn btn-link p-0" style="color:#f87171;font-size:.85rem;" title="Xóa">
+													<i class="fas fa-trash-alt"></i>
+												</button>
+											</form>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+
+						<!-- Summary box (hidden IDs for JS) -->
+						<div class="cart-summary-box mb-3">
+							<div class="cart-summary-row">
+								<span class="lbl">Tổng cộng</span>
+								<span class="val" th:text="${!#lists.isEmpty(gioHang)} ? ${#numbers.formatInteger(tongCong, 0, 'COMMA')} + '₫' : '0₫'"></span>
+							</div>
+							<div class="cart-summary-row">
+								<span class="lbl">Giảm giá</span>
+								<span class="val text-warning" id="tongGiam">0₫ (0%)</span>
+							</div>
+							<div class="cart-summary-row total-row">
+								<span class="lbl">Thành tiền</span>
+								<span class="val" id="tongTienSauGiam">0₫</span>
+							</div>
+						</div>
+
+						<!-- Payment methods -->
+						<div class="mb-3">
+							<div class="pos-section-label"><i class="fas fa-credit-card me-1"></i>Phương thức thanh toán</div>
+							<div class="payment-methods">
+								<input type="radio" class="pay-radio" id="CASH" name="phuongthuc" value="CASH" checked>
+								<label for="CASH" class="pay-method-label">
+									<i class="fas fa-money-bill-wave pay-icon" style="color:#16a34a;"></i>Tiền mặt
+								</label>
+
+								<input type="radio" class="pay-radio" id="BANK" name="phuongthuc" value="BANK">
+								<label for="BANK" class="pay-method-label">
+									<i class="fas fa-university pay-icon" style="color:#2563eb;"></i>Ngân hàng
+								</label>
+
+								<input type="radio" class="pay-radio" id="MOMO" name="phuongthuc" value="MOMO">
+								<label for="MOMO" class="pay-method-label">
+									<span class="pay-icon fw-black" style="color:#ae2070;font-size:1rem;font-weight:800;">M</span>MoMo
+								</label>
+
+								<input type="radio" class="pay-radio" id="ZALOPAY" name="phuongthuc" value="ZALOPAY">
+								<label for="ZALOPAY" class="pay-method-label">
+									<span class="pay-icon fw-black" style="color:#0068ff;font-size:1rem;font-weight:800;">Z</span>ZaloPay
+								</label>
+							</div>
+						</div>
+
+						<!-- Customer -->
+						<div class="mb-3">
+							<div class="pos-section-label"><i class="fas fa-user me-1"></i>Khách hàng (SĐT)</div>
+							<div class="customer-search-row">
+								<input type="text" id="searchKhachHangInput" placeholder="Tìm theo số điện thoại...">
+								<button class="btn-add-customer" type="button" id="createKhachHangBtn" title="Tạo KH mới">
+									<i class="fas fa-user-plus"></i>
+								</button>
+							</div>
+							<div id="khachHangResult" class="mt-2 small"></div>
+						</div>
+
+						<!-- Admin discount -->
+						<div class="mb-3">
+							<div class="pos-section-label"><i class="fas fa-percent me-1"></i>Giảm giá hóa đơn (%)</div>
+							<input type="number" class="discount-input" id="adminDiscountInput"
+								name="adminDiscount" min="0" max="100" placeholder="0 - 100 (để trống = tự động)">
+						</div>
+
+						<!-- Hidden config for QR -->
+						<span id="cfg-bank-bin" th:text="${bankBin}" class="d-none"></span>
+						<span id="cfg-bank-account" th:text="${bankAccount}" class="d-none"></span>
+						<span id="cfg-bank-name" th:text="${bankName}" class="d-none"></span>
+						<span id="cfg-bank-account-name" th:text="${bankAccountName}" class="d-none"></span>
+						<span id="cfg-momo-phone" th:text="${momoPhone}" class="d-none"></span>
+						<span id="cfg-momo-name" th:text="${momoName}" class="d-none"></span>
+						<span id="cfg-zalopay-phone" th:text="${zalopayPhone}" class="d-none"></span>
+						<span id="cfg-zalopay-name" th:text="${zalopayName}" class="d-none"></span>
+
+						<!-- Checkout -->
+						<form th:action="@{/banhangtaiquay/thanh-toan}" method="post" id="payForm">
+							<input type="hidden" name="phuongthuc" value="CASH" id="selectedPayment">
+							<input type="hidden" name="khachHangId" id="selectedKhachHangId">
+							<input type="hidden" name="adminDiscount" id="adminDiscountHidden">
+							<input type="hidden" name="voucherCode" id="voucherCodeHidden">
+							<input type="hidden" name="voucherDiscount" id="voucherDiscountHidden">
+							<button type="button" id="btnThanhToan" class="btn-checkout">
+								<i class="fas fa-check-circle"></i>Thanh toán ngay
+							</button>
+						</form>
+
+					</div>
 				</div>
 			</div>
 		</div>

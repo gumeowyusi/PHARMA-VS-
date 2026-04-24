@@ -407,18 +407,26 @@
 
                   <div class="row g-2">
                     <div class="col-6">
-                      <a th:href="@{/oauth2/authorization/google}" class="btn social-btn w-100 text-decoration-none d-flex align-items-center justify-content-center">
+                      <a th:href="@{/oauth2/authorization/google}"
+                         class="btn social-btn w-100 text-decoration-none d-flex align-items-center justify-content-center"
+                         title="Đăng nhập bằng Google">
                         <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"
                              width="18" class="me-2" alt="Google"> Google
                       </a>
                     </div>
                     <div class="col-6">
-                      <a th:href="@{/oauth2/authorization/facebook}" class="btn social-btn w-100 text-decoration-none d-flex align-items-center justify-content-center">
+                      <a th:href="@{/oauth2/authorization/facebook}"
+                         class="btn social-btn w-100 text-decoration-none d-flex align-items-center justify-content-center"
+                         title="Đăng nhập bằng Facebook">
                         <img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/2021_Facebook_icon.svg"
                              width="18" class="me-2" alt="Facebook"> Facebook
                       </a>
                     </div>
                   </div>
+                  <p class="text-center mt-2 mb-0" style="font-size:.75rem;color:#94a3b8;">
+                    <i class="fa-solid fa-circle-info me-1"></i>
+                    Đăng nhập mạng xã hội yêu cầu cấu hình OAuth2 trong <code>application-secret.properties</code>
+                  </p>
 
                   <p class="mt-4 pt-2 text-center small text-muted mb-0">
                     Bằng việc đăng nhập, bạn đồng ý với <a href="#"
