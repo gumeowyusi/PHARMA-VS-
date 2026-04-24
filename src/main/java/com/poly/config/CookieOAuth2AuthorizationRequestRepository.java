@@ -74,9 +74,10 @@ public class CookieOAuth2AuthorizationRequestRepository
     }
 
     @SuppressWarnings({"unchecked", "deprecation"})
-    private <T> T deserialize(String value) {
+    private OAuth2AuthorizationRequest deserialize(String value) {
         try {
-            return (T) SerializationUtils.deserialize(Base64.getUrlDecoder().decode(value));
+            return (OAuth2AuthorizationRequest) SerializationUtils.deserialize(
+                    Base64.getUrlDecoder().decode(value));
         } catch (Exception e) {
             return null;
         }
