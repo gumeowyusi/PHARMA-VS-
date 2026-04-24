@@ -1,5 +1,6 @@
 package com.poly.controller.user;
 
+import java.util.List;
 import java.util.Map;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -7,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.poly.entity.Voucher;
 import com.poly.service.VoucherService;
 
 @RestController
@@ -24,6 +26,16 @@ public class VoucherController {
             return ResponseEntity.ok(resp);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/available")
+    public ResponseEntity<?> available(@RequestParam(defaultValue = "0") double subtotal) {
+        try {
+            List<Voucher> vouchers = voucherService.listAvailable(subtotal);
+            return ResponseEntity.ok(vouchers);
+        } catch (Exception e) {
+            return ResponseEntity.ok(List.of());
         }
     }
 }

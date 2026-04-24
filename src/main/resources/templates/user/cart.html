@@ -173,7 +173,7 @@
                 <input type="radio" name="delivery-method" id="delivery-method-2" value="2" style="display:none" disabled>
 
                 <label for="delivery-method-1" class="delivery-option" id="dopt-1">
-                  <div class="icon-wrap"><i class="fas fa-truck text-primary"></i></div>
+                  <div class="icon-wrap"><i class="fas fa-truck"></i></div>
                   <div class="info">
                     <div class="label">Giao tiêu chuẩn</div>
                     <div class="sub">Nhận trong 3–5 ngày · +20.000₫</div>
@@ -182,13 +182,35 @@
                 </label>
 
                 <label for="delivery-method-2" class="delivery-option" id="dopt-2">
-                  <div class="icon-wrap"><i class="fas fa-shipping-fast text-primary"></i></div>
+                  <div class="icon-wrap"><i class="fas fa-shipping-fast"></i></div>
                   <div class="info">
                     <div class="label">Giao hàng nhanh</div>
                     <div class="sub">Nhận trong 1–2 ngày · +50.000₫</div>
                   </div>
                   <span class="radio-dot"></span>
                 </label>
+              </div>
+            </div>
+
+            <!-- Voucher / Freeship -->
+            <div class="cart-card">
+              <div class="cart-card-header">
+                <div class="icon-wrap" style="background:#fff3e0;color:#e65100;"><i class="fas fa-ticket-alt"></i></div>
+                Voucher &amp; Freeship
+              </div>
+              <div class="cart-card-body p-0">
+                <button id="voucherPickBtn" class="voucher-pick-row" type="button">
+                  <div class="d-flex align-items-center gap-2 flex-grow-1 min-w-0">
+                    <span class="voucher-tag"><i class="fas fa-percent"></i></span>
+                    <span id="voucherPickText" class="text-muted" style="font-size:.88rem;">Chọn hoặc nhập mã giảm giá</span>
+                  </div>
+                  <i class="fas fa-chevron-right text-muted" style="font-size:.75rem;flex-shrink:0;"></i>
+                </button>
+                <div id="voucherAppliedRow" class="voucher-applied-row d-none">
+                  <i class="fas fa-check-circle text-success"></i>
+                  <span id="voucherAppliedText" class="text-success fw-semibold" style="font-size:.88rem;flex:1;"></span>
+                  <button id="voucherRemoveBtn" class="btn-voucher-remove" type="button">Bỏ</button>
+                </div>
               </div>
             </div>
 
@@ -266,6 +288,10 @@
                   <span class="text-muted"><i class="fas fa-truck me-2" style="font-size:.85rem;"></i>Phí vận chuyển</span>
                   <span class="fw-semibold"><span id="delivery-price">0</span>₫</span>
                 </div>
+                <div class="summary-row" id="discount-row" style="display:none;">
+                  <span class="text-success"><i class="fas fa-ticket-alt me-2" style="font-size:.85rem;"></i>Giảm giá</span>
+                  <span class="fw-semibold text-success">-<span id="discount-price">0</span>₫</span>
+                </div>
                 <div class="summary-row summary-total">
                   <span>Tổng cộng</span>
                   <span><span id="total-price">0</span>₫</span>
@@ -323,6 +349,10 @@
           <div class="ck-item">
             <span>Phí vận chuyển</span><span id="ck-ship">0₫</span>
           </div>
+          <div class="ck-item text-success" id="ck-discount-row" style="display:none;">
+            <span><i class="fas fa-ticket-alt me-1"></i>Giảm giá voucher</span>
+            <span id="ck-discount">-0₫</span>
+          </div>
           <div class="ck-item ck-total">
             <span>Tổng cộng</span><span id="ck-total">0₫</span>
           </div>
@@ -332,6 +362,45 @@
           <button type="button" class="btn btn-primary fw-bold px-4" id="confirmPlaceOrderBtn">
             <i class="fas fa-check me-1"></i> Xác nhận đặt hàng
           </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Voucher picker modal -->
+  <div class="modal fade" id="voucherModal" tabindex="-1" aria-labelledby="voucherModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:520px;">
+      <div class="modal-content" style="border-radius:18px;border:none;box-shadow:0 20px 60px -12px rgba(0,0,0,.25);">
+        <div class="modal-header" style="background:linear-gradient(135deg,#fff7ed,#fff3e0);border-bottom:1.5px solid #fde68a;border-radius:18px 18px 0 0;">
+          <h5 class="modal-title fw-bold" id="voucherModalLabel" style="color:#e65100;">
+            <i class="fas fa-ticket-alt me-2"></i>Chọn Voucher
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4">
+          <!-- Manual code input -->
+          <div class="input-group mb-4" style="border-radius:10px;overflow:hidden;border:1.5px solid #e2e8f0;box-shadow:0 2px 8px rgba(0,0,0,.06);">
+            <span class="input-group-text" style="background:#fff7ed;border:none;color:#e65100;font-size:.95rem;">
+              <i class="fas fa-tag"></i>
+            </span>
+            <input type="text" id="voucherCodeInput" class="form-control" placeholder="Nhập mã voucher..."
+                   style="border:none;font-weight:600;text-transform:uppercase;letter-spacing:.05em;" />
+            <button class="btn fw-bold px-3" id="applyVoucherCodeBtn" type="button"
+                    style="background:#e65100;color:#fff;border:none;font-size:.88rem;">Áp dụng</button>
+          </div>
+          <div id="voucherCodeError" class="text-danger small mb-3" style="display:none;"></div>
+
+          <!-- Section: Freeship -->
+          <div class="voucher-section-label"><i class="fas fa-shipping-fast me-2 text-primary"></i>Miễn phí vận chuyển</div>
+          <div id="voucherListFreeship" class="voucher-list-wrap">
+            <div class="text-muted small p-3 text-center">Đang tải...</div>
+          </div>
+
+          <!-- Section: Discount -->
+          <div class="voucher-section-label mt-3"><i class="fas fa-percent me-2" style="color:#e65100;"></i>Giảm giá đơn hàng</div>
+          <div id="voucherListDiscount" class="voucher-list-wrap">
+            <div class="text-muted small p-3 text-center">Đang tải...</div>
+          </div>
         </div>
       </div>
     </div>

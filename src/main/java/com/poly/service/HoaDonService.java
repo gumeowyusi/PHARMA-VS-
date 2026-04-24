@@ -82,6 +82,10 @@ public class HoaDonService {
 			if (khachHang != null) {
 				hoaDon.setKhachHang(khachHang);
 			}
+			if (orderRequest.getVoucherCode() != null && !orderRequest.getVoucherCode().isBlank()) {
+				hoaDon.setVoucherCode(orderRequest.getVoucherCode());
+				hoaDon.setVoucherDiscountAmount(orderRequest.getVoucherDiscountAmount() != null ? orderRequest.getVoucherDiscountAmount() : 0.0);
+			}
 			hoaDonRepository.save(hoaDon);
 			orderRequest.getOrderItems().forEach(item -> {
 				SanPham sanPham = sanPhamService.getSanPhamById(item.getProductId());
@@ -108,6 +112,14 @@ public class HoaDonService {
 							hoaDon, listHoaDonChiTiets, orderRequest.getDeliveryPrice());
 				}
 			} catch (Exception ignored) {
+			}
+			// Record voucher usage
+			if (orderRequest.getVoucherCode() != null && !orderRequest.getVoucherCode().isBlank() && users != null) {
+				try {
+					double subtotal = orderRequest.getOrderItems().stream()
+							.mapToDouble(i -> i.getPrice() * (1 - i.getDiscount() / 100.0) * i.getQuantity()).sum();
+					voucherService.increaseUsageOnOrder(hoaDon, orderRequest.getVoucherCode(), subtotal, users.getIdUser());
+				} catch (Exception ignored) {}
 			}
 			return hoaDon.getIdHoadon();
 		} catch (Exception e) {

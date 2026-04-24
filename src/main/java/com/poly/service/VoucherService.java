@@ -66,6 +66,17 @@ public class VoucherService {
 
     public List<Voucher> listAll() { return voucherRepository.findAll(); }
 
+    public List<Voucher> listAvailable(double subtotal) {
+        Date now = new Date();
+        return voucherRepository.findAll().stream()
+                .filter(v -> Boolean.TRUE.equals(v.getActive()))
+                .filter(v -> v.getStartDate() == null || !now.before(v.getStartDate()))
+                .filter(v -> v.getEndDate() == null || !now.after(v.getEndDate()))
+                .filter(v -> v.getMinOrderValue() == null || subtotal >= v.getMinOrderValue())
+                .filter(v -> v.getUsageLimit() == null || (v.getTotalUsed() == null ? 0 : v.getTotalUsed()) < v.getUsageLimit())
+                .collect(java.util.stream.Collectors.toList());
+    }
+
     private void validateVoucherFields(Voucher v) {
         if (v.getCode() == null || v.getCode().isBlank()) throw new IllegalArgumentException("Mã voucher không được để trống");
         if (!"PERCENT".equalsIgnoreCase(v.getType()) && !"FIXED".equalsIgnoreCase(v.getType())) {

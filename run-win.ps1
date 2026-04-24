@@ -276,6 +276,15 @@ if ($sqlcmdPath -eq "") {
             docker exec dant-sqlserver $sqlcmdPath -S localhost -U sa -P "Nhanhtam456" -C -i /tmp/seed-tintuc.sql
         }
     }
+
+    # Seed vouchers freeship
+    $seedVouchers = ".\sql\seed-vouchers.sql"
+    if (Test-Path $seedVouchers) {
+        Write-Host "Seed vouchers freeship..." -ForegroundColor Cyan
+        docker cp $seedVouchers dant-sqlserver:/tmp/seed-vouchers.sql | Out-Null
+        docker exec dant-sqlserver $sqlcmdPath -S localhost -U sa -P "Nhanhtam456" -C -d STORE -i /tmp/seed-vouchers.sql 2>$null | Out-Null
+        Write-Host "[OK] Vouchers da duoc seed." -ForegroundColor Green
+    }
 }
 
 

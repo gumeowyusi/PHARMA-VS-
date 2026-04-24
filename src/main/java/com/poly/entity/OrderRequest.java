@@ -14,15 +14,19 @@ public class OrderRequest {
 	private final String address;
 	private final int deliveryMethod;
 	private final double deliveryPrice;
-	private final String paymentMethod; 
+	private final String paymentMethod;
 	private final List<OrderItemRequest> orderItems;
+	private final String voucherCode;
+	private final Double voucherDiscountAmount;
 
 	@JsonCreator
 	public OrderRequest(@JsonProperty("cartId") int cartId, @JsonProperty("userId") String userId,
 			@JsonProperty("address") String address, @JsonProperty("deliveryMethod") int deliveryMethod,
 			@JsonProperty("deliveryPrice") double deliveryPrice,
 			@JsonProperty("paymentMethod") String paymentMethod,
-			@JsonProperty("orderItems") List<OrderItemRequest> orderItems) {
+			@JsonProperty("orderItems") List<OrderItemRequest> orderItems,
+			@JsonProperty("voucherCode") String voucherCode,
+			@JsonProperty("voucherDiscountAmount") Double voucherDiscountAmount) {
 		this.cartId = cartId;
 		this.userId = userId;
 		this.address = address;
@@ -30,33 +34,17 @@ public class OrderRequest {
 		this.deliveryPrice = deliveryPrice;
 		this.paymentMethod = paymentMethod;
 		this.orderItems = orderItems;
+		this.voucherCode = voucherCode;
+		this.voucherDiscountAmount = voucherDiscountAmount;
 	}
 
-	public int getCartId() {
-		return cartId;
-	}
-
-	public String getUserId() {
-		return userId;
-	}
-
-	public String getAddress() {
-		return address;
-	}
-
-	public int getDeliveryMethod() {
-		return deliveryMethod;
-	}
-
-	public double getDeliveryPrice() {
-		return deliveryPrice;
-	}
-
-	public String getPaymentMethod() {
-		return paymentMethod;
-	}
-
-	public List<OrderItemRequest> getOrderItems() {
-		return orderItems;
-	}
+	public int getCartId() { return cartId; }
+	public String getUserId() { return userId; }
+	public String getAddress() { return address; }
+	public int getDeliveryMethod() { return deliveryMethod; }
+	public double getDeliveryPrice() { return deliveryPrice; }
+	public String getPaymentMethod() { return paymentMethod; }
+	public List<OrderItemRequest> getOrderItems() { return orderItems; }
+	public String getVoucherCode() { return voucherCode; }
+	public Double getVoucherDiscountAmount() { return voucherDiscountAmount; }
 }
