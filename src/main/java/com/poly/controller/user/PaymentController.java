@@ -85,7 +85,8 @@ public class PaymentController {
             int tempTotal = items.stream().mapToInt(ct ->
                 ct.getGia() * (100 - ct.getGiamgia()) / 100 * ct.getSoluong()
             ).sum();
-            int amount = (int) Math.max(1000, Math.round(tempTotal + req.deliveryPrice()));
+            double voucherDiscount = hoaDon.getVoucherDiscountAmount() != null ? hoaDon.getVoucherDiscountAmount() : 0;
+            int amount = (int) Math.max(1000, Math.round(tempTotal + req.deliveryPrice() - voucherDiscount));
 
             // Tạo orderCode từ timestamp
             String ts = String.valueOf(new Date().getTime());

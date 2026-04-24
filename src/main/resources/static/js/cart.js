@@ -826,13 +826,11 @@ const state = {
     }
   },
   changeDeliveryMethod: (deliveryMethodValue) => {
-    if (state.order.deliveryMethod !== Number(deliveryMethodValue)) {
-      state.order.deliveryMethod =
-        deliveryMethodInputValues[deliveryMethodValue].deliveryMethod;
-      state.order.deliveryPrice =
-        deliveryMethodInputValues[deliveryMethodValue].deliveryPrice;
-      render();
-    }
+    state.order.deliveryMethod =
+      deliveryMethodInputValues[deliveryMethodValue].deliveryMethod;
+    state.order.deliveryPrice =
+      deliveryMethodInputValues[deliveryMethodValue].deliveryPrice;
+    render();
   },
   changePaymentMethod: (paymentMethodValue) => {
     if (state.order.paymentMethod !== paymentMethodValue) {
@@ -890,6 +888,13 @@ function render() {
     radio.disabled = isCartItemsEmpty;
     radio.checked = radio.value === String(state.order.paymentMethod);
   });
+  // Sync delivery option selected class (programmatic radio.checked doesn't fire change event)
+  document.querySelectorAll('.delivery-option').forEach(opt => opt.classList.remove('selected'));
+  const checkedDelivery = document.querySelector('[name="delivery-method"]:checked');
+  if (checkedDelivery) {
+    const did = checkedDelivery.id.replace('delivery-method-', '');
+    document.getElementById('dopt-' + did)?.classList.add('selected');
+  }
 
   // Sync PayOS/COD card UI
   document.querySelectorAll('.payment-card').forEach((card) => {
