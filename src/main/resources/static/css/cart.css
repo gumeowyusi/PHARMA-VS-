@@ -363,11 +363,14 @@ body.cart-page {
   transition: opacity .15s;
   white-space: nowrap;
 }
-.btn-apply-voucher:hover:not(:disabled) { opacity: .85; }
+.btn-apply-voucher:hover { opacity: .85; }
 .btn-apply-voucher.applied { background: #22c55e; }
-.btn-apply-voucher.locked { background: #e2e8f0; color: #94a3b8; cursor: not-allowed; font-size: .72rem; }
-.voucher-item.voucher-disabled { opacity: .65; }
-.voucher-item.voucher-disabled::before { background: #cbd5e1; }
+.vi-need-more {
+  font-size: .73rem;
+  color: #f97316;
+  margin-top: .15rem;
+  font-weight: 600;
+}
 
 /* ── Delivery method ── */
 .delivery-option {

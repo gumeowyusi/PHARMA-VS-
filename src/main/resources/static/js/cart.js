@@ -58,27 +58,31 @@ function _buildVoucherCard(v, isSelected, subtotal) {
   const desc = _voucherDescription(v);
   const expire = _voucherExpireText(v);
   const notEnough = v.minOrderValue && subtotal < v.minOrderValue;
-  const selCls = isSelected ? ' selected-voucher' : (notEnough ? ' voucher-disabled' : '');
-  let btnLabel, btnCls, btnDisabled;
+  const selCls = isSelected ? ' selected-voucher' : '';
+
+  let btnLabel, btnCls;
   if (isSelected) {
     btnLabel = '<i class="fas fa-check me-1"></i>Đã chọn';
-    btnCls = ' applied'; btnDisabled = '';
-  } else if (notEnough) {
-    btnLabel = `Cần thêm ${_formatPriceV(v.minOrderValue - subtotal)}₫`;
-    btnCls = ' locked'; btnDisabled = ' disabled';
+    btnCls = ' applied';
   } else {
     btnLabel = 'Áp dụng';
-    btnCls = ''; btnDisabled = '';
+    btnCls = '';
   }
+
+  const needMoreHtml = notEnough
+    ? `<div class="vi-need-more"><i class="fas fa-info-circle me-1"></i>Cần thêm ${_formatPriceV(v.minOrderValue - subtotal)}₫</div>`
+    : '';
+
   return `
     <div class="voucher-item ${cls}${selCls}" data-code="${v.code}" data-type="${v.type}" data-value="${v.value}" data-max="${v.maxDiscount||0}">
       <div class="vi-icon"><i class="fas ${icon}"></i></div>
       <div class="vi-info">
         <div class="vi-name">${v.code}</div>
         <div class="vi-desc">${desc}</div>
+        ${needMoreHtml}
         ${expire ? `<div class="vi-expire"><i class="fas fa-clock me-1"></i>${expire}</div>` : ''}
       </div>
-      <button class="btn-apply-voucher${btnCls}" data-code="${v.code}" type="button"${btnDisabled}>${btnLabel}</button>
+      <button class="btn-apply-voucher${btnCls}" data-code="${v.code}" type="button">${btnLabel}</button>
     </div>
   `;
 }
@@ -137,16 +141,21 @@ function _renderVoucherUI() {
 async function _openVoucherModal() {
   const modalEl = document.getElementById('voucherModal');
   if (!modalEl) return;
-  const modal = new bootstrap.Modal(modalEl);
+  const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+
+  const listFs = document.getElementById('voucherListFreeship');
+  const listDis = document.getElementById('voucherListDiscount');
+  const loadingHtml = '<div class="text-muted small p-3 text-center"><span class="spinner-border spinner-border-sm me-2"></span>Đang tải...</div>';
+  if (listFs) listFs.innerHTML = loadingHtml;
+  if (listDis) listDis.innerHTML = loadingHtml;
+
   modal.show();
 
+  // Lấy subtotal tươi từ state hiện tại
   const subtotal = state.getTempPrice();
   const vouchers = await _fetchAvailableVouchers(subtotal);
   const freeship = vouchers.filter(v => _isFreeship(v));
   const discount = vouchers.filter(v => !_isFreeship(v));
-
-  const listFs = document.getElementById('voucherListFreeship');
-  const listDis = document.getElementById('voucherListDiscount');
 
   if (listFs) {
     listFs.innerHTML = freeship.length
@@ -159,17 +168,22 @@ async function _openVoucherModal() {
       : '<div class="text-muted small p-2 text-center">Không có voucher giảm giá nào</div>';
   }
 
-  // Attach apply button handlers
-  modalEl.querySelectorAll('.btn-apply-voucher').forEach(btn => {
+  // Attach apply button handlers (dùng event delegation để tránh duplicate)
+  const listWrap = modalEl.querySelector('.modal-body');
+  listWrap.querySelectorAll('.btn-apply-voucher').forEach(btn => {
     btn.addEventListener('click', async () => {
       const code = btn.dataset.code;
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span>';
       const result = await _applyVoucherCode(code);
+      btn.disabled = false;
       if (result.ok) {
         render();
         _renderVoucherUI();
         modal.hide();
         createToast(toastComponent(`Áp dụng voucher ${code} thành công!`, 'success'));
       } else {
+        btn.innerHTML = 'Áp dụng';
         createToast(toastComponent(result.error, 'danger'));
       }
     });
