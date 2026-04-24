@@ -76,7 +76,10 @@ public class EmailService {
 				.append(String.format("%,.0f", lineTotal)).append("₫</td>")
 				.append("</tr>");
 		}
-		double total = subtotal + deliveryPrice;
+		double voucherDiscount = (hoaDon.getVoucherDiscountAmount() != null && hoaDon.getVoucherDiscountAmount() > 0)
+				? hoaDon.getVoucherDiscountAmount() : 0;
+		double total = subtotal + deliveryPrice - voucherDiscount;
+		if (total < 0) total = 0;
 
 		String paymentInfo = hoaDon.getGiaohang() != null && hoaDon.getGiaohang().contains("PayOS")
 				? "💳 PayOS (Đã thanh toán online)" : "💵 COD (Thanh toán khi nhận hàng)";
@@ -133,7 +136,12 @@ public class EmailService {
 			+ "<td style='padding:8px 12px;text-align:right;font-weight:600;'>" + String.format("%,.0f", subtotal) + "₫</td></tr>"
 			+ "<tr><td colspan='2' style='padding:8px 12px;text-align:right;color:#64748b;font-size:13px;'>Phí giao hàng:</td>"
 			+ "<td style='padding:8px 12px;text-align:right;font-weight:600;'>" + String.format("%,.0f", deliveryPrice) + "₫</td></tr>"
-			+ "<tr style='background:#eff6ff;'><td colspan='2' style='padding:12px;text-align:right;font-size:15px;font-weight:700;color:#0d6efd;'>Tổng cộng:</td>"
+			+ (voucherDiscount > 0
+				? "<tr><td colspan='2' style='padding:8px 12px;text-align:right;color:#16a34a;font-size:13px;'>🎟 Voucher"
+					+ (hoaDon.getVoucherCode() != null ? " (" + hoaDon.getVoucherCode() + ")" : "") + ":</td>"
+					+ "<td style='padding:8px 12px;text-align:right;font-weight:600;color:#16a34a;'>-" + String.format("%,.0f", voucherDiscount) + "₫</td></tr>"
+				: "")
+			+ "<tr style='background:#eff6ff;'><td colspan='2' style='padding:12px;text-align:right;font-size:15px;font-weight:700;color:#0d6efd;'>Tổng thanh toán:</td>"
 			+ "<td style='padding:12px;text-align:right;font-size:16px;font-weight:800;color:#dc2626;'>" + String.format("%,.0f", total) + "₫</td></tr>"
 			+ "</tfoot></table></td></tr>"
 			// Footer
