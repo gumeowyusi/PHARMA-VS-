@@ -52,11 +52,11 @@
         <h6 class="fw-semibold text-uppercase small mb-3">Nhận tin khuyến mãi</h6>
         <p class="text-white-50 small mb-3">Ưu đãi độc quyền & thông tin sản phẩm mới mỗi tuần.</p>
         <form class="newsletter" novalidate>
-          <div class="position-relative mb-2">
-            <input type="email" class="form-control form-control-sm rounded-pill ps-3 pe-5" placeholder="Email của bạn" required>
-            <button class="btn btn-primary btn-sm rounded-pill position-absolute top-50 end-0 translate-middle-y me-1 px-3" type="submit"><i class="fas fa-paper-plane"></i></button>
+          <div class="newsletter-input-wrap mb-2">
+            <input type="email" class="newsletter-input" placeholder="Email của bạn" required>
+            <button class="newsletter-btn" type="submit"><i class="fas fa-paper-plane"></i></button>
           </div>
-          <div class="form-text text-white-50 small">*Có thể huỷ đăng ký bất cứ lúc nào</div>
+          <div class="text-white-50 small" style="font-size:.67rem;">*Có thể huỷ đăng ký bất cứ lúc nào</div>
         </form>
         <div class="payment mt-4 d-flex flex-wrap gap-2">
           <img src="https://cdn-icons-png.flaticon.com/128/349/349221.png" alt="Visa" height="28" loading="lazy">
@@ -92,9 +92,12 @@
 .footer-links a:hover:after { width:60%; }
 .social a { width:38px; height:38px; background:rgba(255,255,255,.08); border-radius:10px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:.9rem; backdrop-filter:blur(4px); transition:.3s; }
 .social a:hover { background:linear-gradient(135deg,#0d6efd,#20c997); box-shadow:0 4px 14px -3px rgba(13,110,253,.45); transform:translateY(-2px); }
-.newsletter input.form-control { background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.15); color:#fff; }
-.newsletter input.form-control:focus { background:rgba(255,255,255,.12); color:#fff; box-shadow:0 0 0 2px rgba(13,110,253,.25); }
-.newsletter .form-text { font-size:.65rem; }
+.newsletter-input-wrap { display:flex; align-items:center; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.2); border-radius:999px; padding:.25rem .25rem .25rem .9rem; transition:.3s; }
+.newsletter-input-wrap:focus-within { background:rgba(255,255,255,.13); border-color:rgba(13,110,253,.6); box-shadow:0 0 0 3px rgba(13,110,253,.2); }
+.newsletter-input { flex:1; background:transparent; border:none; outline:none; color:#fff; font-size:.875rem; min-width:0; }
+.newsletter-input::placeholder { color:rgba(255,255,255,.45); }
+.newsletter-btn { width:34px; height:34px; border-radius:50%; border:none; background:linear-gradient(135deg,#0d6efd,#20c997); color:#fff; display:flex; align-items:center; justify-content:center; font-size:.85rem; cursor:pointer; flex-shrink:0; transition:.2s; }
+.newsletter-btn:hover { transform:scale(1.1); box-shadow:0 4px 12px rgba(13,110,253,.4); }
 .payment img { filter:drop-shadow(0 2px 4px rgba(0,0,0,.4)); opacity:.85; transition:.3s; }
 .payment img:hover { opacity:1; transform:translateY(-2px); }
 .policy-links a { color:#9fb1bf; text-decoration:none; position:relative; }
