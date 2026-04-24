@@ -24,6 +24,8 @@ public class DiemTichLuyService {
     @Transactional
     public void addPoints(String userId, int points, String ghiChu, Integer idHoaDon) {
         if (points <= 0) return;
+        // Prevent double-awarding for the same order
+        if (idHoaDon != null && lichSuDiemRepository.existsByIdHoaDonAndLoaiGiaoDich(idHoaDon, "EARN")) return;
         usersRepository.findById(userId).ifPresent(user -> {
             int current = user.getDiemTichLuy() == null ? 0 : user.getDiemTichLuy();
             user.setDiemTichLuy(current + points);

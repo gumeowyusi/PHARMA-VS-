@@ -121,6 +121,11 @@ public class HoaDonService {
 					voucherService.increaseUsageOnOrder(hoaDon, orderRequest.getVoucherCode(), subtotal, users.getIdUser());
 				} catch (Exception ignored) {}
 			}
+			// Award loyalty points immediately for COD orders (PayOS handled in markOrderAsPaid)
+			if (!isPayOS) {
+				final HoaDon finalHoaDon = hoaDon;
+				try { awardPointsForOrder(finalHoaDon); } catch (Exception ignored) {}
+			}
 			return hoaDon.getIdHoadon();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -145,6 +150,8 @@ public class HoaDonService {
 		if ("awaiting_payment".equals(hoaDon.getTrangthai())) {
 			hoaDon.setTrangthai("paid");
 			hoaDonRepository.save(hoaDon);
+			// Award loyalty points for PayOS orders on payment confirmation
+			try { awardPointsForOrder(hoaDon); } catch (Exception ignored) {}
 			// Gửi email xác nhận
 			try {
 				List<HoaDonChiTiet> items = hoaDon.getHoaDonChiTiets();

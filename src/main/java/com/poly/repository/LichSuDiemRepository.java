@@ -12,4 +12,5 @@ import java.util.List;
 public interface LichSuDiemRepository extends JpaRepository<LichSuDiem, Long> {
     List<LichSuDiem> findByUsers_IdUserOrderByNgayTaoDesc(String userId);
     Page<LichSuDiem> findByUsers_IdUserOrderByNgayTaoDesc(String userId, Pageable pageable);
+    boolean existsByIdHoaDonAndLoaiGiaoDich(Integer idHoaDon, String loaiGiaoDich);
 }
