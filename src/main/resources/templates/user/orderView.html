@@ -69,9 +69,15 @@
                         </th:block>
                       </td>
                       <td class="text-center text-nowrap">
-                        <a class="btn btn-primary me-2" th:href="@{/orderDetail(id=${order.idHoadon})}" role="button">
-                          Xem đơn hàng
+                        <a class="btn btn-primary btn-sm me-1" th:href="@{/orderDetail(id=${order.idHoadon})}" role="button">
+                          <i class="fas fa-eye me-1"></i>Xem
                         </a>
+                        <th:block th:if="${order.trangthai == 'awaiting_payment'}">
+                          <a class="btn btn-success btn-sm"
+                             th:href="@{/api/payments/create-bank-transfer(orderId=${order.idHoadon},deliveryPrice=0)}">
+                            <i class="fas fa-credit-card me-1"></i>Thanh toán
+                          </a>
+                        </th:block>
                       </td>
                     </tr>
                   </th:block>
