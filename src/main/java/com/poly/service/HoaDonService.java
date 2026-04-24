@@ -175,10 +175,7 @@ public class HoaDonService {
 			sanPham.setSoluong(sanPham.getSoluong() + item.getSoluong());
 			sanPhamRepository.save(sanPham);
 		});
-		try {
-			voucherService.rollbackUsageOnCancel(hoaDon);
-		} catch (Exception ignored) {
-		}
+		// Voucher usage kept as-is on cancel (no rollback)
 	}
 
 	public Page<HoaDon> getAllHoaDon(int pageNumber, int limit) {
@@ -234,7 +231,7 @@ public class HoaDonService {
 				sanPham.setSoluong(sanPham.getSoluong() + item.getSoluong());
 				sanPhamRepository.save(sanPham);
 			});
-			try { voucherService.rollbackUsageOnCancel(hoaDon); } catch (Exception ignored) {}
+			// Voucher usage kept as-is on cancel (no rollback)
 			return "Đã hủy đơn hàng #" + id + "!";
 		} else {
 			// legacy fallback
