@@ -329,6 +329,32 @@ if (-not (Test-Path $mavenBin)) {
     Write-Host "[OK] Maven $mavenVersion da co san." -ForegroundColor Green
 }
 
+# ---------- Kill port 8080 neu dang bi chiem ----------
+Write-Host ""
+Write-Host "Kiem tra port 8080..." -ForegroundColor Cyan
+$port = 8080
+$netstatLines = netstat -ano 2>$null | Select-String ":$port\s"
+$pidsOnPort = $netstatLines |
+    ForEach-Object { ($_ -split '\s+')[-1] } |
+    Where-Object { $_ -match '^\d+$' -and $_ -ne '0' } |
+    Select-Object -Unique
+
+if ($pidsOnPort) {
+    foreach ($pid in $pidsOnPort) {
+        try {
+            $proc = Get-Process -Id $pid -ErrorAction SilentlyContinue
+            if ($proc) {
+                Write-Host "  -> Kill PID $pid ($($proc.ProcessName)) dang chiem port $port" -ForegroundColor Yellow
+                Stop-Process -Id $pid -Force -ErrorAction SilentlyContinue
+            }
+        } catch {}
+    }
+    Start-Sleep -Milliseconds 800
+    Write-Host "[OK] Port $port da duoc giai phong." -ForegroundColor Green
+} else {
+    Write-Host "[OK] Port $port san sang." -ForegroundColor Green
+}
+
 # ---------- Chay Spring Boot ----------
 $env:PATH = "$mavenHome\bin;$env:PATH"
 
