@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <th:block th:replace="~{admin/_headerAdmin}" />
+  <th:block th:replace="~{user/_meta}" />
   <title>Quản lý Tin tức - MEDISALE Admin</title>
   <style>
     .page-title { font-weight: 700; font-size: 1.4rem; color: #1e293b; }
@@ -12,6 +12,7 @@
   </style>
 </head>
 <body>
+<th:block th:replace="~{admin/_headerAdmin}" />
 <div class="container-fluid py-4">
   <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
     <div>
