@@ -87,16 +87,30 @@ function _buildVoucherCard(v, isSelected, subtotal) {
   `;
 }
 
-async function _fetchAvailableVouchers(subtotal) {
+// Đọc subtotal từ DOM inputs (chính xác hơn state khi user chưa bấm "Cập nhật")
+function _getLiveSubtotal() {
+  let total = 0;
+  state.cart.cartItems.forEach(item => {
+    const inputEl = document.getElementById(`quantity-cart-item-${item.id}`);
+    const qty = inputEl ? Math.max(1, parseInt(inputEl.value) || 1) : item.quantity;
+    const finalPrice = item.productDiscount === 0
+      ? item.productPrice
+      : Math.round(item.productPrice * (100 - item.productDiscount) / 100);
+    total += finalPrice * qty;
+  });
+  return total > 0 ? total : state.getTempPrice();
+}
+
+async function _fetchAvailableVouchers() {
   try {
-    const resp = await fetch(`/api/vouchers/available?subtotal=${subtotal}`);
+    const resp = await fetch(`/api/vouchers/available`);
     if (!resp.ok) return [];
     return await resp.json();
   } catch { return []; }
 }
 
 async function _applyVoucherCode(code) {
-  const subtotal = state.getTempPrice();
+  const subtotal = _getLiveSubtotal();          // <-- đọc live từ DOM
   const userId = currentUserIdMetaTag ? currentUserIdMetaTag.content : 'GUEST';
   try {
     const resp = await fetch(`/api/vouchers/validate?code=${encodeURIComponent(code)}&subtotal=${subtotal}&userId=${userId}`);
@@ -138,22 +152,52 @@ function _renderVoucherUI() {
   }
 }
 
+let _voucherModalDelegated = false; // chỉ gắn event delegation 1 lần
+
 async function _openVoucherModal() {
   const modalEl = document.getElementById('voucherModal');
   if (!modalEl) return;
   const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
 
+  // Gắn event delegation 1 lần duy nhất (tránh duplicate listeners)
+  if (!_voucherModalDelegated) {
+    _voucherModalDelegated = true;
+    let _applying = false;
+    modalEl.querySelector('.modal-body').addEventListener('click', async (e) => {
+      const btn = e.target.closest('.btn-apply-voucher');
+      if (!btn || btn.classList.contains('applied') || _applying) return;
+      const code = btn.dataset.code;
+      _applying = true;
+      btn.disabled = true;
+      const origHtml = btn.innerHTML;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+      const currentModal = bootstrap.Modal.getInstance(modalEl);
+      const result = await _applyVoucherCode(code);
+      _applying = false;
+      btn.disabled = false;
+      if (result.ok) {
+        render();
+        _renderVoucherUI();
+        currentModal?.hide();
+        createToast(toastComponent(`✅ Áp dụng voucher ${code} thành công! Giảm ${_formatPriceV(voucherState.discountAmount)}₫`, 'success'));
+      } else {
+        btn.innerHTML = origHtml;
+        createToast(toastComponent(result.error, 'danger'));
+      }
+    });
+  }
+
+  // Hiện loading ngay
   const listFs = document.getElementById('voucherListFreeship');
   const listDis = document.getElementById('voucherListDiscount');
   const loadingHtml = '<div class="text-muted small p-3 text-center"><span class="spinner-border spinner-border-sm me-2"></span>Đang tải...</div>';
   if (listFs) listFs.innerHTML = loadingHtml;
   if (listDis) listDis.innerHTML = loadingHtml;
-
   modal.show();
 
-  // Lấy subtotal tươi từ state hiện tại
-  const subtotal = state.getTempPrice();
-  const vouchers = await _fetchAvailableVouchers(subtotal);
+  // Lấy subtotal live từ DOM inputs
+  const subtotal = _getLiveSubtotal();
+  const vouchers = await _fetchAvailableVouchers();
   const freeship = vouchers.filter(v => _isFreeship(v));
   const discount = vouchers.filter(v => !_isFreeship(v));
 
@@ -167,27 +211,6 @@ async function _openVoucherModal() {
       ? discount.map(v => _buildVoucherCard(v, v.code === voucherState.code, subtotal)).join('')
       : '<div class="text-muted small p-2 text-center">Không có voucher giảm giá nào</div>';
   }
-
-  // Attach apply button handlers (dùng event delegation để tránh duplicate)
-  const listWrap = modalEl.querySelector('.modal-body');
-  listWrap.querySelectorAll('.btn-apply-voucher').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      const code = btn.dataset.code;
-      btn.disabled = true;
-      btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span>';
-      const result = await _applyVoucherCode(code);
-      btn.disabled = false;
-      if (result.ok) {
-        render();
-        _renderVoucherUI();
-        modal.hide();
-        createToast(toastComponent(`Áp dụng voucher ${code} thành công!`, 'success'));
-      } else {
-        btn.innerHTML = 'Áp dụng';
-        createToast(toastComponent(result.error, 'danger'));
-      }
-    });
-  });
 }
 
 function _initVoucherHandlers() {
@@ -222,7 +245,7 @@ function _initVoucherHandlers() {
         _renderVoucherUI();
         const modal = bootstrap.Modal.getInstance(document.getElementById('voucherModal'));
         modal?.hide();
-        createToast(toastComponent(`Áp dụng voucher ${code} thành công!`, 'success'));
+        createToast(toastComponent(`✅ Áp dụng voucher ${code} thành công! Giảm ${_formatPriceV(voucherState.discountAmount)}₫`, 'success'));
       } else {
         if (codeError) { codeError.textContent = result.error; codeError.style.display = 'block'; }
         createToast(toastComponent(result.error, 'danger'));
