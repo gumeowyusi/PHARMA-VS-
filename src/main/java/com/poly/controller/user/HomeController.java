@@ -24,13 +24,19 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.poly.entity.HoaDon;
 import com.poly.entity.SanPham;
+import com.poly.entity.TinTuc;
 import com.poly.entity.Users;
+import com.poly.service.DiemTichLuyService;
 import com.poly.service.HoaDonService;
 import com.poly.service.LoaiService;
+import com.poly.service.NewsAggregatorService;
 import com.poly.service.SanPhamService;
+import com.poly.service.TinTucService;
 import com.poly.service.UserService;
 import com.poly.service.CurrentUserService;
 import com.poly.service.WishlistService;
+
+import java.util.List;
 
 @Controller
 public class HomeController {
@@ -46,6 +52,12 @@ public class HomeController {
 	HoaDonService hoaDonService;
 	@Autowired
 	WishlistService wishlistService;
+	@Autowired
+	TinTucService tinTucService;
+	@Autowired
+	NewsAggregatorService newsAggregatorService;
+	@Autowired
+	DiemTichLuyService diemTichLuyService;
 
 	@GetMapping("/")
 	public String home(Model model) {
@@ -76,10 +88,35 @@ public class HomeController {
 	}
 
 	@GetMapping("/tin-tuc")
-	public String news(Model model) {
+	public String news(@RequestParam(required = false) String theLoai, Model model) {
 		model.addAttribute("loais", loaiService.getAllLoai(0, 5));
 		model.addAttribute("featuredProducts", sanPhamService.getAllSanPham(0, 3).getContent());
+		List<TinTuc> adminPosts = theLoai != null && !theLoai.isBlank()
+				? tinTucService.getByTheLoai(theLoai)
+				: tinTucService.getAllPublished();
+		model.addAttribute("adminPosts", adminPosts);
+		model.addAttribute("activeTheLoai", theLoai != null ? theLoai : "all");
+		try {
+			model.addAttribute("externalNews", newsAggregatorService.getLatestNews(15));
+		} catch (Exception e) {
+			model.addAttribute("externalNews", java.util.Collections.emptyList());
+		}
 		return "user/news";
+	}
+
+	@GetMapping("/tin-tuc/{id}")
+	public String newsDetail(@PathVariable Long id, Model model) {
+		try {
+			TinTuc tinTuc = tinTucService.getById(id);
+			tinTucService.incrementView(id);
+			model.addAttribute("tinTuc", tinTuc);
+			model.addAttribute("loais", loaiService.getAllLoai(0, 5));
+			model.addAttribute("featuredProducts", sanPhamService.getAllSanPham(0, 3).getContent());
+			model.addAttribute("relatedPosts", tinTucService.getByTheLoai(tinTuc.getTheLoai() != null ? tinTuc.getTheLoai() : ""));
+			return "user/newsDetail";
+		} catch (Exception e) {
+			return "redirect:/tin-tuc";
+		}
 	}
 
 	@GetMapping("/lien-he")

@@ -3,7 +3,131 @@ param(
     [bool]$SkipTests = $true
 )
 
-# Maven: tang bo nho cho JVM compile (giam tre / loi khi compile nhieu file)
+# ================================================================
+# Detect Java 17+ (Spring Boot 3.x requires Java 17 minimum)
+# ================================================================
+function Find-Java17Plus {
+    $candidates = [System.Collections.Generic.List[string]]::new()
+
+    # 1. Current JAVA_HOME
+    if ($env:JAVA_HOME -and (Test-Path "$env:JAVA_HOME\bin\java.exe")) {
+        $candidates.Add($env:JAVA_HOME)
+    }
+
+    # 2. Windows Registry (most reliable)
+    $regPaths = @(
+        "HKLM:\SOFTWARE\JavaSoft\JDK",
+        "HKLM:\SOFTWARE\JavaSoft\Java Development Kit",
+        "HKLM:\SOFTWARE\WOW6432Node\JavaSoft\JDK",
+        "HKCU:\SOFTWARE\JavaSoft\JDK"
+    )
+    foreach ($regPath in $regPaths) {
+        if (Test-Path $regPath) {
+            Get-ChildItem $regPath -ErrorAction SilentlyContinue | ForEach-Object {
+                $jh = (Get-ItemProperty $_.PSPath -ErrorAction SilentlyContinue).JavaHome
+                if ($jh -and (Test-Path "$jh\bin\java.exe")) { $candidates.Add($jh) }
+            }
+        }
+    }
+
+    # 3. Common install directories
+    $searchDirs = @(
+        "$env:ProgramFiles\Eclipse Adoptium",
+        "$env:ProgramFiles\Microsoft",
+        "$env:ProgramFiles\Java",
+        "$env:ProgramFiles\OpenJDK",
+        "$env:ProgramFiles\Zulu",
+        "$env:ProgramFiles\Amazon Corretto",
+        "$env:ProgramFiles\BellSoft\LibericaJDK-21",
+        "$env:ProgramFiles\BellSoft\LibericaJDK-17",
+        "$env:ProgramW6432\Eclipse Adoptium",
+        "$env:LOCALAPPDATA\Programs\Eclipse Adoptium",
+        "$env:LOCALAPPDATA\Programs\OpenJDK",
+        "C:\tools\jdk",
+        "D:\jdk", "D:\Java"
+    )
+    foreach ($dir in $searchDirs) {
+        if ([string]::IsNullOrEmpty($dir) -or !(Test-Path $dir)) { continue }
+        Get-ChildItem $dir -Directory -ErrorAction SilentlyContinue | ForEach-Object {
+            if (Test-Path "$($_.FullName)\bin\java.exe") { $candidates.Add($_.FullName) }
+        }
+    }
+
+    # Pick the highest version >= 17
+    $best = $null
+    $bestVer = 0
+    foreach ($jh in $candidates) {
+        $jexe = "$jh\bin\java.exe"
+        if (!(Test-Path $jexe)) { continue }
+        $verOut = & $jexe -version 2>&1 | Select-Object -First 1
+        if ($verOut -match '"([\d]+)\.([\d]+)') {
+            $major = [int]$Matches[1]
+            if ($major -eq 1) { $major = [int]$Matches[2] }  # 1.8 -> 8
+            if ($major -ge 17 -and $major -gt $bestVer) {
+                $bestVer = $major; $best = $jh
+            }
+        }
+    }
+    return $best
+}
+
+Write-Host ""
+Write-Host "Dang tim Java 17+..." -ForegroundColor Cyan
+$javaHome17 = Find-Java17Plus
+
+if ($javaHome17) {
+    $env:JAVA_HOME = $javaHome17
+    $env:PATH      = "$javaHome17\bin;$env:PATH"
+    $jv = & "$javaHome17\bin\java.exe" -version 2>&1 | Select-Object -First 1
+    Write-Host "[OK] Java: $jv" -ForegroundColor Green
+    Write-Host "     Path: $javaHome17" -ForegroundColor DarkGray
+} else {
+    Write-Host ""
+    Write-Host "================================================================" -ForegroundColor Yellow
+    Write-Host " Khong tim thay Java 17+. Dang thu tu dong cai Java 21..." -ForegroundColor Yellow
+    Write-Host "================================================================" -ForegroundColor Yellow
+
+    $wingetOk = $false
+    if (Get-Command winget -ErrorAction SilentlyContinue) {
+        Write-Host "Chay: winget install EclipseAdoptium.Temurin.21.JDK ..." -ForegroundColor Cyan
+        winget install --id EclipseAdoptium.Temurin.21.JDK --accept-source-agreements --accept-package-agreements --silent
+        if ($LASTEXITCODE -eq 0) {
+            $wingetOk = $true
+            Write-Host "[OK] Cai Java 21 thanh cong. Dang tim lai..." -ForegroundColor Green
+            $javaHome17 = Find-Java17Plus
+            if ($javaHome17) {
+                $env:JAVA_HOME = $javaHome17
+                $env:PATH = "$javaHome17\bin;$env:PATH"
+            }
+        }
+    }
+
+    if (-not $javaHome17) {
+        Write-Host ""
+        Write-Host "================================================================" -ForegroundColor Red
+        Write-Host " [X] KHONG TIM THAY JAVA 17+!" -ForegroundColor Red
+        Write-Host ""
+        Write-Host " Spring Boot 3.x YEU CAU Java 17 tro len." -ForegroundColor Red
+        Write-Host " May tinh dang dung Java 8 - KHONG tuong thich." -ForegroundColor Red
+        Write-Host ""
+        Write-Host " CAI JAVA 21 (mien phi) theo 1 trong 2 cach:" -ForegroundColor Yellow
+        Write-Host ""
+        Write-Host " Cach 1 - Winget (cmd/PowerShell Admin):" -ForegroundColor Green
+        Write-Host "   winget install EclipseAdoptium.Temurin.21.JDK" -ForegroundColor White
+        Write-Host ""
+        Write-Host " Cach 2 - Tai thu cong:" -ForegroundColor Green
+        Write-Host "   https://adoptium.net/temurin/releases/?version=21" -ForegroundColor White
+        Write-Host "   Chon: Windows | x64 | JDK | .msi" -ForegroundColor White
+        Write-Host "   Tick [x] Set JAVA_HOME khi cai" -ForegroundColor White
+        Write-Host ""
+        Write-Host " Sau khi cai xong, dong cmd nay va chay lai run-win.bat" -ForegroundColor Yellow
+        Write-Host "================================================================" -ForegroundColor Red
+        pause
+        exit 1
+    }
+}
+
+# Maven memory settings
 if (-not $env:MAVEN_OPTS) {
     $env:MAVEN_OPTS = "-Xmx1024m -XX:+UseParallelGC"
 }
@@ -95,8 +219,8 @@ if ($sqlcmdPath -eq "") {
     if (-not $schemaInited) {
         Write-Host ""
         Write-Host "Lan dau: dang nap schema database STORE..." -ForegroundColor Yellow
-        $sqlFile = Resolve-Path ".\sql\init-docker.sql"
-        Get-Content $sqlFile -Raw | docker exec -i dant-sqlserver $sqlcmdPath -S localhost -U sa -P "Nhanhtam456" -C
+        docker cp ".\sql\init-docker.sql" dant-sqlserver:/tmp/init-docker.sql | Out-Null
+        docker exec dant-sqlserver $sqlcmdPath -S localhost -U sa -P "Nhanhtam456" -C -i /tmp/init-docker.sql
         if ($LASTEXITCODE -eq 0) {
             Write-Host "[OK] Init schema thanh cong!" -ForegroundColor Green
         } else {
@@ -110,23 +234,50 @@ if ($sqlcmdPath -eq "") {
     $staffMigration = ".\sql\add-staff-role-column.sql"
     if (Test-Path $staffMigration) {
         Write-Host "Ap dung migration role STAFF..." -ForegroundColor Cyan
-        $migrationFile = Resolve-Path $staffMigration
-        Get-Content $migrationFile -Raw | docker exec -i dant-sqlserver $sqlcmdPath -S localhost -U sa -P "Nhanhtam456" -C
+        docker cp $staffMigration dant-sqlserver:/tmp/add-staff-role-column.sql | Out-Null
+        docker exec dant-sqlserver $sqlcmdPath -S localhost -U sa -P "Nhanhtam456" -C -i /tmp/add-staff-role-column.sql
         if ($LASTEXITCODE -eq 0) {
             Write-Host "[OK] Migration role STAFF da duoc ap dung." -ForegroundColor Green
         } else {
             Write-Host "[!] Migration role STAFF gap loi, tiep tuc chay app." -ForegroundColor Yellow
         }
     }
+
+    # Migration: OAuth2 + tich diem + tin tuc (dung docker cp de tranh loi encoding)
+    $featureMigration = ".\migration.sql"
+    if (Test-Path $featureMigration) {
+        Write-Host "Ap dung migration OAuth2 / tich diem / tin tuc..." -ForegroundColor Cyan
+        docker cp $featureMigration dant-sqlserver:/tmp/migration.sql | Out-Null
+        docker exec dant-sqlserver $sqlcmdPath -S localhost -U sa -P "Nhanhtam456" -C -i /tmp/migration.sql
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host "[OK] Migration tinh nang moi da duoc ap dung." -ForegroundColor Green
+        } else {
+            Write-Host "[!] Migration tinh nang moi gap loi, tiep tuc chay app." -ForegroundColor Yellow
+        }
+    }
+
+    # Seed du lieu: San pham + Tin tuc (neu chua co)
+    $seedProducts = ".\sql\seed-products.sql"
+    if (Test-Path $seedProducts) {
+        $spCount = docker exec dant-sqlserver $sqlcmdPath -S localhost -U sa -P "Nhanhtam456" -C -d STORE -Q "SET NOCOUNT ON; SELECT COUNT(*) FROM SANPHAM" -h -1 2>$null
+        if ([int]($spCount -replace '\s','') -eq 0) {
+            Write-Host "Seed san pham va loai..." -ForegroundColor Cyan
+            docker cp $seedProducts dant-sqlserver:/tmp/seed-products.sql | Out-Null
+            docker exec dant-sqlserver $sqlcmdPath -S localhost -U sa -P "Nhanhtam456" -C -i /tmp/seed-products.sql
+        }
+    }
+
+    $seedTinTuc = ".\sql\seed-tintuc.sql"
+    if (Test-Path $seedTinTuc) {
+        $ttCount = docker exec dant-sqlserver $sqlcmdPath -S localhost -U sa -P "Nhanhtam456" -C -d STORE -Q "SET NOCOUNT ON; SELECT COUNT(*) FROM TIN_TUC" -h -1 2>$null
+        if ([int]($ttCount -replace '\s','') -eq 0) {
+            Write-Host "Seed bai viet tin tuc..." -ForegroundColor Cyan
+            docker cp $seedTinTuc dant-sqlserver:/tmp/seed-tintuc.sql | Out-Null
+            docker exec dant-sqlserver $sqlcmdPath -S localhost -U sa -P "Nhanhtam456" -C -i /tmp/seed-tintuc.sql
+        }
+    }
 }
 
-# ---------- Kiem tra Java ----------
-Write-Host ""
-if (-not (Get-Command java -ErrorAction SilentlyContinue)) {
-    Write-Host "[X] Java chua duoc cai. Chay install-win.ps1 truoc." -ForegroundColor Red; exit 1
-}
-$jv = java -version 2>&1 | Select-Object -First 1
-Write-Host "[OK] $jv" -ForegroundColor Green
 
 # ---------- Chay Spring Boot ----------
 Write-Host ""

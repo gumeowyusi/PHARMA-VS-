@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <th:block th:replace="~{user/_meta}" />
+  <title th:text="${tinTuc.tieuDe + ' - MEDISALE'}">Chi tiết tin tức - MEDISALE</title>
+</head>
+<body class="bg-light">
+  <th:block th:replace="~{user/_header}" />
+
+  <section class="news-hero">
+    <div class="container">
+      <div class="d-flex align-items-center gap-3">
+        <div class="news-hero-icon"><i class="fas fa-newspaper"></i></div>
+        <div>
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1 small">
+              <li class="breadcrumb-item"><a th:href="@{/}" class="text-decoration-none">Trang chủ</a></li>
+              <li class="breadcrumb-item"><a th:href="@{/tin-tuc}" class="text-decoration-none">Tin tức</a></li>
+              <li class="breadcrumb-item active" aria-current="page"
+                  th:text="${#strings.abbreviate(tinTuc.tieuDe, 50)}"></li>
+            </ol>
+          </nav>
+          <h1 class="fw-bold mb-0" style="font-size:1.5rem" th:text="${tinTuc.tieuDe}"></h1>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-4">
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-lg-8">
+          <article class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white border-0 pt-4 px-4 pb-0">
+              <span class="news-badge mb-2 d-inline-block" th:classappend="${
+                tinTuc.theLoai == 'huong-dan' ? 'bg-primary-subtle text-primary' :
+                tinTuc.theLoai == 'dinh-duong' ? 'bg-success-subtle text-success' :
+                tinTuc.theLoai == 'an-toan-thuoc' ? 'bg-warning-subtle text-warning' :
+                tinTuc.theLoai == 'meo-hay' ? 'bg-info-subtle text-info' :
+                tinTuc.theLoai == 'song-khoe' ? 'bg-purple-subtle text-purple' :
+                tinTuc.theLoai == 'phong-benh' ? 'bg-danger-subtle text-danger' : 'bg-secondary-subtle text-secondary'
+              }" th:text="${
+                tinTuc.theLoai == 'huong-dan' ? 'Hướng dẫn' :
+                tinTuc.theLoai == 'dinh-duong' ? 'Dinh dưỡng' :
+                tinTuc.theLoai == 'an-toan-thuoc' ? 'An toàn thuốc' :
+                tinTuc.theLoai == 'meo-hay' ? 'Mẹo hay' :
+                tinTuc.theLoai == 'song-khoe' ? 'Sống khỏe' :
+                tinTuc.theLoai == 'phong-benh' ? 'Phòng bệnh' : tinTuc.theLoai
+              }"></span>
+              <h2 class="fw-bold mb-2" th:text="${tinTuc.tieuDe}"></h2>
+              <div class="d-flex gap-3 small text-muted mb-3">
+                <span th:if="${tinTuc.tacGia != null}"><i class="fas fa-user-md me-1"></i><span th:text="${tinTuc.tacGia}"></span></span>
+                <span><i class="fas fa-calendar me-1"></i><span th:text="${#dates.format(tinTuc.ngayDang, 'dd/MM/yyyy')}"></span></span>
+                <span><i class="fas fa-eye me-1"></i><span th:text="${tinTuc.luotXem}"></span> lượt xem</span>
+              </div>
+              <p class="lead text-muted border-start border-3 border-primary ps-3" th:if="${tinTuc.tomTat != null}"
+                 th:text="${tinTuc.tomTat}"></p>
+            </div>
+            <div class="card-body px-4 pb-4">
+              <div class="article-body" th:utext="${tinTuc.noiDung}"></div>
+              <hr class="mt-4">
+              <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                <span class="small text-muted"><i class="fas fa-shield-alt me-1 text-success"></i>Thông tin được kiểm duyệt bởi đội ngũ dược sĩ MEDISALE</span>
+                <div class="d-flex gap-2">
+                  <a th:href="@{/tin-tuc}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i>Tin tức</a>
+                  <a th:href="@{/lien-he}" class="btn btn-primary btn-sm"><i class="fas fa-headset me-1"></i>Tư vấn thêm</a>
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <div class="col-lg-4">
+          <div class="card border-0 shadow-sm mb-3">
+            <div class="card-body">
+              <h6 class="fw-bold mb-3"><i class="fas fa-layer-group text-primary me-2"></i>Bài viết liên quan</h6>
+              <div th:if="${#lists.isEmpty(relatedPosts)}" class="text-muted small">Chưa có bài viết liên quan.</div>
+              <div th:each="rp : ${relatedPosts}" th:if="${rp.idTinTuc != tinTuc.idTinTuc}" class="mb-2">
+                <a th:href="@{/tin-tuc/{id}(id=${rp.idTinTuc})}" class="text-decoration-none text-dark d-block">
+                  <div class="d-flex gap-2 align-items-start p-2 rounded hover-bg">
+                    <i class="fas fa-newspaper text-primary mt-1 flex-shrink-0"></i>
+                    <div>
+                      <div class="fw-semibold small lh-sm" th:text="${rp.tieuDe}"></div>
+                      <div class="text-muted" style="font-size:.75rem" th:text="${#dates.format(rp.ngayDang, 'dd/MM/yyyy')}"></div>
+                    </div>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div class="card border-0 shadow-sm mb-3">
+            <div class="card-body">
+              <h6 class="fw-bold mb-3"><i class="fas fa-star text-warning me-2"></i>Sản phẩm được quan tâm</h6>
+              <div th:each="sp : ${featuredProducts}" class="d-flex gap-2 mb-3 align-items-center">
+                <div>
+                  <img th:if="${sp.hinh != null and !sp.hinh.isEmpty()}"
+                       th:src="@{/image/{url}(url=${sp.hinh})}"
+                       width="52" height="52" style="border-radius:.6rem;object-fit:cover;width:52px;height:52px;">
+                  <div th:if="${sp.hinh == null or sp.hinh.isEmpty()}"
+                       class="d-flex align-items-center justify-content-center bg-light rounded"
+                       style="width:52px;height:52px;border-radius:.6rem;">
+                    <i class="fas fa-capsules text-primary"></i>
+                  </div>
+                </div>
+                <div>
+                  <a th:href="@{/sanpham(id=${sp.idSanpham})}"
+                     class="text-decoration-none text-dark fw-semibold small lh-sm"
+                     th:text="${sp.tenSanpham}"></a>
+                  <div class="text-primary small fw-bold"
+                       th:text="${#numbers.formatInteger(sp.gia * (100 - sp.giamgia) / 100, 0, 'COMMA') + '₫'}"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card border-0 shadow-sm consult-card">
+            <div class="card-body text-center py-4">
+              <div class="consult-icon mb-3"><i class="fas fa-user-md fa-2x text-white"></i></div>
+              <h6 class="fw-bold mb-1">Tư vấn dược sĩ miễn phí</h6>
+              <p class="text-muted small mb-3">Gửi câu hỏi về thuốc — dược sĩ MEDISALE trả lời trong 2 giờ.</p>
+              <a th:href="@{/lien-he}" class="btn btn-primary w-100"><i class="fas fa-headset me-2"></i>Liên hệ ngay</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <th:block th:replace="~{user/_footer}" />
+
+  <style>
+    .news-hero { background:linear-gradient(135deg,#f0f7ff,#e8f4fd); border-bottom:1px solid #dce8f5; padding:2rem 0; }
+    .news-hero-icon { width:60px;height:60px;background:linear-gradient(135deg,#0d6efd,#20c997);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:#fff;flex-shrink:0; }
+    .news-badge { display:inline-block;padding:.25em .65em;font-size:.75rem;font-weight:600;border-radius:.4rem; }
+    .bg-purple-subtle { background:#ede7f6; }
+    .text-purple { color:#6f42c1; }
+    .article-body p { line-height:1.9;color:#444;margin-bottom:1rem; }
+    .article-body h6 { color:#0d6efd;font-weight:700;margin-top:1.5rem;margin-bottom:.5rem; }
+    .article-body ul { padding-left:1.25rem; }
+    .article-body ul li { margin-bottom:.4rem;color:#444; }
+    .article-body .highlight-box { background:#f0f7ff;border-left:3px solid #0d6efd;padding:.75rem 1rem;border-radius:0 .5rem .5rem 0;margin:1rem 0; }
+    .hover-bg:hover { background:#f8fafc; }
+    .consult-card { background:linear-gradient(135deg,#f8f9ff,#eef3ff); }
+    .consult-icon { width:56px;height:56px;margin:0 auto;background:linear-gradient(135deg,#0d6efd,#20c997);border-radius:50%;display:flex;align-items:center;justify-content:center; }
+  </style>
+</body>
+</html>

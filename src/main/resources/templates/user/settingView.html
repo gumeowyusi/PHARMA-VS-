@@ -72,6 +72,40 @@
 	                <input type="hidden" name="idUser" th:value="${user.idUser}">
 	              </form>
                </div>
+
+               <!-- Points section -->
+               <div class="col-lg-6">
+                 <div class="card border-0 shadow-sm mb-3" style="background: linear-gradient(135deg,#f0f7ff,#e8f4fd); border-radius:16px;">
+                   <div class="card-body py-3 px-4">
+                     <div class="d-flex align-items-center gap-3 mb-2">
+                       <div style="width:48px;height:48px;background:linear-gradient(135deg,#f59e0b,#fbbf24);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                         <i class="fas fa-coins text-white fs-5"></i>
+                       </div>
+                       <div>
+                         <div class="text-muted small fw-semibold">Điểm tích lũy</div>
+                         <div class="fw-bold" style="font-size:1.6rem;color:#d97706;" th:text="${user.diemTichLuy != null ? user.diemTichLuy : 0} + ' điểm'"></div>
+                       </div>
+                     </div>
+                     <div class="small text-muted">
+                       <i class="fas fa-info-circle me-1"></i>
+                       Mỗi <strong>1.000 VNĐ</strong> chi tiêu = <strong>1 điểm</strong>. Điểm được cộng khi đơn hàng giao thành công.
+                     </div>
+                   </div>
+                 </div>
+
+                 <div class="card border-0 shadow-sm" style="border-radius:16px;">
+                   <div class="card-header bg-white border-0 pt-3 px-3 pb-0 fw-bold small">
+                     <i class="fas fa-history text-primary me-1"></i> Lịch sử điểm
+                   </div>
+                   <div class="card-body p-0">
+                     <div id="lichSuDiemList" class="list-group list-group-flush" style="max-height:240px;overflow-y:auto;">
+                       <div class="text-center text-muted small py-3" id="lichSuLoading">
+                         <span class="spinner-border spinner-border-sm me-1"></span> Đang tải...
+                       </div>
+                     </div>
+                   </div>
+                 </div>
+               </div>
              </div> <!-- card-body.// -->
            </article>
          </main> <!-- col.// -->
@@ -83,6 +117,34 @@
 <th:block th:replace="~{user/_footer}" />
 </body>
 <script>
+  // Load lịch sử tích điểm
+  fetch('/api/diem/lich-su')
+    .then(r => r.json())
+    .then(data => {
+      const list = document.getElementById('lichSuDiemList');
+      document.getElementById('lichSuLoading').remove();
+      if (!data.length) {
+        list.innerHTML = '<div class="text-center text-muted small py-3">Chưa có giao dịch điểm nào.</div>';
+        return;
+      }
+      data.slice(0, 20).forEach(item => {
+        const isEarn = item.loaiGiaoDich === 'EARN';
+        const d = new Date(item.ngayTao);
+        const dateStr = d.getDate().toString().padStart(2,'0') + '/' + (d.getMonth()+1).toString().padStart(2,'0') + '/' + d.getFullYear();
+        list.innerHTML += `<div class="list-group-item px-3 py-2 border-0 border-bottom d-flex justify-content-between align-items-center">
+          <div>
+            <div class="small fw-semibold">${item.ghiChu || (isEarn ? 'Tích điểm' : 'Đổi điểm')}</div>
+            <div class="text-muted" style="font-size:.75rem">${dateStr}</div>
+          </div>
+          <span class="fw-bold ${isEarn ? 'text-success' : 'text-danger'}">${isEarn ? '+' : ''}${item.soLuongDiem} đ</span>
+        </div>`;
+      });
+    })
+    .catch(() => {
+      const el = document.getElementById('lichSuLoading');
+      if (el) el.textContent = 'Không thể tải lịch sử điểm.';
+    });
+
   document.getElementById("avatarInput").addEventListener("change", function (event) {
     const file = event.target.files[0];
     if (file) {

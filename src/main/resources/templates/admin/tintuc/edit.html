@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <th:block th:replace="~{admin/_headerAdmin}" />
+  <title>Sửa bài viết - MEDISALE Admin</title>
+  <style>
+    .form-card { background: #fff; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,.06); padding: 2rem; }
+    .form-label { font-weight: 600; color: #374151; font-size: .9rem; }
+    .form-control, .form-select { border-radius: 10px; border: 1.5px solid #e5e7eb; }
+    .form-control:focus, .form-select:focus { border-color: #0d6efd; box-shadow: 0 0 0 3px rgba(13,110,253,.1); }
+    #noiDung { min-height: 320px; font-size: .95rem; }
+    .toolbar-btn { padding: .3rem .55rem; font-size: .8rem; }
+  </style>
+</head>
+<body>
+<div class="container py-4" style="max-width:900px">
+  <div class="d-flex align-items-center gap-3 mb-4">
+    <a th:href="@{/admin/tintuc}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-arrow-left me-1"></i>Quay lại</a>
+    <h2 class="mb-0 fw-bold" style="font-size:1.4rem"><i class="fas fa-edit text-primary me-2"></i>Sửa bài viết</h2>
+  </div>
+
+  <div th:if="${successMessage}" class="alert alert-success"><span th:text="${successMessage}"></span></div>
+  <div th:if="${errorMessage}" class="alert alert-danger"><span th:text="${errorMessage}"></span></div>
+
+  <form th:action="@{/admin/tintuc/edit/{id}(id=${tinTuc.idTinTuc})}" method="post" th:object="${tinTuc}">
+    <div class="form-card mb-3">
+      <div class="mb-3">
+        <label class="form-label">Tiêu đề bài viết <span class="text-danger">*</span></label>
+        <input type="text" class="form-control form-control-lg" th:field="*{tieuDe}"
+               required maxlength="500">
+      </div>
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">Chuyên mục</label>
+          <select class="form-select" th:field="*{theLoai}">
+            <option value="">-- Chọn chuyên mục --</option>
+            <option value="huong-dan">Hướng dẫn dùng thuốc</option>
+            <option value="dinh-duong">Dinh dưỡng &amp; Sức khỏe</option>
+            <option value="an-toan-thuoc">An toàn thuốc</option>
+            <option value="meo-hay">Mẹo hay</option>
+            <option value="song-khoe">Sống khỏe</option>
+            <option value="phong-benh">Phòng bệnh</option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Tác giả</label>
+          <input type="text" class="form-control" th:field="*{tacGia}">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Biểu tượng (CSS icon class)</label>
+          <input type="text" class="form-control" th:field="*{anhDai}" placeholder="fas fa-pills">
+        </div>
+      </div>
+    </div>
+
+    <div class="form-card mb-3">
+      <label class="form-label">Tóm tắt</label>
+      <textarea class="form-control" th:field="*{tomTat}" rows="2" maxlength="500"></textarea>
+    </div>
+
+    <div class="form-card mb-3">
+      <label class="form-label">Nội dung bài viết <span class="text-danger">*</span></label>
+      <div class="mb-2 d-flex flex-wrap gap-1">
+        <button type="button" class="btn btn-sm btn-outline-secondary toolbar-btn" onclick="wrapText('<strong>','</strong>')"><b>B</b></button>
+        <button type="button" class="btn btn-sm btn-outline-secondary toolbar-btn" onclick="wrapText('<em>','</em>')"><i>I</i></button>
+        <button type="button" class="btn btn-sm btn-outline-secondary toolbar-btn" onclick="insertTag('<h6>','</h6>')">H6</button>
+        <button type="button" class="btn btn-sm btn-outline-secondary toolbar-btn" onclick="insertTag('<ul>\n  <li>','</li>\n</ul>')">• List</button>
+        <button type="button" class="btn btn-sm btn-outline-secondary toolbar-btn" onclick="insertTag('<p>','</p>')">¶ Para</button>
+        <button type="button" class="btn btn-sm btn-outline-secondary toolbar-btn" onclick="insertHighlight()">📌 Highlight</button>
+      </div>
+      <textarea class="form-control" th:field="*{noiDung}" id="noiDung" required></textarea>
+    </div>
+
+    <div class="form-card mb-3">
+      <div class="row g-3 align-items-center">
+        <div class="col-md-6">
+          <label class="form-label">Trạng thái</label>
+          <select class="form-select" name="trangThai">
+            <option value="true" th:selected="${tinTuc.trangThai}">Hiển thị công khai</option>
+            <option value="false" th:selected="${!tinTuc.trangThai}">Lưu nháp (ẩn)</option>
+          </select>
+        </div>
+        <div class="col-md-6 d-flex gap-2 justify-content-end align-items-end">
+          <a th:href="@{/admin/tintuc}" class="btn btn-outline-secondary">Hủy</a>
+          <button type="submit" class="btn btn-primary px-4"><i class="fas fa-save me-1"></i>Lưu thay đổi</button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+
+<script>
+  function wrapText(open, close) {
+    const ta = document.getElementById('noiDung');
+    const s = ta.selectionStart, e = ta.selectionEnd;
+    const sel = ta.value.substring(s, e);
+    ta.value = ta.value.substring(0, s) + open + sel + close + ta.value.substring(e);
+    ta.selectionStart = s + open.length;
+    ta.selectionEnd = s + open.length + sel.length;
+    ta.focus();
+  }
+  function insertTag(open, close) { wrapText(open, close); }
+  function insertHighlight() {
+    wrapText('<div class="highlight-box"><i class="fas fa-info-circle text-primary me-2"></i>', '</div>');
+  }
+</script>
+<th:block th:replace="~{admin/_footerAdmin}" />
+</body>
+</html>

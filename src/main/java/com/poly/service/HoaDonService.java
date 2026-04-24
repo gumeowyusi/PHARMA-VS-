@@ -43,6 +43,8 @@ public class HoaDonService {
 	VoucherService voucherService;
 	@Autowired
 	CartService cartService;
+	@Autowired
+	DiemTichLuyService diemTichLuyService;
 
 	private boolean isGuest(OrderRequest orderRequest) {
 		return orderRequest.getUserId() == null || "GUEST".equalsIgnoreCase(orderRequest.getUserId());
@@ -195,6 +197,7 @@ public class HoaDonService {
 			// ondelivery → received
 			hoaDon.setTrangthai("received");
 			hoaDonRepository.save(hoaDon);
+			awardPointsForOrder(hoaDon);
 			return "Đã xác nhận giao hàng thành công cho đơn #" + id + "!";
 		} else if ("CANCEL".equals(action)) {
 			hoaDon.setTrangthai("cancel");
@@ -212,6 +215,29 @@ public class HoaDonService {
 			hoaDonRepository.save(hoaDon);
 			return "Đã cập nhật trạng thái đơn hàng #" + id + "!";
 		}
+	}
+
+	private void awardPointsForOrder(HoaDon hoaDon) {
+		if (hoaDon.getUsers() == null) return;
+		try {
+			double total = hoaDon.getHoaDonChiTiets().stream()
+					.mapToDouble(item -> item.getGiamgia() == 0
+							? item.getGia() * item.getSoluong()
+							: item.getGia() * (100 - item.getGiamgia()) / 100.0 * item.getSoluong())
+					.sum();
+			if (hoaDon.getVoucherDiscountAmount() != null) {
+				total -= hoaDon.getVoucherDiscountAmount();
+			}
+			int points = diemTichLuyService.calculatePointsForOrder(total);
+			if (points > 0) {
+				diemTichLuyService.addPoints(
+						hoaDon.getUsers().getIdUser(),
+						points,
+						"Tích điểm đơn hàng #" + hoaDon.getIdHoadon()
+								+ " (" + String.format("%,.0f", Math.max(0, total)) + " VNĐ)",
+						hoaDon.getIdHoadon());
+			}
+		} catch (Exception ignored) {}
 	}
 
 	public long countReceivedOrders() {

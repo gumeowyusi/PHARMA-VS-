@@ -43,6 +43,8 @@
           class="nav-link-item"><i class="fas fa-file-invoice me-2"></i>Đơn hàng</a></li>
       <li th:if="${currentUser != null and currentUser.admin}"><a th:href="@{/admin/vouchers}"
           data-path="/admin/vouchers" class="nav-link-item"><i class="fas fa-ticket-alt me-2"></i>Voucher</a></li>
+      <li th:if="${currentUser != null and currentUser.admin}"><a th:href="@{/admin/tintuc}"
+          data-path="/admin/tintuc" class="nav-link-item"><i class="fas fa-newspaper me-2"></i>Tin tức</a></li>
     </ul>
   </nav>
 </header>

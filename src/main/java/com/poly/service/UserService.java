@@ -84,9 +84,6 @@ public class UserService {
         }
 		// Encode password before saving (admin creating user)
 		user.setMatkhau(passwordEncoder.encode(user.getMatkhau()));
-		if (!user.isVaitro() && !user.isNhanvien()) {
-			user.setRoleName("STAFF");
-		}
 		usersRepository.save(user);
 
 		GioHang gioHang = new GioHang();
@@ -300,6 +297,43 @@ public class UserService {
 		return usersRepository.getTop10KhachHangVip(pageable);
 	}
 	
+	public Users findOrCreateOAuthUser(String email, String name, String provider, String oauthId) {
+		Optional<Users> existing = usersRepository.findById(email);
+		if (existing.isPresent()) {
+			Users user = existing.get();
+			if (!user.isKichhoat()) {
+				user.setKichhoat(true);
+				usersRepository.save(user);
+			}
+			if (user.getOauthProvider() == null) {
+				user.setOauthProvider(provider);
+				user.setOauthId(oauthId);
+				usersRepository.save(user);
+			}
+			return user;
+		}
+
+		Users newUser = new Users();
+		newUser.setIdUser(email);
+		newUser.setHoten(name != null && !name.isBlank() ? name : email.split("@")[0]);
+		String placeholderPhone = String.format("%010d", Math.abs((long) email.hashCode() % 10_000_000_000L));
+		newUser.setSdt(placeholderPhone);
+		newUser.setMatkhau(passwordEncoder.encode(java.util.UUID.randomUUID().toString()));
+		newUser.setVaitro(false);
+		newUser.setNhanvien(false);
+		newUser.setKichhoat(true);
+		newUser.setOauthProvider(provider);
+		newUser.setOauthId(oauthId);
+		newUser.setDiemTichLuy(0);
+		usersRepository.save(newUser);
+
+		GioHang gioHang = new GioHang();
+		gioHang.setUsers(newUser);
+		gioHangRepository.save(gioHang);
+
+		return newUser;
+	}
+
 	// Method to refresh tokens
 	public String refreshAccessToken(String refreshToken) {
 		if (!jwtService.validateToken(refreshToken)) {

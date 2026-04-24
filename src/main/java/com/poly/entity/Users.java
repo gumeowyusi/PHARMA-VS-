@@ -26,6 +26,9 @@ public class Users {
 	private boolean kichhoat;
 	private List<GioHang> gioHangs;
 	private List<HoaDon> hoaDons;
+	private String oauthProvider;
+	private String oauthId;
+	private Integer diemTichLuy = 0;
 
 	public Users() {
 	}
@@ -159,6 +162,18 @@ public class Users {
 	public boolean isCustomer() {
 		return !this.vaitro && !this.nhanvien;
 	}
+
+	@Column(name = "oauth_provider", length = 20)
+	public String getOauthProvider() { return oauthProvider; }
+	public void setOauthProvider(String oauthProvider) { this.oauthProvider = oauthProvider; }
+
+	@Column(name = "oauth_id", length = 100)
+	public String getOauthId() { return oauthId; }
+	public void setOauthId(String oauthId) { this.oauthId = oauthId; }
+
+	@Column(name = "diem_tich_luy")
+	public Integer getDiemTichLuy() { return diemTichLuy == null ? 0 : diemTichLuy; }
+	public void setDiemTichLuy(Integer diemTichLuy) { this.diemTichLuy = diemTichLuy == null ? 0 : diemTichLuy; }
 
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "users")
 	public List<GioHang> getGioHangs() {
