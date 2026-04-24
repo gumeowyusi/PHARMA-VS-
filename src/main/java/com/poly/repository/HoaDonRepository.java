@@ -40,6 +40,10 @@ public interface HoaDonRepository extends JpaRepository<HoaDon, Integer> {
 
 	Page<HoaDon> findByKhachHang_IdKhachHang(Long idKhachHang, Pageable pageable);
 
+	Page<HoaDon> findByTrangthai(String trangthai, Pageable pageable);
+
+	long countByTrangthai(String trangthai);
+
 	@Query(value = "SELECT MONTH(hd.ngaytao) AS thang, " +
 			"SUM(hdct.soluong * (hdct.gia * (1 - hdct.giamgia / 100.0))) AS doanhThu " +
 			"FROM HOADON hd JOIN HOADONCHITIET hdct ON hd.id_hoadon = hdct.id_hoadon " +

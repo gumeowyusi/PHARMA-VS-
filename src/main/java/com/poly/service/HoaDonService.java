@@ -75,8 +75,8 @@ public class HoaDonService {
 			String giaoHang = orderRequest.getDeliveryMethod() == 1 ? "Giao hàng tiêu chuẩn" : "Giao hàng nhanh";
 			String pm = isPayOS ? "PayOS (Chuyển khoản)" : "COD (Tiền mặt)";
 			String giaohangWithPayment = giaoHang + " | Thanh toán: " + pm;
-			// PayOS: chờ thanh toán online → "awaiting_payment"; COD → "pending"
-			String initialStatus = isPayOS ? "awaiting_payment" : "pending";
+			// PayOS: chờ thanh toán online → "awaiting_payment"; COD → auto "confirmed"
+			String initialStatus = isPayOS ? "awaiting_payment" : "confirmed";
 
 			HoaDon hoaDon = new HoaDon(users, new Date(), initialStatus, orderRequest.getAddress(), giaohangWithPayment);
 			if (khachHang != null) {
@@ -184,6 +184,21 @@ public class HoaDonService {
 	public Page<HoaDon> getAllHoaDon(int pageNumber, int limit) {
 		PageRequest pageable = PageRequest.of(pageNumber, limit, Sort.by("ngaytao", "idHoadon").descending());
 		return hoaDonRepository.findAll(pageable);
+	}
+
+	public Page<HoaDon> getAllHoaDonByStatus(String status, int pageNumber, int limit) {
+		PageRequest pageable = PageRequest.of(pageNumber, limit, Sort.by("ngaytao", "idHoadon").descending());
+		return hoaDonRepository.findByTrangthai(status, pageable);
+	}
+
+	public java.util.Map<String, Long> getOrderCounts() {
+		java.util.Map<String, Long> counts = new java.util.LinkedHashMap<>();
+		long total = hoaDonRepository.count();
+		counts.put("all", total);
+		for (String s : new String[]{"awaiting_payment", "pending", "confirmed", "ondelivery", "received", "cancel"}) {
+			counts.put(s, hoaDonRepository.countByTrangthai(s));
+		}
+		return counts;
 	}
 
 	public String updateHoadon(Integer id, String action) throws IllegalArgumentException {

@@ -1,197 +1,418 @@
 <!DOCTYPE html>
 <html lang="vi">
-
 <head>
   <th:block th:replace="~{user/_meta}" />
   <title>Quản lý đơn hàng</title>
-</head>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <style>
+    :root {
+      --clr-pending:  #f59e0b;
+      --clr-confirm:  #3b82f6;
+      --clr-ship:     #8b5cf6;
+      --clr-done:     #10b981;
+      --clr-cancel:   #ef4444;
+      --clr-wait:     #6366f1;
+    }
+    body { background:#f1f5f9; }
 
-<body class="bg-light">
+    /* ── Page header ── */
+    .om-header { background:#fff; border-bottom:1px solid #e2e8f0; padding:20px 28px; margin-bottom:0; }
+    .om-header h4 { font-weight:700; color:#1e293b; margin:0; }
+    .om-header p  { color:#64748b; margin:0; font-size:.875rem; }
+
+    /* ── Status tabs ── */
+    .status-tabs { background:#fff; border-bottom:1px solid #e2e8f0; padding:0 28px; display:flex; gap:2px; overflow-x:auto; scrollbar-width:none; }
+    .status-tabs::-webkit-scrollbar { display:none; }
+    .stab { display:flex; align-items:center; gap:6px; padding:14px 18px; font-size:.85rem; font-weight:600; color:#64748b; border-bottom:3px solid transparent; cursor:pointer; text-decoration:none; white-space:nowrap; transition:color .15s; }
+    .stab:hover { color:#334155; text-decoration:none; }
+    .stab.active { color:#3b82f6; border-bottom-color:#3b82f6; }
+    .stab .cnt { background:#f1f5f9; color:#64748b; font-size:.72rem; font-weight:700; padding:2px 7px; border-radius:99px; min-width:20px; text-align:center; }
+    .stab.active .cnt { background:#dbeafe; color:#3b82f6; }
+
+    /* ── Order list wrapper ── */
+    .om-body { padding:24px 28px; }
+
+    /* ── Order card ── */
+    .order-card {
+      background:#fff;
+      border-radius:12px;
+      border:1px solid #e2e8f0;
+      margin-bottom:14px;
+      overflow:hidden;
+      transition:box-shadow .15s;
+    }
+    .order-card:hover { box-shadow:0 4px 20px -4px rgba(0,0,0,.1); }
+
+    .order-card-top {
+      padding:16px 20px;
+      display:flex;
+      align-items:flex-start;
+      gap:16px;
+      flex-wrap:wrap;
+    }
+
+    /* Status pill */
+    .spill {
+      display:inline-flex; align-items:center; gap:5px;
+      padding:4px 12px; border-radius:99px; font-size:.75rem; font-weight:700;
+    }
+    .spill-awaiting  { background:#ede9fe; color:#6d28d9; }
+    .spill-pending   { background:#fef3c7; color:#d97706; }
+    .spill-confirmed { background:#dbeafe; color:#2563eb; }
+    .spill-ondelivery{ background:#ede9fe; color:#7c3aed; }
+    .spill-received  { background:#d1fae5; color:#059669; }
+    .spill-cancel    { background:#fee2e2; color:#dc2626; }
+
+    /* Order meta */
+    .om-id    { font-weight:700; color:#1e293b; font-size:.95rem; }
+    .om-date  { color:#94a3b8; font-size:.78rem; margin-left:8px; }
+    .om-cust  { color:#334155; font-size:.85rem; font-weight:600; }
+    .om-addr  { color:#94a3b8; font-size:.78rem; }
+    .tag { display:inline-flex; align-items:center; gap:4px; padding:3px 9px; border-radius:6px;
+           background:#f8fafc; border:1px solid #e2e8f0; font-size:.75rem; color:#475569; margin-right:4px; }
+
+    /* Items preview */
+    .items-preview { padding:0 20px 12px; border-top:1px dashed #f1f5f9; }
+    .item-row { display:flex; justify-content:space-between; padding:6px 0; font-size:.83rem; border-bottom:1px solid #f8fafc; }
+    .item-row:last-child { border-bottom:none; }
+    .item-name { color:#334155; flex:1; }
+    .item-qty  { color:#94a3b8; margin:0 12px; }
+    .item-price{ color:#1e293b; font-weight:600; }
+
+    /* Totals row */
+    .order-totals { padding:10px 20px 14px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; }
+    .total-chips { display:flex; flex-wrap:wrap; gap:6px; }
+    .total-chip { font-size:.78rem; color:#64748b; }
+    .total-chip .val { font-weight:600; color:#334155; }
+    .total-chip.disc .val { color:#10b981; }
+    .total-final { font-size:1.05rem; font-weight:700; color:#1e293b; }
+    .total-final span { color:#ef4444; }
+
+    /* Action bar */
+    .order-actions { padding:12px 20px; background:#f8fafc; border-top:1px solid #f1f5f9;
+                     display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; }
+    .action-btns { display:flex; gap:8px; flex-wrap:wrap; }
+
+    .btn-action {
+      display:inline-flex; align-items:center; gap:6px;
+      padding:7px 16px; border-radius:8px; font-size:.8rem; font-weight:600;
+      border:none; cursor:pointer; transition:all .15s;
+    }
+    .btn-action:disabled { opacity:.5; cursor:not-allowed; }
+    .btn-ship     { background:#3b82f6; color:#fff; }
+    .btn-ship:hover:not(:disabled) { background:#2563eb; }
+    .btn-deliver  { background:#8b5cf6; color:#fff; }
+    .btn-deliver:hover:not(:disabled) { background:#7c3aed; }
+    .btn-done     { background:#10b981; color:#fff; }
+    .btn-done:hover:not(:disabled) { background:#059669; }
+    .btn-approve  { background:#f59e0b; color:#fff; }
+    .btn-approve:hover:not(:disabled) { background:#d97706; }
+    .btn-cancel   { background:#fff; color:#ef4444; border:1px solid #fca5a5; }
+    .btn-cancel:hover:not(:disabled) { background:#fee2e2; }
+    .btn-view     { background:#fff; color:#334155; border:1px solid #e2e8f0; }
+    .btn-view:hover { background:#f1f5f9; }
+
+    /* Status pipeline */
+    .pipeline { display:flex; align-items:center; gap:0; }
+    .pipe-step { display:flex; align-items:center; gap:6px; font-size:.73rem; color:#94a3b8; font-weight:600; }
+    .pipe-step.done  { color:#3b82f6; }
+    .pipe-step.current { color:#7c3aed; font-weight:700; }
+    .pipe-dot { width:8px; height:8px; border-radius:50%; background:#e2e8f0; }
+    .pipe-step.done  .pipe-dot { background:#3b82f6; }
+    .pipe-step.current .pipe-dot { background:#7c3aed; box-shadow:0 0 0 3px rgba(124,58,237,.2); }
+    .pipe-line { width:24px; height:2px; background:#e2e8f0; }
+    .pipe-step.done + .pipe-line { background:#3b82f6; }
+
+    /* Empty state */
+    .om-empty { text-align:center; padding:60px 20px; color:#94a3b8; }
+    .om-empty i { font-size:3rem; margin-bottom:12px; color:#cbd5e1; }
+
+    /* Pagination */
+    .om-pagination { display:flex; justify-content:center; margin-top:20px; gap:4px; }
+    .om-pagination a, .om-pagination span {
+      display:inline-flex; align-items:center; justify-content:center;
+      width:34px; height:34px; border-radius:8px; font-size:.82rem; font-weight:600;
+      background:#fff; color:#334155; border:1px solid #e2e8f0; text-decoration:none; transition:all .15s;
+    }
+    .om-pagination a:hover { background:#f1f5f9; }
+    .om-pagination .active { background:#3b82f6; color:#fff; border-color:#3b82f6; }
+    .om-pagination .disabled { opacity:.4; pointer-events:none; }
+
+    /* Toast */
+    .om-toast { position:fixed; bottom:24px; right:24px; z-index:9999; display:flex; flex-direction:column; gap:8px; }
+    .om-toast-item { display:flex; align-items:center; gap:10px; padding:12px 18px; border-radius:10px;
+                     font-size:.85rem; font-weight:600; color:#fff; box-shadow:0 8px 24px -4px rgba(0,0,0,.2); animation:slideIn .25s ease; }
+    .om-toast-item.success { background:#10b981; }
+    .om-toast-item.error   { background:#ef4444; }
+    @keyframes slideIn { from { transform:translateX(40px); opacity:0; } to { transform:translateX(0); opacity:1; } }
+
+    @media(max-width:680px) {
+      .om-header, .om-body { padding:16px; }
+      .status-tabs { padding:0 12px; }
+    }
+  </style>
+</head>
+<body>
   <th:block th:replace="~{admin/_headerAdmin}" />
 
-  <div class="container-fluid px-4">
-    <!-- Page Header -->
-    <div class="card shadow-sm border-0 mb-4 mt-4">
-      <div class="card-body p-4">
-        <div class="d-flex align-items-center justify-content-between">
-          <div>
-            <h3 class="fw-bold mb-0">Quản lý đơn hàng</h3>
-            <p class="text-muted mb-0">Quản lý và theo dõi trạng thái đơn hàng</p>
+  <!-- Page header -->
+  <div class="om-header">
+    <div class="d-flex align-items-center justify-content-between">
+      <div>
+        <h4><i class="fas fa-receipt me-2 text-primary"></i>Quản lý đơn hàng</h4>
+        <p>Theo dõi và cập nhật trạng thái đơn hàng</p>
+      </div>
+      <div class="d-flex gap-2">
+        <span class="badge bg-primary fs-6 px-3"
+              th:text="${counts != null ? counts['all'] : 0} + ' đơn tổng'"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Status tabs -->
+  <div class="status-tabs">
+    <a th:href="@{/admin/hoadon}" th:classappend="${currentStatus == ''} ? ' active'" class="stab">
+      <i class="fas fa-list-ul"></i> Tất cả
+      <span class="cnt" th:text="${counts != null ? counts['all'] : 0}">0</span>
+    </a>
+    <a th:href="@{/admin/hoadon(status='awaiting_payment')}" th:classappend="${currentStatus == 'awaiting_payment'} ? ' active'" class="stab">
+      <i class="fas fa-clock"></i> Chờ thanh toán
+      <span class="cnt" th:text="${counts != null ? counts['awaiting_payment'] : 0}">0</span>
+    </a>
+    <a th:href="@{/admin/hoadon(status='confirmed')}" th:classappend="${currentStatus == 'confirmed'} ? ' active'" class="stab">
+      <i class="fas fa-box"></i> Đã xác nhận
+      <span class="cnt" th:text="${counts != null ? counts['confirmed'] : 0}">0</span>
+    </a>
+    <a th:href="@{/admin/hoadon(status='ondelivery')}" th:classappend="${currentStatus == 'ondelivery'} ? ' active'" class="stab">
+      <i class="fas fa-shipping-fast"></i> Đang giao
+      <span class="cnt" th:text="${counts != null ? counts['ondelivery'] : 0}">0</span>
+    </a>
+    <a th:href="@{/admin/hoadon(status='received')}" th:classappend="${currentStatus == 'received'} ? ' active'" class="stab">
+      <i class="fas fa-check-circle"></i> Hoàn tất
+      <span class="cnt" th:text="${counts != null ? counts['received'] : 0}">0</span>
+    </a>
+    <a th:href="@{/admin/hoadon(status='cancel')}" th:classappend="${currentStatus == 'cancel'} ? ' active'" class="stab">
+      <i class="fas fa-times-circle"></i> Đã hủy
+      <span class="cnt" th:text="${counts != null ? counts['cancel'] : 0}">0</span>
+    </a>
+  </div>
+
+  <!-- Order list -->
+  <div class="om-body">
+
+    <!-- Empty state -->
+    <div th:if="${#lists.isEmpty(hoadons)}" class="order-card om-empty">
+      <i class="fas fa-inbox d-block"></i>
+      <div class="fw-semibold fs-5 mt-2">Không có đơn hàng</div>
+      <div class="small mt-1">Chưa có đơn hàng nào trong trạng thái này</div>
+    </div>
+
+    <!-- Order cards -->
+    <div th:each="order : ${hoadons}" class="order-card" th:id="'card-' + ${order.idHoadon}">
+
+      <!-- Top row: ID + status + customer + tags -->
+      <div class="order-card-top">
+        <!-- Left: ID, date, customer -->
+        <div style="flex:1; min-width:200px;">
+          <div class="d-flex align-items-center flex-wrap gap-2 mb-1">
+            <span class="om-id">#<span th:text="${order.idHoadon}"></span></span>
+            <span class="om-date" th:text="${#dates.format(order.ngaytao,'dd/MM/yyyy HH:mm')}"></span>
+          </div>
+          <div class="om-cust" th:text="${order.users != null ? order.users.hoten : (order.khachHang != null ? order.khachHang.hoten : 'Khách lẻ')}"></div>
+          <div class="om-addr" th:text="${order.diachi}"></div>
+        </div>
+
+        <!-- Middle: tags -->
+        <div style="flex:1; min-width:180px;">
+          <th:block th:with="gh=${order.giaohang != null ? order.giaohang : ''}">
+            <span class="tag">
+              <i class="fas fa-truck"></i>
+              <span th:text="${gh.contains('nhanh') ? 'Giao nhanh' : 'Tiêu chuẩn'}"></span>
+            </span>
+            <span class="tag">
+              <i class="fas fa-credit-card"></i>
+              <span th:text="${gh.toLowerCase().contains('payos') ? 'PayOS' : 'COD'}"></span>
+            </span>
+            <span th:if="${order.voucherCode != null}" class="tag" style="color:#059669;border-color:#a7f3d0;">
+              <i class="fas fa-tag"></i>
+              <span th:text="${order.voucherCode}"></span>
+            </span>
+          </th:block>
+        </div>
+
+        <!-- Right: status pill + pipeline -->
+        <div style="text-align:right;">
+          <span th:switch="${order.trangthai}">
+            <span th:case="'awaiting_payment'" class="spill spill-awaiting"><i class="fas fa-hourglass-half"></i> Chờ TT</span>
+            <span th:case="'pending'"          class="spill spill-pending"  ><i class="fas fa-clock"></i> Chờ xác nhận</span>
+            <span th:case="'confirmed'"        class="spill spill-confirmed"><i class="fas fa-box"></i> Đã xác nhận</span>
+            <span th:case="'ondelivery'"       class="spill spill-ondelivery"><i class="fas fa-shipping-fast"></i> Đang giao</span>
+            <span th:case="'received'"         class="spill spill-received" ><i class="fas fa-check-circle"></i> Hoàn tất</span>
+            <span th:case="'cancel'"           class="spill spill-cancel"   ><i class="fas fa-times-circle"></i> Đã hủy</span>
+            <span th:case="*"                  class="spill spill-pending"  th:text="${order.trangthai}"></span>
+          </span>
+          <!-- Status pipeline -->
+          <div class="pipeline mt-2 justify-content-end" th:with="s=${order.trangthai}">
+            <div th:classappend="${s=='confirmed' or s=='ondelivery' or s=='received'} ? 'done' : (${s=='awaiting_payment' or s=='pending'} ? 'current' : '')" class="pipe-step">
+              <div class="pipe-dot"></div><span>Xác nhận</span>
+            </div>
+            <div th:classappend="${s=='ondelivery' or s=='received'} ? 'bg-primary' : ''" class="pipe-line"></div>
+            <div th:classappend="${s=='ondelivery' or s=='received'} ? 'done' : (${s=='confirmed'} ? 'current' : '')" class="pipe-step">
+              <div class="pipe-dot"></div><span>Giao hàng</span>
+            </div>
+            <div th:classappend="${s=='received'} ? 'bg-primary' : ''" class="pipe-line"></div>
+            <div th:classappend="${s=='received'} ? 'done' : ''" class="pipe-step">
+              <div class="pipe-dot"></div><span>Hoàn tất</span>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Flash Messages -->
-    <div th:with="success=${successMessage}, error=${errorMessage}" th:replace="~{fragments/_flash :: flashMessages}">
-    </div>
-
-    <!-- Orders Table (standardized) -->
-    <div class="card shadow-sm border-0">
-      <div class="table-responsive">
-        <table class="table table-modern table-compact table-hover align-middle mb-0">
-          <thead>
-            <tr>
-              <th>Mã</th>
-              <th>Ngày</th>
-              <th>Người tạo</th>
-              <th>Trạng thái</th>
-              <th>Giảm</th>
-              <th class="text-end pe-3">Hành động</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr th:if="${#lists.isEmpty(hoadons)}" class="table-empty">
-              <td colspan="6">Không có đơn hàng</td>
-            </tr>
-            <tr th:each="order : ${hoadons}" th:with="discAmt=${order.discountAmount != null ? order.discountAmount : 0}">
-              <td th:text="${order.idHoadon}" class="fw-semibold" data-label="Mã"></td>
-              <td th:text="${#dates.format(order.ngaytao, 'dd/MM/yyyy')}" data-label="Ngày"></td>
-              <td data-label="Người tạo">
-                <span class="badge-soft-secondary badge rounded-pill"
-                      th:text="${order.users != null ? order.users.hoten : (order.khachHang != null ? order.khachHang.hoten : 'Khách lẻ')}"></span>
-              </td>
-              <td data-label="Trạng thái">
-                <span th:switch="${order.trangthai}">
-                  <span th:case="'ondelivery'" class="status-badge status-ondelivery"><i
-                      class="fas fa-shipping-fast"></i> Đang giao</span>
-                  <span th:case="'received'" class="status-badge status-received"><i class="fas fa-check-circle"></i>
-                    Hoàn tất</span>
-                  <span th:case="'cancel'" class="status-badge status-cancel"><i class="fas fa-times-circle"></i>
-                    Hủy</span>
-                  <span th:case="*" class="status-badge status-default" th:text="${order.trangthai}"></span>
-                </span>
-              </td>
-              <td data-label="Giảm" class="td-price">
-                <span th:if="${discAmt > 0}" class="text-danger">-</span><span th:if="${discAmt > 0}" th:text="${#numbers.formatInteger(discAmt,0,'COMMA')}"></span><span th:if="${discAmt > 0}" class="currency-symbol">₫</span>
-                <span th:if="${discAmt > 0 && order.discountPercent != null}" class="text-muted ms-1">(<span th:text="${order.discountPercent}"></span>%)</span>
-                <span th:if="${discAmt == 0}">-</span>
-              </td>
-              <td class="text-end pe-3 cell-actions" data-label="Hành động">
-                <div class="d-inline-flex align-items-center gap-1 action-inline-group">
-                  <!-- View -->
-                  <a th:href="@{/admin/hoadon/{id}(id=${order.idHoadon})}" class="btn btn-sm btn-soft-secondary action-btn" 
-                     data-bs-toggle="tooltip" data-bs-title="Chi tiết" aria-label="Chi tiết">
-                    <i class="fas fa-eye"></i>
-                  </a>
-                  <!-- Confirm (to received) -->
-                  <form th:if="${order.trangthai != 'received' && order.trangthai != 'cancel'}" th:action="@{/admin/hoadon/update}" method="post" class="d-inline" 
-                        onsubmit="return confirm('Xác nhận đã giao?');">
-                    <input type="hidden" name="id" th:value="${order.idHoadon}" />
-                    <input type="hidden" name="action" value="CONFIRM" />
-                    <button class="btn btn-sm btn-soft-success action-btn" data-bs-toggle="tooltip" data-bs-title="Xác nhận" aria-label="Xác nhận">
-                      <i class="fas fa-check"></i>
-                    </button>
-                  </form>
-                  <!-- Cancel -->
-                  <form th:if="${order.trangthai != 'received' && order.trangthai != 'cancel'}" th:action="@{/admin/hoadon/update}" method="post" class="d-inline" 
-                        onsubmit="return confirm('Hủy đơn hàng?');">
-                    <input type="hidden" name="id" th:value="${order.idHoadon}" />
-                    <input type="hidden" name="action" value="CANCEL" />
-                    <button class="btn btn-sm btn-soft-danger action-btn" data-bs-toggle="tooltip" data-bs-title="Hủy" aria-label="Hủy">
-                      <i class="fas fa-times"></i>
-                    </button>
-                  </form>
-                  <!-- Reset to ondelivery -->
-                  <form th:if="${order.trangthai != 'ondelivery' && order.trangthai != 'cancel'}" th:action="@{/admin/hoadon/update}" method="post" class="d-inline" 
-                        onsubmit="return confirm('Đặt lại trạng thái đang giao?');">
-                    <input type="hidden" name="id" th:value="${order.idHoadon}" />
-                    <input type="hidden" name="action" value="RESET" />
-                    <button class="btn btn-sm btn-soft-secondary action-btn" data-bs-toggle="tooltip" data-bs-title="Đặt lại" aria-label="Đặt lại">
-                      <i class="fas fa-redo"></i>
-                    </button>
-                  </form>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <!-- Items preview (collapsed, max 3) -->
+      <div class="items-preview">
+        <th:block th:each="ct,iter : ${order.hoaDonChiTiets}" th:if="${iter.index < 3}">
+          <div class="item-row">
+            <span class="item-name" th:text="${ct.sanPham != null ? ct.sanPham.tenSanpham : 'SP #' + ct.id.idSanpham}"></span>
+            <span class="item-qty">x<span th:text="${ct.soluong}"></span></span>
+            <span class="item-price"
+                  th:text="${#numbers.formatInteger(ct.giamgia == 0 ? ct.gia * ct.soluong : ct.gia * (100 - ct.giamgia) / 100 * ct.soluong, 0, 'COMMA')} + '₫'"></span>
+          </div>
+        </th:block>
+        <div th:if="${order.hoaDonChiTiets.size() > 3}" class="text-muted" style="font-size:.75rem;padding-top:4px;">
+          + <span th:text="${order.hoaDonChiTiets.size() - 3}"></span> sản phẩm khác
+        </div>
       </div>
+
+      <!-- Totals -->
+      <div class="order-totals" th:with="
+          gh=${order.giaohang != null ? order.giaohang : ''},
+          dp=${gh.contains('nhanh') ? 50000 : 20000},
+          vd=${order.voucherDiscountAmount != null ? order.voucherDiscountAmount : 0}">
+        <div class="total-chips">
+          <span class="total-chip">Ship: <span class="val" th:text="${#numbers.formatInteger(dp,0,'COMMA')} + '₫'"></span></span>
+          <span th:if="${vd > 0}" class="total-chip disc">Voucher: <span class="val" th:text="'-' + ${#numbers.formatInteger(vd,0,'COMMA')} + '₫'"></span></span>
+        </div>
+        <div class="total-final">
+          Tổng:&nbsp;<span
+            th:with="sub=${order.hoaDonChiTiets.stream().mapToDouble(ct -> ct.giamgia == 0 ? ct.gia * ct.soluong : ct.gia * (100 - ct.giamgia) / 100.0 * ct.soluong).sum()}"
+            th:text="${#numbers.formatInteger(sub + (order.giaohang != null and order.giaohang.contains('nhanh') ? 50000 : 20000) - (order.voucherDiscountAmount != null ? order.voucherDiscountAmount : 0), 0, 'COMMA')} + '₫'">
+          </span>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="order-actions">
+        <div class="action-btns">
+          <!-- Approve: awaiting_payment / pending → confirmed -->
+          <button th:if="${order.trangthai == 'awaiting_payment' or order.trangthai == 'pending'}"
+                  class="btn-action btn-approve"
+                  th:onclick="'updateStatus(' + ${order.idHoadon} + ',\'APPROVE\')'"
+                  th:id="'btn-approve-' + ${order.idHoadon}">
+            <i class="fas fa-check"></i> Xác nhận đơn
+          </button>
+          <!-- Ship: confirmed → ondelivery -->
+          <button th:if="${order.trangthai == 'confirmed'}"
+                  class="btn-action btn-ship"
+                  th:onclick="'updateStatus(' + ${order.idHoadon} + ',\'SHIP\')'"
+                  th:id="'btn-ship-' + ${order.idHoadon}">
+            <i class="fas fa-shipping-fast"></i> Bắt đầu giao
+          </button>
+          <!-- Confirm delivery: ondelivery → received -->
+          <button th:if="${order.trangthai == 'ondelivery'}"
+                  class="btn-action btn-done"
+                  th:onclick="'updateStatus(' + ${order.idHoadon} + ',\'CONFIRM\')'"
+                  th:id="'btn-confirm-' + ${order.idHoadon}">
+            <i class="fas fa-check-circle"></i> Đã giao hàng
+          </button>
+          <!-- Cancel -->
+          <button th:if="${order.trangthai != 'received' and order.trangthai != 'cancel'}"
+                  class="btn-action btn-cancel"
+                  th:onclick="'updateStatus(' + ${order.idHoadon} + ',\'CANCEL\')'"
+                  th:id="'btn-cancel-' + ${order.idHoadon}">
+            <i class="fas fa-times"></i> Hủy đơn
+          </button>
+        </div>
+        <div>
+          <a th:href="@{/admin/hoadon/{id}(id=${order.idHoadon})}" class="btn-action btn-view">
+            <i class="fas fa-eye"></i> Chi tiết
+          </a>
+        </div>
+      </div>
+
     </div>
+    <!-- end each -->
 
     <!-- Pagination -->
-    <div th:if="${totalPages > 0}" class="mt-4">
-      <nav class="d-flex justify-content-center">
-        <ul class="pagination">
-          <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
-            <a class="page-link" th:href="@{/admin/hoadon(page=${currentPage - 1})}">
-              <i class="fas fa-chevron-left"></i>
-            </a>
-          </li>
-          <li th:each="i : ${#numbers.sequence(1, totalPages)}" class="page-item"
-            th:classappend="${currentPage == i - 1} ? 'active'">
-            <a class="page-link" th:href="@{/admin/hoadon(page=${i - 1})}" th:text="${i}"></a>
-          </li>
-          <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
-            <a class="page-link" th:href="@{/admin/hoadon(page=${currentPage + 1})}">
-              <i class="fas fa-chevron-right"></i>
-            </a>
-          </li>
-        </ul>
-      </nav>
+    <div th:if="${totalPages > 1}" class="om-pagination">
+      <a th:classappend="${currentPage == 0} ? 'disabled'" th:href="@{/admin/hoadon(page=${currentPage - 1},status=${currentStatus})}">
+        <i class="fas fa-chevron-left" style="font-size:.65rem;"></i>
+      </a>
+      <th:block th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+        <a th:if="${i >= currentPage - 2 and i <= currentPage + 2}"
+           th:classappend="${i == currentPage} ? 'active'"
+           th:href="@{/admin/hoadon(page=${i},status=${currentStatus})}"
+           th:text="${i + 1}"></a>
+      </th:block>
+      <a th:classappend="${currentPage == totalPages - 1} ? 'disabled'" th:href="@{/admin/hoadon(page=${currentPage + 1},status=${currentStatus})}">
+        <i class="fas fa-chevron-right" style="font-size:.65rem;"></i>
+      </a>
     </div>
+
   </div>
+
+  <!-- Toast container -->
+  <div class="om-toast" id="omToastContainer"></div>
 
   <th:block th:replace="~{admin/_footerAdmin}" />
 
   <script>
-    // Initialize tooltips
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-      return new bootstrap.Tooltip(tooltipTriggerEl)
-    })
+    function showToast(msg, type) {
+      const c = document.getElementById('omToastContainer');
+      const el = document.createElement('div');
+      el.className = 'om-toast-item ' + (type === 'error' ? 'error' : 'success');
+      el.innerHTML = '<i class="fas fa-' + (type === 'error' ? 'times-circle' : 'check-circle') + '"></i>' + msg;
+      c.appendChild(el);
+      setTimeout(() => el.remove(), 3500);
+    }
+
+    const STATUS_LABELS = {
+      'awaiting_payment': '<span class="spill spill-awaiting"><i class="fas fa-hourglass-half"></i> Chờ TT</span>',
+      'pending':          '<span class="spill spill-pending"><i class="fas fa-clock"></i> Chờ xác nhận</span>',
+      'confirmed':        '<span class="spill spill-confirmed"><i class="fas fa-box"></i> Đã xác nhận</span>',
+      'ondelivery':       '<span class="spill spill-ondelivery"><i class="fas fa-shipping-fast"></i> Đang giao</span>',
+      'received':         '<span class="spill spill-received"><i class="fas fa-check-circle"></i> Hoàn tất</span>',
+      'cancel':           '<span class="spill spill-cancel"><i class="fas fa-times-circle"></i> Đã hủy</span>',
+    };
+
+    async function updateStatus(orderId, action) {
+      const label = { APPROVE:'xác nhận', SHIP:'bắt đầu giao', CONFIRM:'xác nhận giao', CANCEL:'hủy' }[action] || action;
+      if (!confirm('Bạn muốn ' + label + ' đơn hàng #' + orderId + '?')) return;
+
+      // Disable all buttons in this card
+      const card = document.getElementById('card-' + orderId);
+      card.querySelectorAll('button').forEach(b => b.disabled = true);
+
+      try {
+        const resp = await fetch('/admin/api/hoadon/' + orderId + '/status', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: 'action=' + encodeURIComponent(action),
+          credentials: 'same-origin'
+        });
+        const data = await resp.json();
+        if (data.success) {
+          showToast(data.message, 'success');
+          // Reload page after short delay to reflect new tab counts
+          setTimeout(() => window.location.reload(), 900);
+        } else {
+          showToast(data.message || 'Lỗi cập nhật trạng thái', 'error');
+          card.querySelectorAll('button').forEach(b => b.disabled = false);
+        }
+      } catch(e) {
+        showToast('Lỗi kết nối server', 'error');
+        card.querySelectorAll('button').forEach(b => b.disabled = false);
+      }
+    }
   </script>
-
-  <style>
-    .card {
-      border-radius: 0.5rem;
-    }
-
-    .table> :not(caption)>*>* {
-      padding: 1rem 0;
-    }
-
-    .badge {
-      padding: 0.5rem 0.75rem;
-      font-weight: 500;
-    }
-
-    .btn-sm {
-      width: 32px;
-      height: 32px;
-      padding: 0;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 6px;
-    }
-
-    .page-link {
-      width: 36px;
-      height: 36px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50% !important;
-      margin: 0 3px;
-    }
-
-    .alert {
-      border: none;
-      border-radius: 0.5rem;
-    }
-
-    .tooltip {
-      font-size: 0.875rem;
-    }
-
-    /* Inline action buttons */
-    .action-inline-group .action-btn { width:32px; height:32px; padding:0; display:inline-flex; align-items:center; justify-content:center; border-radius:6px; }
-    .action-inline-group .action-btn i { font-size:.85rem; }
-    @media (max-width: 720px) {
-      .action-inline-group { gap:.35rem; }
-    }
-  </style>
 </body>
-
 </html>
