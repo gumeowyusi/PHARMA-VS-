@@ -1,5 +1,5 @@
 import createToast, { toastComponent } from "./toast.js";
-import { setTotalCartItemsQuantity } from "./header.js";
+import { setTotalCartItemsQuantity, refreshCartBadge } from "./header.js";
 
 // STATIC DATA
 const currentUserIdMetaTag = document.querySelector(

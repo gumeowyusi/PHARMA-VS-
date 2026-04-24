@@ -157,10 +157,11 @@ async function _onSearchInput(inputEl) {
   _renderAutocomplete(inputEl, rootEl, merged);
 }
 
-// ROOTS/ELEMENTS
-const totalCartItemsQuantityRootElement =
-  document.querySelector("#total-cart-items-quantity") ||
-  document.querySelector("#cartBadge");
+// Badge element re-queried each time to handle late DOM rendering
+function _getBadgeEl() {
+  return document.querySelector("#total-cart-items-quantity") ||
+         document.querySelector("#cartBadge");
+}
 
 // UTILS
 async function _fetchGetCart() {
@@ -201,9 +202,12 @@ const state = {
 
 // RENDER
 function render() {
-  if (totalCartItemsQuantityRootElement) {
-    totalCartItemsQuantityRootElement.textContent =
-      state.totalCartItemsQuantity;
+  const el = _getBadgeEl();
+  if (el) {
+    const n = state.totalCartItemsQuantity;
+    el.textContent = n;
+    // hide badge when 0, show when > 0
+    el.style.display = n > 0 ? "" : "none";
   }
   document.dispatchEvent(
     new CustomEvent("cart:badgeUpdated", {
@@ -216,6 +220,16 @@ function render() {
 void state.initState();
 
 export const setTotalCartItemsQuantity = state.setTotalCartItemsQuantity;
+
+/** Fetch actual cart count from server and update badge — always accurate */
+export async function refreshCartBadge() {
+  try {
+    const [status, data] = await _fetchGetCart();
+    if (status === 200) {
+      state.setTotalCartItemsQuantity(data);
+    }
+  } catch (_) {}
+}
 
 // Bind search autocomplete/history (robust init)
 const _boundSearchInputs = new WeakSet();
