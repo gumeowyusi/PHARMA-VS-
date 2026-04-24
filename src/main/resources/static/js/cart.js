@@ -51,24 +51,34 @@ function _isFreeship(v) {
   );
 }
 
-function _buildVoucherCard(v, isSelected) {
+function _buildVoucherCard(v, isSelected, subtotal) {
   const isFs = _isFreeship(v);
   const cls = isFs ? 'freeship' : 'discount';
   const icon = isFs ? 'fa-shipping-fast' : 'fa-percent';
   const desc = _voucherDescription(v);
   const expire = _voucherExpireText(v);
-  const selCls = isSelected ? ' selected-voucher' : '';
-  const btnLabel = isSelected ? '<i class="fas fa-check me-1"></i>Đã chọn' : 'Áp dụng';
-  const btnCls = isSelected ? ' applied' : '';
+  const notEnough = v.minOrderValue && subtotal < v.minOrderValue;
+  const selCls = isSelected ? ' selected-voucher' : (notEnough ? ' voucher-disabled' : '');
+  let btnLabel, btnCls, btnDisabled;
+  if (isSelected) {
+    btnLabel = '<i class="fas fa-check me-1"></i>Đã chọn';
+    btnCls = ' applied'; btnDisabled = '';
+  } else if (notEnough) {
+    btnLabel = `Cần thêm ${_formatPriceV(v.minOrderValue - subtotal)}₫`;
+    btnCls = ' locked'; btnDisabled = ' disabled';
+  } else {
+    btnLabel = 'Áp dụng';
+    btnCls = ''; btnDisabled = '';
+  }
   return `
-    <div class="voucher-item ${cls}${selCls}" data-code="${v.code}" data-discount="${0}" data-type="${v.type}" data-value="${v.value}" data-max="${v.maxDiscount||0}">
+    <div class="voucher-item ${cls}${selCls}" data-code="${v.code}" data-type="${v.type}" data-value="${v.value}" data-max="${v.maxDiscount||0}">
       <div class="vi-icon"><i class="fas ${icon}"></i></div>
       <div class="vi-info">
         <div class="vi-name">${v.code}</div>
         <div class="vi-desc">${desc}</div>
         ${expire ? `<div class="vi-expire"><i class="fas fa-clock me-1"></i>${expire}</div>` : ''}
       </div>
-      <button class="btn-apply-voucher${btnCls}" data-code="${v.code}" type="button">${btnLabel}</button>
+      <button class="btn-apply-voucher${btnCls}" data-code="${v.code}" type="button"${btnDisabled}>${btnLabel}</button>
     </div>
   `;
 }
@@ -140,13 +150,13 @@ async function _openVoucherModal() {
 
   if (listFs) {
     listFs.innerHTML = freeship.length
-      ? freeship.map(v => _buildVoucherCard(v, v.code === voucherState.code)).join('')
-      : '<div class="text-muted small p-2 text-center">Không có voucher freeship khả dụng</div>';
+      ? freeship.map(v => _buildVoucherCard(v, v.code === voucherState.code, subtotal)).join('')
+      : '<div class="text-muted small p-2 text-center">Không có voucher freeship nào</div>';
   }
   if (listDis) {
     listDis.innerHTML = discount.length
-      ? discount.map(v => _buildVoucherCard(v, v.code === voucherState.code)).join('')
-      : '<div class="text-muted small p-2 text-center">Không có voucher giảm giá khả dụng</div>';
+      ? discount.map(v => _buildVoucherCard(v, v.code === voucherState.code, subtotal)).join('')
+      : '<div class="text-muted small p-2 text-center">Không có voucher giảm giá nào</div>';
   }
 
   // Attach apply button handlers

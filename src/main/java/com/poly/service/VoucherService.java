@@ -72,7 +72,6 @@ public class VoucherService {
                 .filter(v -> Boolean.TRUE.equals(v.getActive()))
                 .filter(v -> v.getStartDate() == null || !now.before(v.getStartDate()))
                 .filter(v -> v.getEndDate() == null || !now.after(v.getEndDate()))
-                .filter(v -> v.getMinOrderValue() == null || subtotal >= v.getMinOrderValue())
                 .filter(v -> v.getUsageLimit() == null || (v.getTotalUsed() == null ? 0 : v.getTotalUsed()) < v.getUsageLimit())
                 .collect(java.util.stream.Collectors.toList());
     }
