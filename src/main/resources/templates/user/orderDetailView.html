@@ -204,11 +204,21 @@
                         <span class="text-muted">Phí vận chuyển:</span>
                         <span th:text="${#numbers.formatInteger(deliveryPrice, 0, 'COMMA')} + '₫'"></span>
                       </p>
+                      <p th:if="${voucherDiscount != null and voucherDiscount > 0}"
+                         class="mb-2 d-flex justify-content-between text-success">
+                        <span>
+                          <i class="fas fa-tag me-1"></i>Giảm giá
+                          <small th:if="${order.voucherCode != null}"
+                                 class="badge bg-success ms-1"
+                                 th:text="${order.voucherCode}"></small>:
+                        </span>
+                        <span th:text="'-' + ${#numbers.formatInteger(voucherDiscount, 0, 'COMMA')} + '₫'"></span>
+                      </p>
                       <hr>
                       <p class="mb-0 d-flex justify-content-between fw-bold">
                         <span>Tổng cộng:</span>
                         <span class="text-primary"
-                          th:text="${#numbers.formatInteger(tempPrice + deliveryPrice, 0, 'COMMA')} + '₫'"></span>
+                          th:text="${#numbers.formatInteger(finalTotal, 0, 'COMMA')} + '₫'"></span>
                       </p>
                     </div>
                   </div>

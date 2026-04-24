@@ -280,14 +280,77 @@ public class HomeController {
 				sanPham.setGiamgia(item.getGiamgia());
 				listSanPham.add(sanPham);
 			});
+			String giaohang = hoaDon.getGiaohang() != null ? hoaDon.getGiaohang() : "";
+			double deliveryPrice = giaohang.contains("nhanh") ? 50000 : 20000;
+			double voucherDiscount = hoaDon.getVoucherDiscountAmount() != null ? hoaDon.getVoucherDiscountAmount() : 0.0;
+			double finalTotal = Math.max(0, tempPrice.get() + deliveryPrice - voucherDiscount);
 			model.addAttribute("loais", loaiService.getAllLoai(0, 5));
 			model.addAttribute("tempPrice", tempPrice.get());
 			model.addAttribute("listSanPham", listSanPham);
-			model.addAttribute("deliveryPrice", hoaDon.getGiaohang().equals("Giao hàng nhanh") ? 50000 : 20000);
+			model.addAttribute("deliveryPrice", deliveryPrice);
+			model.addAttribute("voucherDiscount", voucherDiscount);
+			model.addAttribute("finalTotal", finalTotal);
 			model.addAttribute("order", hoaDon);
 			return "user/orderDetailView";
 		} catch (Exception e) {
 			return "redirect:/";
+		}
+	}
+
+	@GetMapping("/api/order/{id}/bill")
+	@ResponseBody
+	public ResponseEntity<?> getOrderBill(@PathVariable int id) {
+		try {
+			Users currentUser = currentUserService.getCurrentUser().orElse(null);
+			HoaDon hoaDon = hoaDonService.getHoaDonById(id);
+			// Only the owner can view their bill
+			if (currentUser == null || !hoaDon.getUsers().getIdUser().equals(currentUser.getIdUser())) {
+				return ResponseEntity.status(403).body(java.util.Map.of("error", "Không có quyền truy cập"));
+			}
+			java.util.List<java.util.Map<String, Object>> items = new java.util.ArrayList<>();
+			double subtotal = 0;
+			int idx = 1;
+			for (com.poly.entity.HoaDonChiTiet ct : hoaDon.getHoaDonChiTiets()) {
+				double unitPrice = ct.getGiamgia() == 0
+						? ct.getGia()
+						: Math.round(ct.getGia() * (100 - ct.getGiamgia()) / 100.0);
+				double lineTotal = unitPrice * ct.getSoluong();
+				subtotal += lineTotal;
+				com.poly.entity.SanPham sp = sanPhamService.getSanPhamById(ct.getId().getIdSanpham());
+				java.util.Map<String, Object> item = new java.util.LinkedHashMap<>();
+				item.put("no", idx++);
+				item.put("name", sp != null ? sp.getTenSanpham() : "Sản phẩm #" + ct.getId().getIdSanpham());
+				item.put("qty", ct.getSoluong());
+				item.put("unitPrice", (long) unitPrice);
+				item.put("lineTotal", (long) lineTotal);
+				items.add(item);
+			}
+			String giaohang = hoaDon.getGiaohang() != null ? hoaDon.getGiaohang() : "";
+			double deliveryPrice = giaohang.contains("nhanh") ? 50000 : 20000;
+			double voucherDiscount = hoaDon.getVoucherDiscountAmount() != null ? hoaDon.getVoucherDiscountAmount() : 0;
+			double total = Math.max(0, subtotal + deliveryPrice - voucherDiscount);
+			// Extract payment method from giaohang field
+			String paymentMethod = "COD (Tiền mặt)";
+			if (giaohang.toLowerCase().contains("payos") || giaohang.toLowerCase().contains("chuyển khoản")) {
+				paymentMethod = "Chuyển khoản (PayOS)";
+			}
+			String deliveryMethod = giaohang.contains("nhanh") ? "Giao hàng nhanh" : "Giao hàng tiêu chuẩn";
+			java.util.Map<String, Object> bill = new java.util.LinkedHashMap<>();
+			bill.put("orderId", hoaDon.getIdHoadon());
+			bill.put("date", new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(hoaDon.getNgaytao()));
+			bill.put("customerName", currentUser.getHoten());
+			bill.put("items", items);
+			bill.put("subtotal", (long) subtotal);
+			bill.put("deliveryPrice", (long) deliveryPrice);
+			bill.put("deliveryMethod", deliveryMethod);
+			bill.put("voucherCode", hoaDon.getVoucherCode());
+			bill.put("voucherDiscount", (long) voucherDiscount);
+			bill.put("total", (long) total);
+			bill.put("paymentMethod", paymentMethod);
+			bill.put("address", hoaDon.getDiachi());
+			return ResponseEntity.ok(bill);
+		} catch (Exception e) {
+			return ResponseEntity.status(404).body(java.util.Map.of("error", "Không tìm thấy đơn hàng"));
 		}
 	}
 

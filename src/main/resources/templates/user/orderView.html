@@ -7,6 +7,49 @@
   <script th:src="@{/js/toast.js}" type="module"></script>
   <script th:src="@{/js/home.js}" type="module"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <style>
+    /* ── Receipt modal ── */
+    .receipt-wrap {
+      font-family: 'Courier New', Courier, monospace;
+      background: #fff;
+      max-width: 340px;
+      margin: 0 auto;
+      padding: 20px 18px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      color: #111;
+    }
+    .receipt-store { font-size: 15px; font-weight: 700; text-align: center; letter-spacing: .5px; }
+    .receipt-addr  { font-size: 11.5px; text-align: center; color: #555; margin-bottom: 4px; }
+    .receipt-title { font-size: 14px; font-weight: 700; text-align: center; letter-spacing: 1px; margin: 6px 0 10px; }
+    .receipt-dash  { border-top: 1.5px dashed #aaa; margin: 8px 0; }
+    .receipt-meta  { font-size: 12px; margin-bottom: 2px; }
+    .receipt-meta b { display: inline-block; min-width: 80px; }
+    .receipt-table { width: 100%; border-collapse: collapse; margin: 4px 0; font-size: 12px; }
+    .receipt-table th {
+      border-top: 1.5px solid #333; border-bottom: 1.5px solid #333;
+      padding: 3px 4px; font-size: 11.5px;
+    }
+    .receipt-table td { padding: 4px 4px; vertical-align: top; }
+    .receipt-table .col-no  { width: 20px; text-align: center; }
+    .receipt-table .col-sl  { width: 24px; text-align: center; }
+    .receipt-table .col-dg  { width: 68px; text-align: right; }
+    .receipt-table .col-tt  { width: 72px; text-align: right; }
+    .receipt-table tbody tr:last-child td { border-bottom: 1px solid #ccc; }
+    .receipt-row { display: flex; justify-content: space-between; margin: 3px 0; font-size: 12.5px; }
+    .receipt-row.total { font-size: 15px; font-weight: 700; margin-top: 6px; }
+    .receipt-row.discount { color: #16a34a; }
+    .receipt-footer { text-align: center; margin-top: 12px; font-size: 12.5px; }
+    .receipt-footer .thanks { font-weight: 700; font-size: 13.5px; margin-bottom: 4px; }
+    .receipt-footer .brand  { font-size: 11px; color: #777; }
+
+    @media print {
+      body * { visibility: hidden; }
+      #receiptPrintArea, #receiptPrintArea * { visibility: visible; }
+      #receiptPrintArea { position: fixed; top: 0; left: 0; width: 100%; }
+      .receipt-wrap { max-width: 100%; box-shadow: none; }
+    }
+  </style>
 </head>
 
 <body>
@@ -43,7 +86,7 @@
                       <th scope="row" th:text="${order.idHoadon}"></th>
                       <td th:text="${#dates.format(order.ngaytao, 'dd/MM/yyyy')}"></td>
                       <td
-                        th:text="${order.giaohang == 'Giao hàng nhanh'?'Giao hàng nhanh (+50.000₫)':'Giao hàng tiêu chuẩn (+20.000₫)'}">
+                        th:text="${order.giaohang != null and order.giaohang.contains('nhanh')?'Giao hàng nhanh (+50.000₫)':'Giao hàng tiêu chuẩn (+20.000₫)'}">
                       </td>
                       <td>
                         <th:block th:if="${order.trangthai == 'awaiting_payment'}">
@@ -72,6 +115,10 @@
                         <a class="btn btn-primary btn-sm me-1" th:href="@{/orderDetail(id=${order.idHoadon})}" role="button">
                           <i class="fas fa-eye me-1"></i>Xem
                         </a>
+                        <button class="btn btn-outline-secondary btn-sm me-1 btn-view-bill"
+                                th:data-order-id="${order.idHoadon}" title="Xem hóa đơn">
+                          <i class="fas fa-receipt me-1"></i>Bill
+                        </button>
                         <th:block th:if="${order.trangthai == 'awaiting_payment'}">
                           <a class="btn btn-success btn-sm"
                              th:href="@{/api/payments/create-bank-transfer(orderId=${order.idHoadon},deliveryPrice=0)}">
@@ -91,12 +138,10 @@
                   <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
                     <a class="page-link" th:href="@{/order(page=${currentPage - 1})}">Trang trước</a>
                   </li>
-
                   <li th:each="i : ${#numbers.sequence(1, totalPages)}" class="page-item"
                     th:classappend="${currentPage == i - 1} ? 'active'">
                     <a class="page-link" th:href="@{/order(page=${i - 1})}" th:text="${i}"></a>
                   </li>
-
                   <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
                     <a class="page-link" th:href="@{/order(page=${currentPage + 1})}">Trang sau</a>
                   </li>
@@ -110,7 +155,132 @@
     </div>
   </section>
 
+  <!-- Receipt Modal -->
+  <div class="modal fade" id="billModal" tabindex="-1" aria-labelledby="billModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:400px;">
+      <div class="modal-content border-0 shadow-lg" style="border-radius:12px;overflow:hidden;">
+        <div class="modal-header border-0 pb-0 px-4 pt-3">
+          <h6 class="modal-title fw-bold" id="billModalLabel">
+            <i class="fas fa-receipt me-2 text-primary"></i>Hóa đơn thanh toán
+          </h6>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body px-3 py-2" id="receiptPrintArea">
+          <!-- injected by JS -->
+          <div id="billContent" class="receipt-wrap">
+            <div class="text-center text-muted py-4">
+              <span class="spinner-border spinner-border-sm me-2"></span>Đang tải...
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer border-0 px-4 pb-3 pt-0 gap-2">
+          <button class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Đóng</button>
+          <button class="btn btn-primary btn-sm" id="printBillBtn" onclick="window.print()">
+            <i class="fas fa-print me-1"></i>In hóa đơn
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <th:block th:replace="~{user/_footer}" />
+
+  <script>
+    function _fmtMoney(n) {
+      return new Intl.NumberFormat('vi-VN').format(n);
+    }
+
+    function _renderReceipt(b) {
+      const discountRow = b.voucherDiscount > 0
+        ? `<div class="receipt-row discount">
+             <span><i class="fas fa-tag" style="font-size:10px;"></i> Voucher ${b.voucherCode || ''}</span>
+             <span>-${_fmtMoney(b.voucherDiscount)}₫</span>
+           </div>` : '';
+
+      const rows = b.items.map(it =>
+        `<tr>
+           <td class="col-no">${it.no}</td>
+           <td>${it.name}</td>
+           <td class="col-sl">${it.qty}</td>
+           <td class="col-dg">${_fmtMoney(it.unitPrice)}</td>
+           <td class="col-tt">${_fmtMoney(it.lineTotal)}</td>
+         </tr>`
+      ).join('');
+
+      return `
+        <div class="receipt-wrap">
+          <div class="receipt-store">PHARMA VS</div>
+          <div class="receipt-addr">Nhà thuốc PHARMA VS</div>
+          <div class="receipt-title">HÓA ĐƠN THANH TOÁN</div>
+          <div class="receipt-dash"></div>
+          <div class="receipt-meta"><b>Ngày:</b> ${b.date}</div>
+          <div class="receipt-meta"><b>Mã ĐH:</b> #${b.orderId}</div>
+          <div class="receipt-meta"><b>Khách hàng:</b> ${b.customerName || ''}</div>
+          <div class="receipt-meta"><b>Địa chỉ:</b> ${b.address || ''}</div>
+          <div class="receipt-dash"></div>
+          <table class="receipt-table">
+            <thead>
+              <tr>
+                <th class="col-no">#</th>
+                <th>Tên sản phẩm</th>
+                <th class="col-sl">SL</th>
+                <th class="col-dg">ĐG</th>
+                <th class="col-tt">TT</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+          <div class="receipt-dash"></div>
+          <div class="receipt-row">
+            <span>Tạm tính</span>
+            <span>${_fmtMoney(b.subtotal)}₫</span>
+          </div>
+          <div class="receipt-row">
+            <span>Phí vận chuyển</span>
+            <span>${_fmtMoney(b.deliveryPrice)}₫</span>
+          </div>
+          ${discountRow}
+          <div class="receipt-dash"></div>
+          <div class="receipt-row total">
+            <span>Tổng thanh toán</span>
+            <span>${_fmtMoney(b.total)}₫</span>
+          </div>
+          <div class="receipt-row" style="margin-top:4px;font-size:12px;color:#555;">
+            <span>${b.paymentMethod}</span>
+            <span>${_fmtMoney(b.total)}₫</span>
+          </div>
+          <div class="receipt-row" style="font-size:12px;color:#555;">
+            <span>${b.deliveryMethod}</span>
+            <span></span>
+          </div>
+          <div class="receipt-dash"></div>
+          <div class="receipt-footer">
+            <div class="thanks">Trân trọng cảm ơn!</div>
+            <div class="brand">PHARMA VS — Nhà thuốc uy tín</div>
+          </div>
+        </div>`;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const billModal = new bootstrap.Modal(document.getElementById('billModal'));
+      document.querySelectorAll('.btn-view-bill').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const orderId = btn.dataset.orderId;
+          const content = document.getElementById('billContent');
+          content.innerHTML = '<div class="text-center text-muted py-4"><span class="spinner-border spinner-border-sm me-2"></span>Đang tải...</div>';
+          billModal.show();
+          try {
+            const resp = await fetch(`/api/order/${orderId}/bill`);
+            const data = await resp.json();
+            if (!resp.ok) throw new Error(data.error || 'Lỗi tải hóa đơn');
+            content.innerHTML = _renderReceipt(data);
+          } catch (e) {
+            content.innerHTML = `<div class="text-center text-danger py-4"><i class="fas fa-exclamation-circle me-2"></i>${e.message}</div>`;
+          }
+        });
+      });
+    });
+  </script>
 </body>
 
 </html>

@@ -1026,15 +1026,19 @@ function attachEventHandlersForNoneRerenderElements() {
     ckAddress.textContent = addressEl?.value || "";
     ckDelivery.textContent = deliveryText;
     ckPayment.textContent = paymentText;
-    ckTemp.textContent = _formatPrice(state.getTempPrice()) + "₫";
-    ckShip.textContent = _formatPrice(state.getDeliveryPrice()) + "₫";
-    if (voucherState.code && voucherState.discountAmount > 0) {
+    const liveSubtotal = _getLiveSubtotal();
+    const liveShip = state.getDeliveryPrice();
+    const liveDiscount = voucherState.discountAmount || 0;
+    const liveFinal = Math.max(0, liveSubtotal + liveShip - liveDiscount);
+    ckTemp.textContent = _formatPrice(liveSubtotal) + "₫";
+    ckShip.textContent = _formatPrice(liveShip) + "₫";
+    if (voucherState.code && liveDiscount > 0) {
       if (ckDiscountRow) ckDiscountRow.style.display = '';
-      if (ckDiscount) ckDiscount.textContent = `-${_formatPrice(voucherState.discountAmount)}₫`;
+      if (ckDiscount) ckDiscount.textContent = `-${_formatPrice(liveDiscount)}₫`;
     } else {
       if (ckDiscountRow) ckDiscountRow.style.display = 'none';
     }
-    ckTotal.textContent = _formatPrice(state.getTotalPrice()) + "₫";
+    ckTotal.textContent = _formatPrice(liveFinal) + "₫";
 
     const modalEl = document.getElementById("checkoutConfirmModal");
     const modal = new bootstrap.Modal(modalEl);
