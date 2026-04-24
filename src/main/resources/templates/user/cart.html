@@ -65,12 +65,44 @@
       </div>
     </div>
   </div>
+  <div th:if="${payPending}" class="container mt-3">
+    <div class="payos-banner" style="background:#fffbeb;border-left:4px solid #f59e0b;">
+      <span class="bicon">⏳</span>
+      <div>
+        <div class="btitle" style="color:#92400e;">Đang xử lý thanh toán</div>
+        <div class="bsub">
+          PayOS đang xác nhận giao dịch của bạn. Vui lòng đợi vài phút rồi kiểm tra lại đơn hàng
+          <strong th:text="'#' + ${payOrderId}"></strong>.
+        </div>
+        <div class="d-flex gap-2 mt-2 flex-wrap">
+          <a th:href="@{/order}" class="btn btn-sm"
+             style="background:#f59e0b;color:#fff;border-radius:8px;font-weight:600;">
+            <i class="fas fa-receipt me-1"></i>Xem đơn hàng
+          </a>
+          <a th:href="@{/cart(pay=success,code=${payCode},orderId=${payOrderId})}" class="btn btn-sm btn-outline-secondary"
+             style="border-radius:8px;font-weight:600;">
+            <i class="fas fa-sync-alt me-1"></i>Kiểm tra lại
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
   <div th:if="${payFailed}" class="container mt-3">
     <div class="payos-banner payos-danger">
       <span class="bicon">❌</span>
       <div>
         <div class="btitle">Xác minh thanh toán thất bại</div>
-        <div class="bsub">Vui lòng liên hệ hỗ trợ nếu bạn đã bị trừ tiền.</div>
+        <div class="bsub">
+          Không xác nhận được trạng thái thanh toán cho đơn
+          <strong th:if="${payOrderId}" th:text="'#' + ${payOrderId}"></strong>.
+          Nếu bạn đã bị trừ tiền, vui lòng
+          <a href="/order" class="fw-semibold text-danger">kiểm tra lịch sử đơn hàng</a>
+          hoặc liên hệ hỗ trợ.
+        </div>
+        <a th:href="@{/order}" class="btn btn-sm mt-2"
+           style="background:#dc2626;color:#fff;border-radius:8px;font-weight:600;">
+          <i class="fas fa-receipt me-1"></i>Xem đơn hàng
+        </a>
       </div>
     </div>
   </div>

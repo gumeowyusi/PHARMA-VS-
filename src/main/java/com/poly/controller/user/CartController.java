@@ -66,25 +66,35 @@ public class CartController {
 
 		// Xử lý callback từ PayOS
 		if ("success".equals(pay) && code != null && orderId != null) {
-			try {
-				// Verify với PayOS
-				String url = "https://api-merchant.payos.vn/v2/payment-requests/" + code;
-				HttpRequest req = HttpRequest.newBuilder().uri(URI.create(url))
-						.header("x-client-id", payosClientId)
-						.header("x-api-key", payosApiKey)
-						.GET().build();
-				HttpResponse<String> resp = httpClient.send(req, HttpResponse.BodyHandlers.ofString());
-				JsonNode node = mapper.readTree(resp.body());
-				String status = node.path("data").path("status").asText("UNKNOWN");
-				if ("PAID".equalsIgnoreCase(status)) {
-					hoaDonService.markOrderAsPaid(orderId);
-					model.addAttribute("paySuccess", true);
-					model.addAttribute("payOrderId", orderId);
-				} else {
-					model.addAttribute("payFailed", true);
-				}
-			} catch (Exception e) {
+			// PayOS redirects back before their status is updated — retry up to 4 times
+			String payosStatus = "UNKNOWN";
+			String verifyUrl = "https://api-merchant.payos.vn/v2/payment-requests/" + code;
+			for (int attempt = 0; attempt < 4; attempt++) {
+				try {
+					if (attempt > 0) Thread.sleep(1500); // wait before retry
+					HttpRequest req = HttpRequest.newBuilder().uri(URI.create(verifyUrl))
+							.header("x-client-id", payosClientId)
+							.header("x-api-key", payosApiKey)
+							.GET().build();
+					HttpResponse<String> resp = httpClient.send(req, HttpResponse.BodyHandlers.ofString());
+					JsonNode node = mapper.readTree(resp.body());
+					payosStatus = node.path("data").path("status").asText("UNKNOWN");
+					if ("PAID".equalsIgnoreCase(payosStatus)) break; // confirmed, stop retrying
+				} catch (Exception ignored) {}
+			}
+			if ("PAID".equalsIgnoreCase(payosStatus)) {
+				hoaDonService.markOrderAsPaid(orderId);
+				model.addAttribute("paySuccess", true);
+				model.addAttribute("payOrderId", orderId);
+			} else if ("PENDING".equalsIgnoreCase(payosStatus) || "PROCESSING".equalsIgnoreCase(payosStatus)) {
+				// Still processing on PayOS side — don't cancel, just show pending notice
+				model.addAttribute("payPending", true);
+				model.addAttribute("payOrderId", orderId);
+				model.addAttribute("payCode", code);
+			} else {
+				// Unknown / failed status
 				model.addAttribute("payFailed", true);
+				model.addAttribute("payOrderId", orderId);
 			}
 		} else if ("cancel".equals(pay) && orderId != null) {
 			// Hủy đơn awaiting_payment
