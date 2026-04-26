@@ -23,6 +23,128 @@ const voucherState = {
   description: '',
 };
 
+// POINTS STATE
+const pointsState = {
+  pointsToUse: 0,         // number of points user wants to apply
+  availablePoints: 0,     // fetched from server
+};
+
+async function _loadUserPoints() {
+  const card = document.getElementById('pointsCard');
+  if (!card) return;
+  try {
+    const resp = await fetch('/api/diem/tong', { credentials: 'same-origin' });
+    if (!resp.ok) return;
+    const data = await resp.json();
+    pointsState.availablePoints = data.diem || 0;
+    const badge = document.getElementById('pointsBadge');
+    if (badge) badge.textContent = new Intl.NumberFormat('vi-VN').format(pointsState.availablePoints) + ' điểm';
+    if (pointsState.availablePoints > 0) {
+      card.style.removeProperty('display');
+    }
+  } catch (_) {}
+}
+
+function _renderPointsUI() {
+  const row = document.getElementById('points-discount-row');
+  const priceEl = document.getElementById('points-discount-price');
+  const appliedRow = document.getElementById('pointsAppliedRow');
+  const appliedText = document.getElementById('pointsAppliedText');
+  const errEl = document.getElementById('pointsError');
+  if (pointsState.pointsToUse > 0) {
+    if (row) { row.style.display = ''; }
+    if (priceEl) priceEl.textContent = new Intl.NumberFormat('vi-VN').format(pointsState.pointsToUse);
+    if (appliedRow) appliedRow.classList.remove('d-none');
+    if (appliedText) appliedText.textContent = `Đang dùng ${new Intl.NumberFormat('vi-VN').format(pointsState.pointsToUse)} điểm (-${new Intl.NumberFormat('vi-VN').format(pointsState.pointsToUse)}₫)`;
+    if (errEl) errEl.style.display = 'none';
+  } else {
+    if (row) row.style.display = 'none';
+    if (appliedRow) appliedRow.classList.add('d-none');
+  }
+}
+
+function _initPointsHandlers() {
+  const applyBtn = document.getElementById('applyPointsBtn');
+  const removeBtn = document.getElementById('pointsRemoveBtn');
+  const input = document.getElementById('pointsInput');
+  const errEl = document.getElementById('pointsError');
+  const exchangeBtn = document.getElementById('exchangePointsBtn');
+  const exchangeInput = document.getElementById('exchangePointsInput');
+  const exchangeResult = document.getElementById('exchangeResult');
+
+  if (applyBtn && input) {
+    applyBtn.addEventListener('click', () => {
+      if (errEl) errEl.style.display = 'none';
+      const raw = parseInt(input.value, 10) || 0;
+      if (raw <= 0) {
+        if (errEl) { errEl.textContent = 'Vui lòng nhập số điểm hợp lệ'; errEl.style.display = 'block'; }
+        return;
+      }
+      if (raw > pointsState.availablePoints) {
+        if (errEl) { errEl.textContent = `Bạn chỉ có ${new Intl.NumberFormat('vi-VN').format(pointsState.availablePoints)} điểm`; errEl.style.display = 'block'; }
+        return;
+      }
+      const liveSubtotal = _getLiveSubtotal();
+      const maxPoints = Math.floor(liveSubtotal + state.getDeliveryPrice() - (voucherState.discountAmount || 0));
+      if (raw > maxPoints) {
+        if (errEl) { errEl.textContent = `Số điểm vượt quá giá trị đơn hàng`; errEl.style.display = 'block'; }
+        return;
+      }
+      pointsState.pointsToUse = raw;
+      _renderPointsUI();
+      render();
+    });
+  }
+
+  if (removeBtn) {
+    removeBtn.addEventListener('click', () => {
+      pointsState.pointsToUse = 0;
+      if (input) input.value = '';
+      _renderPointsUI();
+      render();
+    });
+  }
+
+  if (exchangeBtn && exchangeInput) {
+    exchangeBtn.addEventListener('click', async () => {
+      const pts = parseInt(exchangeInput.value, 10) || 0;
+      if (pts <= 0 || pts % 10000 !== 0) {
+        if (exchangeResult) { exchangeResult.style.display = 'block'; exchangeResult.innerHTML = '<span class="text-danger">Nhập bội số của 10.000 (VD: 10000, 20000...)</span>'; }
+        return;
+      }
+      exchangeBtn.disabled = true;
+      exchangeBtn.textContent = '...';
+      try {
+        const resp = await fetch('/api/diem/doi-voucher', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          body: JSON.stringify({ points: pts }),
+        });
+        const data = await resp.json();
+        if (!resp.ok) {
+          if (exchangeResult) { exchangeResult.style.display = 'block'; exchangeResult.innerHTML = `<span class="text-danger">${data.error || 'Lỗi đổi điểm'}</span>`; }
+        } else {
+          pointsState.availablePoints -= pts;
+          const badge = document.getElementById('pointsBadge');
+          if (badge) badge.textContent = new Intl.NumberFormat('vi-VN').format(pointsState.availablePoints) + ' điểm';
+          if (exchangeResult) {
+            exchangeResult.style.display = 'block';
+            exchangeResult.innerHTML = `<span class="text-success fw-semibold">✅ Đổi thành công! Mã voucher của bạn: <strong>${data.code}</strong> (trị giá ${new Intl.NumberFormat('vi-VN').format(data.value)}₫, hạn 30 ngày)</span>`;
+          }
+          if (exchangeInput) exchangeInput.value = '';
+          createToast(toastComponent(`✅ Đổi điểm thành công! Voucher: ${data.code}`, 'success'));
+        }
+      } catch (e) {
+        if (exchangeResult) { exchangeResult.style.display = 'block'; exchangeResult.innerHTML = '<span class="text-danger">Lỗi kết nối</span>'; }
+      } finally {
+        exchangeBtn.disabled = false;
+        exchangeBtn.textContent = 'Đổi';
+      }
+    });
+  }
+}
+
 function _formatPriceV(amount) {
   return new Intl.NumberFormat("vi-VN").format(Math.round(amount));
 }
@@ -494,6 +616,7 @@ async function _fetchPostAddOrder() {
       orderItems: orderItems,
       voucherCode: voucherState.code || null,
       voucherDiscountAmount: voucherState.discountAmount || 0,
+      pointsToUse: pointsState.pointsToUse || 0,
     };
     response = await fetch("/cart", {
       method: "POST",
@@ -858,7 +981,8 @@ const state = {
   },
   getDeliveryPrice: () => state.order.deliveryPrice,
   getDiscountAmount: () => voucherState.discountAmount || 0,
-  getTotalPrice: () => Math.max(0, state.getTempPrice() + state.getDeliveryPrice() - state.getDiscountAmount()),
+  getPointsDiscount: () => pointsState.pointsToUse || 0,
+  getTotalPrice: () => Math.max(0, state.getTempPrice() + state.getDeliveryPrice() - state.getDiscountAmount() - state.getPointsDiscount()),
 };
 
 // RENDER
@@ -876,6 +1000,7 @@ function render() {
   deliveryPriceRootElement.innerHTML = _formatPrice(state.getDeliveryPrice());
   totalPriceRootElement.innerHTML = _formatPrice(state.getTotalPrice());
   _renderVoucherUI();
+  _renderPointsUI();
 
   // Render checkoutBtnElement, deliveryMethodRadioElements
   const isCartItemsEmpty = state.cart.cartItems.length === 0;
@@ -1034,7 +1159,8 @@ function attachEventHandlersForNoneRerenderElements() {
     const liveSubtotal = _getLiveSubtotal();
     const liveShip = state.getDeliveryPrice();
     const liveDiscount = voucherState.discountAmount || 0;
-    const liveFinal = Math.max(0, liveSubtotal + liveShip - liveDiscount);
+    const livePoints = pointsState.pointsToUse || 0;
+    const liveFinal = Math.max(0, liveSubtotal + liveShip - liveDiscount - livePoints);
     ckTemp.textContent = _formatPrice(liveSubtotal) + "₫";
     ckShip.textContent = _formatPrice(liveShip) + "₫";
     if (voucherState.code && liveDiscount > 0) {
@@ -1042,6 +1168,14 @@ function attachEventHandlersForNoneRerenderElements() {
       if (ckDiscount) ckDiscount.textContent = `-${_formatPrice(liveDiscount)}₫`;
     } else {
       if (ckDiscountRow) ckDiscountRow.style.display = 'none';
+    }
+    const ckPointsRow = document.querySelector("#ck-points-row");
+    const ckPointsDiscount = document.querySelector("#ck-points-discount");
+    if (livePoints > 0) {
+      if (ckPointsRow) ckPointsRow.style.display = '';
+      if (ckPointsDiscount) ckPointsDiscount.textContent = `-${_formatPrice(livePoints)}₫`;
+    } else {
+      if (ckPointsRow) ckPointsRow.style.display = 'none';
     }
     ckTotal.textContent = _formatPrice(liveFinal) + "₫";
 
@@ -1073,3 +1207,5 @@ function attachEventHandlersForNoneRerenderElements() {
 cartTableRootElement.innerHTML = loadingComponent();
 void state.initState();
 _initVoucherHandlers();
+_initPointsHandlers();
+void _loadUserPoints();

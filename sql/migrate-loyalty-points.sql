@@ -31,5 +31,10 @@ BEGIN
 END
 GO
 
+-- 4. Add points_used column to HOADON if missing
+IF COL_LENGTH('dbo.HOADON', 'points_used') IS NULL
+    ALTER TABLE [dbo].[HOADON] ADD [points_used] INT NULL DEFAULT 0;
+GO
+
 PRINT 'Loyalty points migration complete.';
 GO

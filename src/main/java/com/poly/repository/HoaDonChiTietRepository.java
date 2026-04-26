@@ -9,8 +9,10 @@ import com.poly.entity.HoaDonChiTiet;
 import com.poly.entity.HoaDonChiTietId;
 
 import jakarta.transaction.Transactional;
+import java.util.List;
 
 public interface HoaDonChiTietRepository extends JpaRepository<HoaDonChiTiet, HoaDonChiTietId>{
+	List<HoaDonChiTiet> findByHoaDon_IdHoadon(Integer idHoadon);
 	@Modifying
 	@Transactional
 	@Query("DELETE FROM HoaDonChiTiet h WHERE h.hoaDon.users.idUser = :idUser")

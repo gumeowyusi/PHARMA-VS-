@@ -78,7 +78,9 @@ public class EmailService {
 		}
 		double voucherDiscount = (hoaDon.getVoucherDiscountAmount() != null && hoaDon.getVoucherDiscountAmount() > 0)
 				? hoaDon.getVoucherDiscountAmount() : 0;
-		double total = subtotal + deliveryPrice - voucherDiscount;
+		double pointsDiscount = (hoaDon.getPointsUsed() != null && hoaDon.getPointsUsed() > 0)
+				? hoaDon.getPointsUsed() : 0;
+		double total = subtotal + deliveryPrice - voucherDiscount - pointsDiscount;
 		if (total < 0) total = 0;
 
 		String paymentInfo = hoaDon.getGiaohang() != null && hoaDon.getGiaohang().contains("PayOS")
@@ -140,6 +142,10 @@ public class EmailService {
 				? "<tr><td colspan='2' style='padding:8px 12px;text-align:right;color:#16a34a;font-size:13px;'>🎟 Voucher"
 					+ (hoaDon.getVoucherCode() != null ? " (" + hoaDon.getVoucherCode() + ")" : "") + ":</td>"
 					+ "<td style='padding:8px 12px;text-align:right;font-weight:600;color:#16a34a;'>-" + String.format("%,.0f", voucherDiscount) + "₫</td></tr>"
+				: "")
+			+ (pointsDiscount > 0
+				? "<tr><td colspan='2' style='padding:8px 12px;text-align:right;color:#7c3aed;font-size:13px;'>⭐ Dùng điểm tích lũy (" + (int)pointsDiscount + " điểm):</td>"
+					+ "<td style='padding:8px 12px;text-align:right;font-weight:600;color:#7c3aed;'>-" + String.format("%,.0f", pointsDiscount) + "₫</td></tr>"
 				: "")
 			+ "<tr style='background:#eff6ff;'><td colspan='2' style='padding:12px;text-align:right;font-size:15px;font-weight:700;color:#0d6efd;'>Tổng thanh toán:</td>"
 			+ "<td style='padding:12px;text-align:right;font-size:16px;font-weight:800;color:#dc2626;'>" + String.format("%,.0f", total) + "₫</td></tr>"

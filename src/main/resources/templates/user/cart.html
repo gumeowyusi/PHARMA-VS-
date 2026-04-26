@@ -246,6 +246,47 @@
               </div>
             </div>
 
+            <!-- Loyalty Points -->
+            <div class="cart-card" id="pointsCard" th:if="${currentUser != null}" style="display:none!important;">
+              <div class="cart-card-header">
+                <div class="icon-wrap" style="background:#f3e8ff;color:#7c3aed;"><i class="fas fa-star"></i></div>
+                Điểm tích lũy
+                <span class="ms-auto badge rounded-pill" style="background:#7c3aed;color:#fff;font-size:.75rem;" id="pointsBadge">0 điểm</span>
+              </div>
+              <div class="cart-card-body">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <span style="font-size:.84rem;color:#64748b;">Số điểm muốn dùng <span style="color:#7c3aed;font-weight:600;">(1 điểm = 1₫)</span></span>
+                </div>
+                <div class="input-group" style="border-radius:10px;overflow:hidden;border:1.5px solid #e9d5ff;">
+                  <span class="input-group-text" style="background:#f3e8ff;border:none;color:#7c3aed;"><i class="fas fa-star"></i></span>
+                  <input type="number" id="pointsInput" class="form-control" min="0" step="1000"
+                         placeholder="Nhập số điểm..." style="border:none;font-weight:600;" />
+                  <button class="btn fw-bold px-3" id="applyPointsBtn" type="button"
+                          style="background:#7c3aed;color:#fff;border:none;font-size:.88rem;">Dùng</button>
+                </div>
+                <div id="pointsError" class="text-danger small mt-1" style="display:none;"></div>
+                <div id="pointsAppliedRow" class="mt-2 d-none align-items-center gap-2">
+                  <i class="fas fa-check-circle text-purple" style="color:#7c3aed;"></i>
+                  <span id="pointsAppliedText" style="font-size:.88rem;color:#7c3aed;font-weight:600;flex:1;"></span>
+                  <button id="pointsRemoveBtn" class="btn-voucher-remove" type="button">Bỏ</button>
+                </div>
+                <!-- Exchange for voucher -->
+                <div class="mt-3 pt-3" style="border-top:1px dashed #e9d5ff;">
+                  <div style="font-size:.82rem;color:#64748b;margin-bottom:6px;">
+                    <i class="fas fa-exchange-alt me-1" style="color:#7c3aed;"></i>
+                    <strong>Đổi điểm lấy voucher:</strong> 10.000 điểm = voucher 10.000₫
+                  </div>
+                  <div class="input-group" style="border-radius:10px;overflow:hidden;border:1.5px solid #e9d5ff;">
+                    <input type="number" id="exchangePointsInput" class="form-control" min="10000" step="10000"
+                           placeholder="VD: 10000, 20000..." style="border:none;font-size:.88rem;" />
+                    <button class="btn fw-bold px-3" id="exchangePointsBtn" type="button"
+                            style="background:#a855f7;color:#fff;border:none;font-size:.82rem;">Đổi</button>
+                  </div>
+                  <div id="exchangeResult" class="mt-2 small" style="display:none;"></div>
+                </div>
+              </div>
+            </div>
+
             <!-- Payment method -->
             <div class="cart-card">
               <div class="cart-card-header">
@@ -324,8 +365,12 @@
                   <span class="fw-semibold"><span id="delivery-price">0</span>₫</span>
                 </div>
                 <div class="summary-row" id="discount-row" style="display:none;">
-                  <span class="text-success"><i class="fas fa-ticket-alt me-2" style="font-size:.85rem;"></i>Giảm giá</span>
+                  <span class="text-success"><i class="fas fa-ticket-alt me-2" style="font-size:.85rem;"></i>Giảm giá voucher</span>
                   <span class="fw-semibold text-success">-<span id="discount-price">0</span>₫</span>
+                </div>
+                <div class="summary-row" id="points-discount-row" style="display:none;">
+                  <span style="color:#7c3aed;"><i class="fas fa-star me-2" style="font-size:.85rem;"></i>Dùng điểm</span>
+                  <span class="fw-semibold" style="color:#7c3aed;">-<span id="points-discount-price">0</span>₫</span>
                 </div>
                 <div class="summary-row summary-total">
                   <span>Tổng cộng</span>
@@ -387,6 +432,10 @@
           <div class="ck-item text-success" id="ck-discount-row" style="display:none;">
             <span><i class="fas fa-ticket-alt me-1"></i>Giảm giá voucher</span>
             <span id="ck-discount">-0₫</span>
+          </div>
+          <div class="ck-item" id="ck-points-row" style="display:none;color:#7c3aed;">
+            <span><i class="fas fa-star me-1"></i>Dùng điểm tích lũy</span>
+            <span id="ck-points-discount">-0₫</span>
           </div>
           <div class="ck-item ck-total">
             <span>Tổng cộng</span><span id="ck-total">0₫</span>

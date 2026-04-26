@@ -18,6 +18,7 @@ public class OrderRequest {
 	private final List<OrderItemRequest> orderItems;
 	private final String voucherCode;
 	private final Double voucherDiscountAmount;
+	private final Integer pointsToUse;
 
 	@JsonCreator
 	public OrderRequest(@JsonProperty("cartId") int cartId, @JsonProperty("userId") String userId,
@@ -26,7 +27,8 @@ public class OrderRequest {
 			@JsonProperty("paymentMethod") String paymentMethod,
 			@JsonProperty("orderItems") List<OrderItemRequest> orderItems,
 			@JsonProperty("voucherCode") String voucherCode,
-			@JsonProperty("voucherDiscountAmount") Double voucherDiscountAmount) {
+			@JsonProperty("voucherDiscountAmount") Double voucherDiscountAmount,
+			@JsonProperty("pointsToUse") Integer pointsToUse) {
 		this.cartId = cartId;
 		this.userId = userId;
 		this.address = address;
@@ -36,6 +38,7 @@ public class OrderRequest {
 		this.orderItems = orderItems;
 		this.voucherCode = voucherCode;
 		this.voucherDiscountAmount = voucherDiscountAmount;
+		this.pointsToUse = pointsToUse != null ? pointsToUse : 0;
 	}
 
 	public int getCartId() { return cartId; }
@@ -47,4 +50,5 @@ public class OrderRequest {
 	public List<OrderItemRequest> getOrderItems() { return orderItems; }
 	public String getVoucherCode() { return voucherCode; }
 	public Double getVoucherDiscountAmount() { return voucherDiscountAmount; }
+	public Integer getPointsToUse() { return pointsToUse != null ? pointsToUse : 0; }
 }

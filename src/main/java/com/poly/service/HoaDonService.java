@@ -121,10 +121,28 @@ public class HoaDonService {
 					voucherService.increaseUsageOnOrder(hoaDon, orderRequest.getVoucherCode(), subtotal, users.getIdUser());
 				} catch (Exception ignored) {}
 			}
+			// Deduct loyalty points if user chose to use them
+			int pointsToUse = orderRequest.getPointsToUse();
+			if (pointsToUse > 0 && users != null) {
+				try {
+					boolean deducted = diemTichLuyService.redeemPoints(
+							users.getIdUser(), pointsToUse,
+							"Dùng điểm thanh toán đơn hàng #" + hoaDon.getIdHoadon());
+					if (deducted) hoaDon.setPointsUsed(pointsToUse);
+					hoaDonRepository.save(hoaDon);
+				} catch (Exception ignored) {}
+			}
 			// Award loyalty points immediately for COD orders (PayOS handled in markOrderAsPaid)
+			// Calculate total from orderRequest items to avoid lazy-loading issues
 			if (!isPayOS) {
-				final HoaDon finalHoaDon = hoaDon;
-				try { awardPointsForOrder(finalHoaDon); } catch (Exception ignored) {}
+				try {
+					double itemsTotal = orderRequest.getOrderItems().stream()
+							.mapToDouble(i -> i.getPrice() * (1 - i.getDiscount() / 100.0) * i.getQuantity()).sum();
+					double voucherDisc = orderRequest.getVoucherDiscountAmount() != null ? orderRequest.getVoucherDiscountAmount() : 0;
+					double pointsDisc = pointsToUse;
+					double netTotal = Math.max(0, itemsTotal - voucherDisc - pointsDisc);
+					awardPointsForOrder(hoaDon, netTotal);
+				} catch (Exception ignored) {}
 			}
 			return hoaDon.getIdHoadon();
 		} catch (Exception e) {
@@ -248,26 +266,35 @@ public class HoaDonService {
 		}
 	}
 
+	/** Award points from a known net order total (avoids lazy-loading the item collection). */
+	private void awardPointsForOrder(HoaDon hoaDon, double netTotal) {
+		if (hoaDon.getUsers() == null) return;
+		try {
+			int points = diemTichLuyService.calculatePointsForOrder(netTotal);
+			if (points > 0) {
+				diemTichLuyService.addPoints(
+						hoaDon.getUsers().getIdUser(), points,
+						"Tích điểm đơn hàng #" + hoaDon.getIdHoadon()
+								+ " (" + String.format("%,.0f", Math.max(0, netTotal)) + " VNĐ)",
+						hoaDon.getIdHoadon());
+			}
+		} catch (Exception ignored) {}
+	}
+
+	/** Award points by reloading items from DB — used for PayOS after async payment confirmation. */
 	private void awardPointsForOrder(HoaDon hoaDon) {
 		if (hoaDon.getUsers() == null) return;
 		try {
-			double total = hoaDon.getHoaDonChiTiets().stream()
+			List<HoaDonChiTiet> items = hoaDonChiTietRepository.findByHoaDon_IdHoadon(hoaDon.getIdHoadon());
+			double total = items.stream()
 					.mapToDouble(item -> item.getGiamgia() == 0
 							? item.getGia() * item.getSoluong()
 							: item.getGia() * (100 - item.getGiamgia()) / 100.0 * item.getSoluong())
 					.sum();
-			if (hoaDon.getVoucherDiscountAmount() != null) {
-				total -= hoaDon.getVoucherDiscountAmount();
-			}
-			int points = diemTichLuyService.calculatePointsForOrder(total);
-			if (points > 0) {
-				diemTichLuyService.addPoints(
-						hoaDon.getUsers().getIdUser(),
-						points,
-						"Tích điểm đơn hàng #" + hoaDon.getIdHoadon()
-								+ " (" + String.format("%,.0f", Math.max(0, total)) + " VNĐ)",
-						hoaDon.getIdHoadon());
-			}
+			double voucherDisc = hoaDon.getVoucherDiscountAmount() != null ? hoaDon.getVoucherDiscountAmount() : 0;
+			double pointsDisc = hoaDon.getPointsUsed() != null ? hoaDon.getPointsUsed() : 0;
+			double netTotal = Math.max(0, total - voucherDisc - pointsDisc);
+			awardPointsForOrder(hoaDon, netTotal);
 		} catch (Exception ignored) {}
 	}
 

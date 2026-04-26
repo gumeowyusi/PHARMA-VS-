@@ -32,6 +32,8 @@ public class HoaDon {
 	private Integer discountAmount;
 	private String voucherCode;
 	private Double voucherDiscountAmount;
+	@Column(name = "points_used")
+	private Integer pointsUsed;
 	private Voucher voucher; // optional relation
 
 	public HoaDon() {
@@ -144,6 +146,8 @@ public class HoaDon {
 	@Column(name = "voucher_discount_amount")
 	public Double getVoucherDiscountAmount() { return voucherDiscountAmount; }
 	public void setVoucherDiscountAmount(Double voucherDiscountAmount) { this.voucherDiscountAmount = voucherDiscountAmount; }
+	public Integer getPointsUsed() { return pointsUsed == null ? 0 : pointsUsed; }
+	public void setPointsUsed(Integer pointsUsed) { this.pointsUsed = pointsUsed; }
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "id_voucher")
