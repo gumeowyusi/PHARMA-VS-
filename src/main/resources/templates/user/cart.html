@@ -25,12 +25,12 @@
                 style="background:var(--primary-light);color:var(--primary);font-size:.75rem;">Khách</span>
         </div>
         <!-- Checkout steps -->
-        <div class="d-none d-md-flex align-items-center gap-2">
-          <span class="step-pill active"><span class="step-num">1</span> Giỏ hàng</span>
+        <div class="d-none d-md-flex align-items-center gap-2" id="stepBar">
+          <span class="step-pill active" id="sp1"><span class="step-num">1</span> Giỏ hàng</span>
           <i class="fas fa-chevron-right text-muted" style="font-size:.7rem;"></i>
-          <span class="step-pill"><span class="step-num">2</span> Thanh toán</span>
+          <span class="step-pill" id="sp2"><span class="step-num">2</span> Thanh toán</span>
           <i class="fas fa-chevron-right text-muted" style="font-size:.7rem;"></i>
-          <span class="step-pill"><span class="step-num">3</span> Hoàn tất</span>
+          <span class="step-pill" id="sp3"><span class="step-num">3</span> Hoàn tất</span>
         </div>
         <a href="/quick-buy" class="btn btn-outline-primary btn-sm d-none d-sm-inline-flex align-items-center gap-1">
           <i class="fas fa-bolt"></i> Mua nhanh
@@ -117,90 +117,149 @@
           <span class="bicon" style="font-size:1.3rem;">👤</span>
           <div class="bsub">
             Bạn đang mua hàng với tư cách <strong>khách</strong>.
-            <a href="/login" class="text-primary fw-semibold ms-1">Đăng nhập</a> để lưu lịch sử đơn hàng.
+            <a href="/login" class="text-primary fw-semibold ms-1">Đăng nhập</a> để lưu lịch sử đơn hàng và tích điểm.
           </div>
         </div>
       </div>
 
-      <div class="row g-4">
+      <!-- ══════════════════════════════════════
+           STEP 1 – Xem giỏ hàng
+      ══════════════════════════════════════ -->
+      <div id="step1-panel">
+        <div class="row g-4">
 
-        <!-- ── LEFT: cart items + address ── -->
-        <div class="col-lg-8">
-
-          <!-- Address card -->
-          <div class="cart-card mb-4">
-            <div class="cart-card-header">
-              <div class="icon-wrap"><i class="fas fa-map-marker-alt"></i></div>
-              Địa chỉ giao hàng
-            </div>
-            <div class="cart-card-body">
-              <div class="address-wrap">
-                <i class="fas fa-location-dot addr-icon"></i>
-                <textarea rows="2" id="diachi" class="form-control"
-                  placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành..."></textarea>
+          <!-- LEFT: cart items -->
+          <div class="col-lg-8">
+            <div class="cart-card">
+              <div class="cart-card-header">
+                <div class="icon-wrap"><i class="fas fa-shopping-basket"></i></div>
+                Sản phẩm trong giỏ
               </div>
-
-              <!-- Guest info row -->
-              <div th:if="${currentUser == null}" class="row g-3 mt-1">
-                <div class="col-md-5">
-                  <label class="form-label fw-semibold" style="font-size:.87rem;">Họ và tên</label>
-                  <div class="input-group guest-input-group">
-                    <span class="input-group-text"><i class="fas fa-user"></i></span>
-                    <input id="guest_hoten" type="text" class="form-control" placeholder="Nguyễn Văn A" required />
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <label class="form-label fw-semibold" style="font-size:.87rem;">Số điện thoại</label>
-                  <div class="input-group guest-input-group">
-                    <span class="input-group-text"><i class="fas fa-phone"></i></span>
-                    <input id="guest_sdt" type="tel" class="form-control" placeholder="09xxxxxxxx" pattern="[0-9]{9,11}" />
-                  </div>
-                </div>
-                <div class="col-md-3">
-                  <label class="form-label fw-semibold" style="font-size:.87rem;">Email <span class="text-muted">(tùy chọn)</span></label>
-                  <div class="input-group guest-input-group">
-                    <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-                    <input id="guest_email" type="email" class="form-control" placeholder="email@..." />
-                  </div>
-                </div>
+              <div class="cart-card-body">
+                <div id="cart-table"></div>
+              </div>
+              <div class="d-flex align-items-center justify-content-between px-4 pb-4 pt-2 border-top">
+                <a href="/" class="btn-continue">
+                  <i class="fas fa-arrow-left"></i> Tiếp tục mua sắm
+                </a>
+                <!-- Go to step 2 -->
+                <button type="button" class="btn btn-primary px-4 py-2 fw-bold" id="checkoutBtn" disabled
+                        style="border-radius:10px;display:flex;align-items:center;gap:.5rem;">
+                  <i class="fas fa-arrow-right"></i> Tiến đến thanh toán
+                </button>
               </div>
             </div>
           </div>
 
-          <!-- Cart items card -->
-          <div class="cart-card">
-            <div class="cart-card-header">
-              <div class="icon-wrap"><i class="fas fa-shopping-basket"></i></div>
-              Sản phẩm trong giỏ
-            </div>
-            <div class="cart-card-body">
-              <div id="cart-table"></div>
-            </div>
-            <!-- Actions row -->
-            <div class="d-flex align-items-center justify-content-between px-4 pb-4 pt-2 border-top">
-              <a href="/" class="btn-continue">
-                <i class="fas fa-arrow-left"></i> Tiếp tục mua sắm
-              </a>
-              <button type="button" class="btn btn-primary px-4 py-2 fw-bold" id="checkoutBtn" disabled
-                      style="border-radius:10px;display:flex;align-items:center;gap:.5rem;">
-                <i class="fas fa-shield-alt"></i> Đặt hàng
-              </button>
+          <!-- RIGHT: simple summary -->
+          <div class="col-lg-4">
+            <div class="sticky-aside d-flex flex-column gap-4">
+
+              <!-- Order summary -->
+              <div class="cart-card">
+                <div class="cart-card-header">
+                  <div class="icon-wrap"><i class="fas fa-receipt"></i></div>
+                  Tóm tắt giỏ hàng
+                </div>
+                <div class="cart-card-body">
+                  <div class="summary-row">
+                    <span class="text-muted"><i class="fas fa-box-open me-2" style="font-size:.85rem;"></i>Tạm tính</span>
+                    <span class="fw-semibold"><span id="temp-price">0</span>₫</span>
+                  </div>
+                  <div class="summary-row">
+                    <span class="text-muted"><i class="fas fa-truck me-2" style="font-size:.85rem;"></i>Phí vận chuyển</span>
+                    <span class="fw-semibold text-muted" style="font-size:.82rem;">Chọn ở bước 2</span>
+                  </div>
+                  <div class="summary-row summary-total">
+                    <span>Tạm tính</span>
+                    <span><span id="total-price">0</span>₫</span>
+                  </div>
+
+                  <button type="button" class="btn-checkout mt-3" id="checkoutBtn2" disabled
+                          onclick="document.getElementById('checkoutBtn').click()">
+                    <i class="fas fa-arrow-right"></i>
+                    <span>Tiến đến thanh toán</span>
+                  </button>
+                  <div class="text-center mt-2" style="font-size:.78rem;color:var(--muted);">
+                    <i class="fas fa-lock me-1"></i> Thanh toán bảo mật &amp; mã hoá SSL
+                  </div>
+                </div>
+              </div>
+
+              <!-- Recommendations -->
+              <div class="cart-card">
+                <div class="cart-card-header">
+                  <div class="icon-wrap" style="background:#fff3e0;color:#e65100;"><i class="fas fa-star"></i></div>
+                  Gợi ý cho bạn
+                </div>
+                <div class="cart-card-body">
+                  <div id="cart-recommendations" class="text-muted" style="font-size:.87rem;">Đang tải...</div>
+                </div>
+              </div>
+
             </div>
           </div>
         </div>
+      </div><!-- /step1-panel -->
 
-        <!-- ── RIGHT: sidebar ── -->
-        <div class="col-lg-4">
-          <div class="sticky-aside d-flex flex-column gap-4">
+      <!-- ══════════════════════════════════════
+           STEP 2 – Thông tin thanh toán
+      ══════════════════════════════════════ -->
+      <div id="step2-panel" style="display:none">
+        <div class="row g-4">
+
+          <!-- LEFT: checkout form -->
+          <div class="col-lg-7">
+
+            <!-- Address card -->
+            <div class="cart-card mb-4">
+              <div class="cart-card-header">
+                <div class="icon-wrap"><i class="fas fa-map-marker-alt"></i></div>
+                Địa chỉ giao hàng
+              </div>
+              <div class="cart-card-body">
+                <div class="address-wrap">
+                  <i class="fas fa-location-dot addr-icon"></i>
+                  <textarea rows="2" id="diachi" class="form-control"
+                    placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành..."></textarea>
+                </div>
+
+                <!-- Guest info row -->
+                <div th:if="${currentUser == null}" class="row g-3 mt-1">
+                  <div class="col-md-5">
+                    <label class="form-label fw-semibold" style="font-size:.87rem;">Họ và tên</label>
+                    <div class="input-group guest-input-group">
+                      <span class="input-group-text"><i class="fas fa-user"></i></span>
+                      <input id="guest_hoten" type="text" class="form-control" placeholder="Nguyễn Văn A" required />
+                    </div>
+                    <div id="guest_hoten_feedback" class="invalid-feedback" style="display:none;">Vui lòng nhập họ tên</div>
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label fw-semibold" style="font-size:.87rem;">Số điện thoại</label>
+                    <div class="input-group guest-input-group">
+                      <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                      <input id="guest_sdt" type="tel" class="form-control" placeholder="09xxxxxxxx" pattern="[0-9]{9,11}" />
+                    </div>
+                    <div id="guest_sdt_feedback" class="invalid-feedback" style="display:none;">Số điện thoại không hợp lệ</div>
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label fw-semibold" style="font-size:.87rem;">Email <span class="text-muted">(tùy chọn)</span></label>
+                    <div class="input-group guest-input-group">
+                      <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                      <input id="guest_email" type="email" class="form-control" placeholder="email@..." />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
 
             <!-- Delivery method -->
-            <div class="cart-card">
+            <div class="cart-card mb-4">
               <div class="cart-card-header">
                 <div class="icon-wrap"><i class="fas fa-truck"></i></div>
                 Hình thức giao hàng
               </div>
               <div class="cart-card-body pb-3">
-                <!-- Hidden radio for JS -->
                 <input type="radio" name="delivery-method" id="delivery-method-1" value="1" style="display:none" disabled>
                 <input type="radio" name="delivery-method" id="delivery-method-2" value="2" style="display:none" disabled>
 
@@ -225,7 +284,7 @@
             </div>
 
             <!-- Voucher / Freeship -->
-            <div class="cart-card">
+            <div class="cart-card mb-4">
               <div class="cart-card-header">
                 <div class="icon-wrap" style="background:#fff3e0;color:#e65100;"><i class="fas fa-ticket-alt"></i></div>
                 Voucher &amp; Freeship
@@ -247,7 +306,7 @@
             </div>
 
             <!-- Loyalty Points -->
-            <div class="cart-card" id="pointsCard" th:if="${currentUser != null}" style="display:none!important;">
+            <div class="cart-card mb-4" id="pointsCard" th:if="${currentUser != null}" style="display:none!important;">
               <div class="cart-card-header">
                 <div class="icon-wrap" style="background:#f3e8ff;color:#7c3aed;"><i class="fas fa-star"></i></div>
                 Điểm tích lũy
@@ -266,7 +325,7 @@
                 </div>
                 <div id="pointsError" class="text-danger small mt-1" style="display:none;"></div>
                 <div id="pointsAppliedRow" class="mt-2 d-none align-items-center gap-2">
-                  <i class="fas fa-check-circle text-purple" style="color:#7c3aed;"></i>
+                  <i class="fas fa-check-circle" style="color:#7c3aed;"></i>
                   <span id="pointsAppliedText" style="font-size:.88rem;color:#7c3aed;font-weight:600;flex:1;"></span>
                   <button id="pointsRemoveBtn" class="btn-voucher-remove" type="button">Bỏ</button>
                 </div>
@@ -288,7 +347,7 @@
             </div>
 
             <!-- Payment method -->
-            <div class="cart-card">
+            <div class="cart-card mb-4">
               <div class="cart-card-header">
                 <div class="icon-wrap"><i class="fas fa-credit-card"></i></div>
                 Hình thức thanh toán
@@ -338,60 +397,113 @@
               </div>
             </div>
 
-            <!-- Recommendations -->
-            <div class="cart-card">
-              <div class="cart-card-header">
-                <div class="icon-wrap" style="background:#fff3e0;color:#e65100;"><i class="fas fa-star"></i></div>
-                Gợi ý cho bạn
+          </div><!-- /col-lg-7 -->
+
+          <!-- RIGHT: order review + place order -->
+          <div class="col-lg-5">
+            <div class="sticky-aside d-flex flex-column gap-4">
+
+              <!-- Readonly items list -->
+              <div class="cart-card">
+                <div class="cart-card-header">
+                  <div class="icon-wrap"><i class="fas fa-shopping-basket"></i></div>
+                  Đơn hàng của bạn
+                  <button type="button" class="btn btn-link btn-sm ms-auto p-0 text-muted" id="backToStep1Btn"
+                          style="font-size:.82rem;text-decoration:none;">
+                    <i class="fas fa-pencil-alt me-1"></i>Chỉnh sửa
+                  </button>
+                </div>
+                <div id="step2-items-list" class="cart-card-body p-0"></div>
               </div>
-              <div class="cart-card-body">
-                <div id="cart-recommendations" class="text-muted" style="font-size:.87rem;">Đang tải...</div>
+
+              <!-- Price breakdown + place order -->
+              <div class="cart-card">
+                <div class="cart-card-body">
+                  <div class="summary-row">
+                    <span class="text-muted"><i class="fas fa-box-open me-2" style="font-size:.85rem;"></i>Tạm tính</span>
+                    <span class="fw-semibold"><span id="s2-temp">0</span>₫</span>
+                  </div>
+                  <div class="summary-row">
+                    <span class="text-muted"><i class="fas fa-truck me-2" style="font-size:.85rem;"></i>Phí vận chuyển</span>
+                    <span class="fw-semibold"><span id="s2-ship">0</span>₫</span>
+                  </div>
+                  <div class="summary-row" id="s2-discount-row" style="display:none;">
+                    <span class="text-success"><i class="fas fa-ticket-alt me-2" style="font-size:.85rem;"></i>Voucher</span>
+                    <span class="fw-semibold text-success">-<span id="s2-discount">0</span>₫</span>
+                  </div>
+                  <div class="summary-row" id="s2-points-row" style="display:none;">
+                    <span style="color:#7c3aed;"><i class="fas fa-star me-2" style="font-size:.85rem;"></i>Dùng điểm</span>
+                    <span class="fw-semibold" style="color:#7c3aed;">-<span id="s2-points">0</span>₫</span>
+                  </div>
+                  <div class="summary-row summary-total">
+                    <span>Tổng thanh toán</span>
+                    <span style="color:#dc2626;font-size:1.15rem;"><span id="s2-total">0</span>₫</span>
+                  </div>
+
+                  <button type="button" class="btn-checkout mt-3" id="placeOrderBtn">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Đặt hàng ngay</span>
+                  </button>
+                  <div class="text-center mt-2" style="font-size:.78rem;color:var(--muted);">
+                    <i class="fas fa-lock me-1"></i> Thanh toán bảo mật &amp; mã hoá SSL
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div><!-- /col-lg-5 -->
+
+        </div>
+      </div><!-- /step2-panel -->
+
+      <!-- ══════════════════════════════════════
+           STEP 3 – Đặt hàng thành công
+      ══════════════════════════════════════ -->
+      <div id="step3-panel" style="display:none">
+        <div class="row justify-content-center py-5">
+          <div class="col-lg-6 col-md-8">
+            <div class="cart-card text-center">
+              <div class="cart-card-body py-5">
+                <div style="font-size:4rem;line-height:1;margin-bottom:1rem;">🎉</div>
+                <h4 class="fw-bold text-success mb-2">Đặt hàng thành công!</h4>
+                <p class="text-muted mb-1" style="font-size:.95rem;">
+                  Mã đơn hàng: <strong class="text-dark" id="s3-order-id">—</strong>
+                </p>
+                <p class="text-muted mb-3" style="font-size:.88rem;" id="s3-points-earned" style="display:none;"></p>
+
+                <!-- COD info -->
+                <div id="s3-cod-info" class="payos-banner" style="background:#f0fdf4;border-left:4px solid #16a34a;text-align:left;margin-bottom:1.5rem;display:none;">
+                  <span class="bicon" style="font-size:1.2rem;">📦</span>
+                  <div class="bsub">
+                    Đơn hàng <strong>COD</strong> của bạn đã được xác nhận. Chúng tôi sẽ liên hệ để giao hàng.
+                    <br>Email xác nhận đã được gửi đến hộp thư của bạn.
+                  </div>
+                </div>
+
+                <!-- PayOS redirect info -->
+                <div id="s3-payos-info" class="payos-banner payos-warning" style="text-align:left;margin-bottom:1.5rem;display:none;">
+                  <span class="bicon" style="font-size:1.2rem;">💳</span>
+                  <div class="bsub">
+                    Đang chuyển sang cổng thanh toán <strong>PayOS</strong>…
+                  </div>
+                </div>
+
+                <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center">
+                  <a href="/order" class="btn btn-primary fw-bold px-4"
+                     style="border-radius:10px;">
+                    <i class="fas fa-receipt me-2"></i>Xem đơn hàng
+                  </a>
+                  <a href="/" class="btn btn-outline-secondary px-4"
+                     style="border-radius:10px;">
+                    <i class="fas fa-shopping-bag me-2"></i>Tiếp tục mua sắm
+                  </a>
+                </div>
               </div>
             </div>
+          </div>
+        </div>
+      </div><!-- /step3-panel -->
 
-            <!-- Order summary + checkout button -->
-            <div class="cart-card">
-              <div class="cart-card-header">
-                <div class="icon-wrap"><i class="fas fa-receipt"></i></div>
-                Tóm tắt đơn hàng
-              </div>
-              <div class="cart-card-body">
-                <div class="summary-row">
-                  <span class="text-muted"><i class="fas fa-box-open me-2" style="font-size:.85rem;"></i>Tạm tính</span>
-                  <span class="fw-semibold"><span id="temp-price">0</span>₫</span>
-                </div>
-                <div class="summary-row">
-                  <span class="text-muted"><i class="fas fa-truck me-2" style="font-size:.85rem;"></i>Phí vận chuyển</span>
-                  <span class="fw-semibold"><span id="delivery-price">0</span>₫</span>
-                </div>
-                <div class="summary-row" id="discount-row" style="display:none;">
-                  <span class="text-success"><i class="fas fa-ticket-alt me-2" style="font-size:.85rem;"></i>Giảm giá voucher</span>
-                  <span class="fw-semibold text-success">-<span id="discount-price">0</span>₫</span>
-                </div>
-                <div class="summary-row" id="points-discount-row" style="display:none;">
-                  <span style="color:#7c3aed;"><i class="fas fa-star me-2" style="font-size:.85rem;"></i>Dùng điểm</span>
-                  <span class="fw-semibold" style="color:#7c3aed;">-<span id="points-discount-price">0</span>₫</span>
-                </div>
-                <div class="summary-row summary-total">
-                  <span>Tổng cộng</span>
-                  <span><span id="total-price">0</span>₫</span>
-                </div>
-
-                <!-- Checkout button -->
-                <button type="button" class="btn-checkout mt-3" id="checkoutBtn2" disabled>
-                  <i class="fas fa-shield-alt"></i>
-                  <span>Đặt hàng ngay</span>
-                </button>
-                <div class="text-center mt-2" style="font-size:.78rem;color:var(--muted);">
-                  <i class="fas fa-lock me-1"></i> Thanh toán bảo mật &amp; mã hoá SSL
-                </div>
-              </div>
-            </div>
-
-          </div><!-- /sticky-aside -->
-        </div><!-- /col-lg-4 -->
-
-      </div><!-- /row -->
     </div><!-- /container -->
   </section>
 
@@ -399,59 +511,7 @@
 
   <div class="toast-container position-fixed bottom-0 start-0 p-3"></div>
 
-  <!-- Checkout confirm modal -->
-  <div class="modal fade" id="checkoutConfirmModal" tabindex="-1" aria-labelledby="checkoutConfirmModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="checkoutConfirmModalLabel">
-            <i class="fas fa-receipt me-2"></i>Xác nhận đặt hàng
-          </h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body px-4 py-3">
-          <div class="ck-item">
-            <span class="text-muted"><i class="fas fa-map-marker-alt me-2"></i>Địa chỉ</span>
-            <span id="ck-address" class="text-end" style="max-width:200px;font-size:.9rem;"></span>
-          </div>
-          <div class="ck-item">
-            <span class="text-muted"><i class="fas fa-truck me-2"></i>Giao hàng</span>
-            <span id="ck-delivery" class="fw-semibold"></span>
-          </div>
-          <div class="ck-item">
-            <span class="text-muted"><i class="fas fa-credit-card me-2"></i>Thanh toán</span>
-            <span id="ck-payment" class="fw-semibold"></span>
-          </div>
-          <div class="ck-divider"></div>
-          <div class="ck-item">
-            <span>Tạm tính</span><span id="ck-temp">0₫</span>
-          </div>
-          <div class="ck-item">
-            <span>Phí vận chuyển</span><span id="ck-ship">0₫</span>
-          </div>
-          <div class="ck-item text-success" id="ck-discount-row" style="display:none;">
-            <span><i class="fas fa-ticket-alt me-1"></i>Giảm giá voucher</span>
-            <span id="ck-discount">-0₫</span>
-          </div>
-          <div class="ck-item" id="ck-points-row" style="display:none;color:#7c3aed;">
-            <span><i class="fas fa-star me-1"></i>Dùng điểm tích lũy</span>
-            <span id="ck-points-discount">-0₫</span>
-          </div>
-          <div class="ck-item ck-total">
-            <span>Tổng cộng</span><span id="ck-total">0₫</span>
-          </div>
-        </div>
-        <div class="modal-footer border-0 px-4 pb-4">
-          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Hủy</button>
-          <button type="button" class="btn btn-primary fw-bold px-4" id="confirmPlaceOrderBtn">
-            <i class="fas fa-check me-1"></i> Xác nhận đặt hàng
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Voucher picker modal -->
+  <!-- Voucher picker modal (kept) -->
   <div class="modal fade" id="voucherModal" tabindex="-1" aria-labelledby="voucherModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" style="max-width:520px;">
       <div class="modal-content" style="border-radius:18px;border:none;box-shadow:0 20px 60px -12px rgba(0,0,0,.25);">
@@ -462,7 +522,6 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body p-4">
-          <!-- Manual code input -->
           <div class="input-group mb-4" style="border-radius:10px;overflow:hidden;border:1.5px solid #e2e8f0;box-shadow:0 2px 8px rgba(0,0,0,.06);">
             <span class="input-group-text" style="background:#fff7ed;border:none;color:#e65100;font-size:.95rem;">
               <i class="fas fa-tag"></i>
@@ -474,13 +533,11 @@
           </div>
           <div id="voucherCodeError" class="text-danger small mb-3" style="display:none;"></div>
 
-          <!-- Section: Freeship -->
           <div class="voucher-section-label"><i class="fas fa-shipping-fast me-2 text-primary"></i>Miễn phí vận chuyển</div>
           <div id="voucherListFreeship" class="voucher-list-wrap">
             <div class="text-muted small p-3 text-center">Đang tải...</div>
           </div>
 
-          <!-- Section: Discount -->
           <div class="voucher-section-label mt-3"><i class="fas fa-percent me-2" style="color:#e65100;"></i>Giảm giá đơn hàng</div>
           <div id="voucherListDiscount" class="voucher-list-wrap">
             <div class="text-muted small p-3 text-center">Đang tải...</div>
@@ -490,48 +547,6 @@
     </div>
   </div>
 
-  <!-- Sync checkoutBtn2 with checkoutBtn -->
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      const btn1 = document.getElementById('checkoutBtn');
-      const btn2 = document.getElementById('checkoutBtn2');
-      if (btn1 && btn2) {
-        // Mirror disabled state
-        const observer = new MutationObserver(() => {
-          btn2.disabled = btn1.disabled;
-        });
-        observer.observe(btn1, { attributes: true });
-        btn2.disabled = btn1.disabled;
-        // Trigger the same click handler
-        btn2.addEventListener('click', () => btn1.click());
-      }
-      // Sync delivery option UI with radio buttons
-      document.querySelectorAll('[name="delivery-method"]').forEach(radio => {
-        radio.addEventListener('change', updateDeliveryUI);
-      });
-      function updateDeliveryUI() {
-        document.querySelectorAll('.delivery-option').forEach(opt => opt.classList.remove('selected'));
-        const checked = document.querySelector('[name="delivery-method"]:checked');
-        if (checked) {
-          const id = checked.id.replace('delivery-method-', '');
-          const opt = document.getElementById('dopt-' + id);
-          if (opt) opt.classList.add('selected');
-        }
-      }
-      // Sync payment card UI with radio buttons
-      document.querySelectorAll('[name="payment-method"]').forEach(radio => {
-        radio.addEventListener('change', updatePaymentUI);
-      });
-      function updatePaymentUI() {
-        document.querySelectorAll('.payment-card').forEach(c => c.classList.remove('selected'));
-        const checked = document.querySelector('[name="payment-method"]:checked');
-        if (checked) {
-          const id = checked.id === 'payment-method-bank' ? 'paycard-payos' : 'paycard-cod';
-          document.getElementById(id)?.classList.add('selected');
-        }
-      }
-    });
-  </script>
 </body>
 
 </html>

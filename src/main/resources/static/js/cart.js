@@ -388,7 +388,6 @@ const SUCCESS_ADD_ORDER_MESSAGE = "Đặt hàng thành công!";
 // ROOTS/ELEMENTS
 const cartTableRootElement = document.querySelector("#cart-table");
 const tempPriceRootElement = document.querySelector("#temp-price");
-const deliveryPriceRootElement = document.querySelector("#delivery-price");
 const totalPriceRootElement = document.querySelector("#total-price");
 const checkoutBtnElement = document.querySelector("#checkoutBtn");
 const cartRecommendationsRootElement = document.querySelector("#cart-recommendations");
@@ -398,7 +397,92 @@ const deliveryMethodRadioElements = [
 const paymentMethodRadioElements = [
   ...document.querySelectorAll("input[name='payment-method']"),
 ];
-const confirmPlaceOrderBtn = document.querySelector("#confirmPlaceOrderBtn");
+
+// ── 3-STEP NAVIGATION ──────────────────────────────────────────────────────
+function goToStep(n, opts = {}) {
+  document.getElementById('step1-panel').style.display = n === 1 ? '' : 'none';
+  document.getElementById('step2-panel').style.display = n === 2 ? '' : 'none';
+  document.getElementById('step3-panel').style.display = n === 3 ? '' : 'none';
+
+  // Update step bar pills
+  ['sp1','sp2','sp3'].forEach((id, i) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.toggle('active', i + 1 === n);
+    el.classList.toggle('done', i + 1 < n);
+  });
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  if (n === 2) {
+    // Populate step 2 right panel: readonly items + prices
+    _renderStep2Items();
+    _updateStep2Prices();
+    // Enable radios/payment cards
+    deliveryMethodRadioElements.forEach(r => { r.disabled = false; });
+    paymentMethodRadioElements.forEach(r => { r.disabled = false; });
+  }
+
+  if (n === 3) {
+    const s3OrderId = document.getElementById('s3-order-id');
+    const s3Cod = document.getElementById('s3-cod-info');
+    const s3Payos = document.getElementById('s3-payos-info');
+    const s3Points = document.getElementById('s3-points-earned');
+    if (s3OrderId) s3OrderId.textContent = opts.orderId ? `#${opts.orderId}` : '—';
+    if (s3Points && opts.pointsEarned > 0) {
+      s3Points.textContent = `⭐ Bạn vừa tích được ${new Intl.NumberFormat('vi-VN').format(opts.pointsEarned)} điểm!`;
+      s3Points.style.display = '';
+    }
+    if (s3Cod) s3Cod.style.display = opts.type === 'cod' ? '' : 'none';
+    if (s3Payos) s3Payos.style.display = opts.type === 'payos' ? '' : 'none';
+  }
+}
+
+function _renderStep2Items() {
+  const container = document.getElementById('step2-items-list');
+  if (!container) return;
+  if (!state.cart.cartItems.length) {
+    container.innerHTML = '<div class="p-3 text-muted text-center" style="font-size:.88rem;">Giỏ hàng trống</div>';
+    return;
+  }
+  container.innerHTML = state.cart.cartItems.map(item => {
+    const lineTotal = item.productDiscount > 0
+      ? Math.round(item.productPrice * (100 - item.productDiscount) / 100) * item.quantity
+      : item.productPrice * item.quantity;
+    const priceAfter = item.productDiscount > 0
+      ? Math.round(item.productPrice * (100 - item.productDiscount) / 100)
+      : item.productPrice;
+    return `<div style="display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid #f1f5f9;">
+      <img src="${item.productImage || '/img/50px.png'}" alt="" style="width:44px;height:44px;object-fit:cover;border-radius:8px;background:#f8fafc;border:1px solid #e2e8f0;flex-shrink:0;" onerror="this.src='/img/50px.png'">
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:.83rem;font-weight:600;color:#1e293b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${item.productName}</div>
+        <div style="font-size:.78rem;color:#64748b;">${new Intl.NumberFormat('vi-VN').format(priceAfter)}₫ × ${item.quantity}</div>
+      </div>
+      <div style="font-size:.88rem;font-weight:700;color:#0d6efd;white-space:nowrap;">${new Intl.NumberFormat('vi-VN').format(lineTotal)}₫</div>
+    </div>`;
+  }).join('');
+}
+
+function _updateStep2Prices() {
+  const sub = _getLiveSubtotal();
+  const ship = state.getDeliveryPrice();
+  const disc = voucherState.discountAmount || 0;
+  const pts = pointsState.pointsToUse || 0;
+  const total = Math.max(0, sub + ship - disc - pts);
+  const fmt = v => new Intl.NumberFormat('vi-VN').format(Math.round(v));
+
+  const _s = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  _s('s2-temp', fmt(sub));
+  _s('s2-ship', fmt(ship));
+  _s('s2-discount', fmt(disc));
+  _s('s2-points', fmt(pts));
+  _s('s2-total', fmt(total));
+
+  const discRow = document.getElementById('s2-discount-row');
+  const ptsRow = document.getElementById('s2-points-row');
+  if (discRow) discRow.style.display = disc > 0 ? '' : 'none';
+  if (ptsRow) ptsRow.style.display = pts > 0 ? '' : 'none';
+}
 
 // COMPONENTS
 function cartItemRowComponent(props) {
@@ -920,10 +1004,12 @@ const state = {
         }
         const data = await resp.json();
 
-        // Bước 3: Redirect toàn trang sang PayOS (server sẽ xử lý khi quay lại)
+            // Bước 3: Show step 3 then redirect to PayOS
+        const payosOrderId = orderData.orderId;
         state.cart = { ...initialCart };
         state.order = { ...initialOrder };
-        window.location.href = data.checkoutUrl;
+        goToStep(3, { orderId: payosOrderId, type: 'payos' });
+        setTimeout(() => { window.location.href = data.checkoutUrl; }, 1200);
       } catch (e) {
         createToast(toastComponent("Lỗi khi xử lý thanh toán: " + e.message, "danger"));
       }
@@ -934,14 +1020,17 @@ const state = {
     if (!codResult || codResult[0] === null) return;
     const [status, data] = codResult;
     if (status === 200) {
+      const orderId = data?.orderId;
+      // Estimate points earned: 1 point per 1000 VND of net total
+      const net = Math.max(0, _getLiveSubtotal() + state.getDeliveryPrice() - (voucherState.discountAmount || 0) - (pointsState.pointsToUse || 0));
+      const pointsEarned = Math.floor(net / 1000);
       state.cart = { ...initialCart };
       state.order = { ...initialOrder };
+      pointsState.pointsToUse = 0;
       render();
-      const orderIdText = data?.orderId ? ` Mã đơn hàng: #${data.orderId}` : "";
-      createToast(
-        toastComponent(`${SUCCESS_ADD_ORDER_MESSAGE}${orderIdText}`, "success")
-      );
       setTotalCartItemsQuantity(state.cart);
+      refreshCartBadge();
+      goToStep(3, { orderId, type: 'cod', pointsEarned });
     } else if (status === 422) {
       createToast(toastComponent("Số lượng tồn kho không đủ", "danger"));
     } else if (status === 404) {
@@ -995,10 +1084,11 @@ function render() {
     cartItemRowComponentsFragment
   );
 
-  // Render tempPriceRootElement, deliveryPriceRootElement, totalPriceRootElement
-  tempPriceRootElement.innerHTML = _formatPrice(state.getTempPrice());
-  deliveryPriceRootElement.innerHTML = _formatPrice(state.getDeliveryPrice());
-  totalPriceRootElement.innerHTML = _formatPrice(state.getTotalPrice());
+  // Step 1: show subtotal (no delivery yet)
+  if (tempPriceRootElement) tempPriceRootElement.innerHTML = _formatPrice(state.getTempPrice());
+  if (totalPriceRootElement) totalPriceRootElement.innerHTML = _formatPrice(state.getTempPrice());
+  // Step 2 prices (kept in sync)
+  _updateStep2Prices();
   _renderVoucherUI();
   _renderPointsUI();
 
@@ -1087,117 +1177,72 @@ function render() {
 }
 
 function attachEventHandlersForNoneRerenderElements() {
-  // Attach event handlers for delivery method radios
+  // Delivery method radios
   deliveryMethodRadioElements.forEach((radio) => {
-    radio.addEventListener("click", () =>
-      state.changeDeliveryMethod(radio.value)
-    );
+    radio.addEventListener("click", () => {
+      state.changeDeliveryMethod(radio.value);
+      _updateStep2Prices();
+    });
   });
-  // Attach event handlers for payment method radios
+  // Payment method radios
   paymentMethodRadioElements.forEach((radio) => {
     radio.addEventListener("click", () =>
       state.changePaymentMethod(radio.value)
     );
   });
 
-  // Attach event handlers for checkout button
-  checkoutBtnElement.addEventListener("click", async () => {
-    if (!currentUserIdMetaTag) {
-      const nameEl = document.querySelector("#guest_hoten");
-      const phoneEl = document.querySelector("#guest_sdt");
-      const addressEl = document.querySelector("#diachi");
-      const nameFb = document.querySelector("#guest_hoten_feedback");
-      const phoneFb = document.querySelector("#guest_sdt_feedback");
-      if (!nameEl?.value || nameEl.value.trim().length < 2) {
-        nameEl?.classList.add("is-invalid");
-        if (nameFb) nameFb.style.display = "block";
-        createToast(toastComponent("Vui lòng nhập họ tên hợp lệ", "danger"));
-        nameEl?.focus();
-        return;
-      }
-      nameEl.classList.remove("is-invalid");
-      if (nameFb) nameFb.style.display = "none";
+  // Step 1 → Step 2: "Tiến đến thanh toán"
+  checkoutBtnElement.addEventListener("click", () => {
+    if (state.cart.cartItems.length === 0) return;
+    goToStep(2);
+  });
+
+  // Step 2 → Step 1: "Chỉnh sửa"
+  const backBtn = document.getElementById('backToStep1Btn');
+  if (backBtn) backBtn.addEventListener('click', () => goToStep(1));
+
+  // Step 2 → Place order: "Đặt hàng ngay"
+  const placeOrderBtn = document.getElementById('placeOrderBtn');
+  if (placeOrderBtn) {
+    placeOrderBtn.addEventListener('click', async () => {
+      // Validate address & guest info
+      const addressEl = document.querySelector('#diachi');
       if (!addressEl?.value || addressEl.value.trim().length < 5) {
-        createToast(
-          toastComponent("Vui lòng nhập địa chỉ giao hàng", "danger")
-        );
+        createToast(toastComponent('Vui lòng nhập địa chỉ giao hàng', 'danger'));
         addressEl?.focus();
         return;
       }
-      if (phoneEl?.value && !/^\d{9,11}$/.test(phoneEl.value)) {
-        phoneEl?.classList.add("is-invalid");
-        if (phoneFb) phoneFb.style.display = "block";
-        createToast(
-          toastComponent("Số điện thoại không hợp lệ (9-11 số)", "danger")
-        );
-        phoneEl?.focus();
-        return;
+      if (!currentUserIdMetaTag) {
+        const nameEl = document.querySelector('#guest_hoten');
+        const phoneEl = document.querySelector('#guest_sdt');
+        const nameFb = document.querySelector('#guest_hoten_feedback');
+        const phoneFb = document.querySelector('#guest_sdt_feedback');
+        if (!nameEl?.value || nameEl.value.trim().length < 2) {
+          nameEl?.classList.add('is-invalid');
+          if (nameFb) nameFb.style.display = 'block';
+          createToast(toastComponent('Vui lòng nhập họ tên hợp lệ', 'danger'));
+          nameEl?.focus();
+          return;
+        }
+        nameEl.classList.remove('is-invalid');
+        if (nameFb) nameFb.style.display = 'none';
+        if (phoneEl?.value && !/^\d{9,11}$/.test(phoneEl.value)) {
+          phoneEl?.classList.add('is-invalid');
+          if (phoneFb) phoneFb.style.display = 'block';
+          createToast(toastComponent('Số điện thoại không hợp lệ', 'danger'));
+          phoneEl?.focus();
+          return;
+        }
+        phoneEl?.classList.remove('is-invalid');
+        if (phoneFb) phoneFb.style.display = 'none';
       }
-      phoneEl?.classList.remove("is-invalid");
-      if (phoneFb) phoneFb.style.display = "none";
-    }
-    const addressEl = document.querySelector("#diachi");
-    const ckAddress = document.querySelector("#ck-address");
-    const ckDelivery = document.querySelector("#ck-delivery");
-    const ckPayment = document.querySelector("#ck-payment");
-    const ckTemp = document.querySelector("#ck-temp");
-    const ckShip = document.querySelector("#ck-ship");
-    const ckTotal = document.querySelector("#ck-total");
-    const deliveryText =
-      state.order.deliveryMethod === 1
-        ? "Giao hàng tiêu chuẩn"
-        : "Giao hàng nhanh";
-    const paymentText =
-      state.order.paymentMethod === "BANK_TRANSFER"
-        ? "PayOS"
-        : "COD (Tiền mặt)";
-    const ckDiscountRow = document.querySelector("#ck-discount-row");
-    const ckDiscount = document.querySelector("#ck-discount");
-    ckAddress.textContent = addressEl?.value || "";
-    ckDelivery.textContent = deliveryText;
-    ckPayment.textContent = paymentText;
-    const liveSubtotal = _getLiveSubtotal();
-    const liveShip = state.getDeliveryPrice();
-    const liveDiscount = voucherState.discountAmount || 0;
-    const livePoints = pointsState.pointsToUse || 0;
-    const liveFinal = Math.max(0, liveSubtotal + liveShip - liveDiscount - livePoints);
-    ckTemp.textContent = _formatPrice(liveSubtotal) + "₫";
-    ckShip.textContent = _formatPrice(liveShip) + "₫";
-    if (voucherState.code && liveDiscount > 0) {
-      if (ckDiscountRow) ckDiscountRow.style.display = '';
-      if (ckDiscount) ckDiscount.textContent = `-${_formatPrice(liveDiscount)}₫`;
-    } else {
-      if (ckDiscountRow) ckDiscountRow.style.display = 'none';
-    }
-    const ckPointsRow = document.querySelector("#ck-points-row");
-    const ckPointsDiscount = document.querySelector("#ck-points-discount");
-    if (livePoints > 0) {
-      if (ckPointsRow) ckPointsRow.style.display = '';
-      if (ckPointsDiscount) ckPointsDiscount.textContent = `-${_formatPrice(livePoints)}₫`;
-    } else {
-      if (ckPointsRow) ckPointsRow.style.display = 'none';
-    }
-    ckTotal.textContent = _formatPrice(liveFinal) + "₫";
-
-    const modalEl = document.getElementById("checkoutConfirmModal");
-    const modal = new bootstrap.Modal(modalEl);
-    modal.show();
-  });
-
-  if (confirmPlaceOrderBtn) {
-    confirmPlaceOrderBtn.addEventListener("click", async () => {
       try {
-        confirmPlaceOrderBtn.disabled = true;
-        confirmPlaceOrderBtn.innerHTML =
-          '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Đang xử lý...';
+        placeOrderBtn.disabled = true;
+        placeOrderBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang xử lý...';
         await state.checkoutCart();
-        const modalEl = document.getElementById("checkoutConfirmModal");
-        const modal = bootstrap.Modal.getInstance(modalEl);
-        modal?.hide();
       } finally {
-        confirmPlaceOrderBtn.disabled = false;
-        confirmPlaceOrderBtn.innerHTML =
-          '<i class="fas fa-check me-1"></i> Xác nhận đặt hàng';
+        placeOrderBtn.disabled = false;
+        placeOrderBtn.innerHTML = '<i class="fas fa-shield-alt me-1"></i>Đặt hàng ngay';
       }
     });
   }

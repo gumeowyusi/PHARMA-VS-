@@ -63,6 +63,20 @@ body.cart-page {
   background: var(--primary);
   color: #fff;
 }
+.cart-topbar .step-pill.done {
+  background: #dcfce7;
+  color: #16a34a;
+}
+.cart-topbar .step-pill.done .step-num {
+  background: #16a34a;
+  color: #fff;
+}
+.cart-topbar .step-pill.done .step-num::after {
+  content: '✓';
+  font-size: .7rem;
+}
+.cart-topbar .step-pill.done .step-num { font-size: 0; }
+.cart-topbar .step-pill.done .step-num::after { font-size: .72rem; }
 
 /* ── Section ── */
 .cart-section {
