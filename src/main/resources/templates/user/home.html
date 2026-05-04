@@ -32,23 +32,35 @@
 
     /* ── Hero ── */
     .home-carousel { position:relative; }
-    .home-carousel .carousel-item { height:360px; overflow:hidden; }
-    @media(max-width:767px){ .home-carousel .carousel-item { height:230px; } }
-    .banner-slide { width:100%; height:100%; display:flex; align-items:center; padding:0 6%; position:relative; overflow:hidden; }
-    .banner-slide::after { content:''; position:absolute; inset:0; background:linear-gradient(90deg,rgba(0,0,0,.22) 0%,transparent 60%); pointer-events:none; }
-    .banner-slide-1 { background:linear-gradient(130deg,#062c91 0%,#0d6efd 55%,#63a3ff 100%); }
-    .banner-slide-2 { background:linear-gradient(130deg,#6b0a28 0%,#c2185b 50%,#f06292 100%); }
-    .banner-slide-3 { background:linear-gradient(130deg,#0a4e2a 0%,#2e7d32 50%,#66bb6a 100%); }
-    .banner-slide-4 { background:linear-gradient(130deg,#3a0a8c 0%,#6d1fa2 50%,#ba68c8 100%); }
-    .banner-text { color:#fff; max-width:500px; z-index:2; position:relative; }
-    .banner-text .pre-tag { background:rgba(255,255,255,.2); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); display:inline-flex; align-items:center; gap:.4rem; padding:.3rem .85rem; border-radius:2rem; font-size:.75rem; font-weight:700; letter-spacing:.6px; margin-bottom:.85rem; border:1px solid rgba(255,255,255,.25); }
-    .banner-text h2 { font-size:clamp(1.5rem,3.5vw,2.3rem); font-weight:900; line-height:1.1; margin-bottom:.65rem; text-shadow:0 2px 16px rgba(0,0,0,.2); }
-    .banner-text p { font-size:.92rem; opacity:.88; margin-bottom:1.1rem; line-height:1.55; }
-    .banner-deco { position:absolute; right:5%; bottom:0; height:88%; opacity:.13; font-size:11rem; line-height:1; user-select:none; z-index:1; filter:drop-shadow(0 4px 12px rgba(0,0,0,.1)); }
-    .carousel-control-prev, .carousel-control-next { width:40px; height:40px; background:rgba(255,255,255,.2); backdrop-filter:blur(6px); border-radius:50%; top:50%; transform:translateY(-50%); margin:0 1.25rem; opacity:1; border:1px solid rgba(255,255,255,.3); transition:.25s; }
-    .carousel-control-prev:hover, .carousel-control-next:hover { background:rgba(255,255,255,.4); }
-    .carousel-indicators button { width:24px; height:4px; border-radius:2px; background:#fff; opacity:.4; border:0; transition:.3s; }
-    .carousel-indicators button.active { opacity:1; width:36px; }
+    .home-carousel .carousel-item { height:380px; overflow:hidden; }
+    @media(max-width:991px){ .home-carousel .carousel-item { height:300px; } }
+    @media(max-width:575px){ .home-carousel .carousel-item { height:240px; } }
+    .banner-slide { width:100%; height:100%; display:grid; grid-template-columns:1fr 1fr; align-items:center; position:relative; overflow:hidden; }
+    @media(max-width:575px){ .banner-slide { grid-template-columns:1fr; } }
+    .banner-slide-1 { background:linear-gradient(135deg,#062c91 0%,#1565c0 50%,#5b9dff 100%); }
+    .banner-slide-2 { background:linear-gradient(135deg,#6b0a28 0%,#c2185b 50%,#f48fb1 100%); }
+    .banner-slide-3 { background:linear-gradient(135deg,#0a4e2a 0%,#2e7d32 50%,#81c784 100%); }
+    .banner-slide-4 { background:linear-gradient(135deg,#3a0a8c 0%,#6d1fa2 50%,#ce93d8 100%); }
+    /* left content */
+    .banner-text { color:#fff; z-index:2; position:relative; padding:2rem 0 2rem 8%; }
+    @media(max-width:991px){ .banner-text { padding:1.5rem 0 1.5rem 5%; } }
+    @media(max-width:575px){ .banner-text { padding:1.5rem 5%; } }
+    .banner-text .pre-tag { background:rgba(255,255,255,.18); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); display:inline-flex; align-items:center; gap:.4rem; padding:.28rem .85rem; border-radius:2rem; font-size:.73rem; font-weight:700; letter-spacing:.7px; margin-bottom:.8rem; border:1px solid rgba(255,255,255,.28); }
+    .banner-text h2 { font-size:clamp(1.55rem,3vw,2.4rem); font-weight:900; line-height:1.1; margin-bottom:.6rem; text-shadow:0 2px 16px rgba(0,0,0,.18); }
+    .banner-text p { font-size:.9rem; opacity:.87; margin-bottom:1rem; line-height:1.6; max-width:360px; }
+    @media(max-width:767px){ .banner-text p { display:none; } }
+    /* right deco panel */
+    .banner-deco-col { display:flex; align-items:center; justify-content:center; height:100%; position:relative; overflow:hidden; padding-right:5%; }
+    @media(max-width:575px){ .banner-deco-col { display:none; } }
+    .banner-deco-bg { position:absolute; inset:0; background:rgba(255,255,255,.06); clip-path:ellipse(80% 90% at 60% 50%); }
+    .banner-deco-emoji { font-size:clamp(7rem,14vw,11rem); line-height:1; filter:drop-shadow(0 8px 32px rgba(0,0,0,.18)); animation:decoFloat 4s ease-in-out infinite; user-select:none; }
+    @keyframes decoFloat { 0%,100%{transform:translateY(0) rotate(-3deg);} 50%{transform:translateY(-14px) rotate(3deg);} }
+    /* controls */
+    .carousel-control-prev, .carousel-control-next { width:38px; height:38px; background:rgba(255,255,255,.18); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); border-radius:50%; top:50%; transform:translateY(-50%); margin:0 1rem; opacity:1; border:1px solid rgba(255,255,255,.28); transition:.25s; }
+    .carousel-control-prev:hover, .carousel-control-next:hover { background:rgba(255,255,255,.38); }
+    .carousel-indicators { bottom:14px; }
+    .carousel-indicators button { width:22px; height:4px; border-radius:2px; background:#fff; opacity:.38; border:0; transition:.3s; margin:0 3px; }
+    .carousel-indicators button.active { opacity:1; width:34px; }
 
     /* ── Feature band ── */
     .feature-band { background:#fff; border-radius:1.25rem; box-shadow:0 2px 20px -6px rgba(0,0,0,.09); padding:1.5rem 1.25rem; margin-top:0; position:relative; z-index:2; }
@@ -172,11 +184,14 @@
             <h2>Dược phẩm<br>chính hãng <span style="color:#ffe259;">giảm 35%</span></h2>
             <p>Hàng nghìn sản phẩm thuốc uy tín. Giao nhanh toàn quốc, đội ngũ dược sĩ hỗ trợ 24/7.</p>
             <div class="d-flex gap-2 flex-wrap">
-              <a th:href="@{/khuyen-mai}" class="btn btn-light fw-bold px-4" style="color:#0d6efd;border-radius:2rem;"><i class="fas fa-tags me-2"></i>Xem ưu đãi</a>
-              <a th:href="@{/loai-all}" class="btn btn-outline-light px-3" style="border-radius:2rem;">Danh mục</a>
+              <a th:href="@{/khuyen-mai}" class="btn btn-light fw-bold px-4" style="color:#0d6efd;border-radius:2rem;font-size:.88rem;"><i class="fas fa-tags me-2"></i>Xem ưu đãi</a>
+              <a th:href="@{/loai-all}" class="btn btn-outline-light px-3" style="border-radius:2rem;font-size:.88rem;">Danh mục</a>
             </div>
           </div>
-          <span class="banner-deco">💊</span>
+          <div class="banner-deco-col">
+            <div class="banner-deco-bg"></div>
+            <span class="banner-deco-emoji">💊</span>
+          </div>
         </div>
       </div>
       <div class="carousel-item">
@@ -185,9 +200,12 @@
             <span class="pre-tag"><i class="fas fa-fire"></i>FLASH SALE MỖI NGÀY</span>
             <h2>Ưu đãi bùng nổ<br><span style="color:#fff9c4;">giảm đến 50%</span></h2>
             <p>Flash sale từ 08:00 – 22:00 mỗi ngày. Hàng trăm sản phẩm giảm giá sâu, số lượng có hạn.</p>
-            <a th:href="@{/khuyen-mai}" class="btn btn-light fw-bold px-4" style="color:#c2185b;border-radius:2rem;"><i class="fas fa-fire me-2"></i>Săn deal ngay</a>
+            <a th:href="@{/khuyen-mai}" class="btn btn-light fw-bold px-4" style="color:#c2185b;border-radius:2rem;font-size:.88rem;"><i class="fas fa-fire me-2"></i>Săn deal ngay</a>
           </div>
-          <span class="banner-deco">🌸</span>
+          <div class="banner-deco-col">
+            <div class="banner-deco-bg"></div>
+            <span class="banner-deco-emoji">🌸</span>
+          </div>
         </div>
       </div>
       <div class="carousel-item">
@@ -196,9 +214,12 @@
             <span class="pre-tag"><i class="fas fa-user-md"></i>TƯ VẤN MIỄN PHÍ</span>
             <h2>Dược sĩ tư vấn<br><span style="color:#e8f5e9;">24/7 miễn phí</span></h2>
             <p>Đặt câu hỏi về thuốc, liều dùng, tương tác. Đội ngũ dược sĩ MEDISALE phản hồi trong 2 giờ.</p>
-            <a th:href="@{/lien-he}" class="btn btn-light fw-bold px-4" style="color:#2e7d32;border-radius:2rem;"><i class="fas fa-headset me-2"></i>Liên hệ ngay</a>
+            <a th:href="@{/lien-he}" class="btn btn-light fw-bold px-4" style="color:#2e7d32;border-radius:2rem;font-size:.88rem;"><i class="fas fa-headset me-2"></i>Liên hệ ngay</a>
           </div>
-          <span class="banner-deco">🌿</span>
+          <div class="banner-deco-col">
+            <div class="banner-deco-bg"></div>
+            <span class="banner-deco-emoji">🌿</span>
+          </div>
         </div>
       </div>
       <div class="carousel-item">
@@ -207,9 +228,12 @@
             <span class="pre-tag"><i class="fas fa-star"></i>SẢN PHẨM MỚI VỀ</span>
             <h2>Hàng mới nhập<br><span style="color:#ede7f6;">cập nhật mỗi tuần</span></h2>
             <p>Vitamin, thực phẩm chức năng, dược mỹ phẩm mới nhất đã có mặt tại MEDISALE.</p>
-            <a th:href="@{/san-pham-moi}" class="btn btn-light fw-bold px-4" style="color:#6d1fa2;border-radius:2rem;"><i class="fas fa-box-open me-2"></i>Xem ngay</a>
+            <a th:href="@{/san-pham-moi}" class="btn btn-light fw-bold px-4" style="color:#6d1fa2;border-radius:2rem;font-size:.88rem;"><i class="fas fa-box-open me-2"></i>Xem ngay</a>
           </div>
-          <span class="banner-deco">✨</span>
+          <div class="banner-deco-col">
+            <div class="banner-deco-bg"></div>
+            <span class="banner-deco-emoji">✨</span>
+          </div>
         </div>
       </div>
     </div>
