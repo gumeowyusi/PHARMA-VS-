@@ -23,11 +23,13 @@
     /* ── Status tabs ── */
     .status-tabs { background:#fff; border-bottom:1px solid #e2e8f0; padding:0 28px; display:flex; gap:2px; overflow-x:auto; scrollbar-width:none; }
     .status-tabs::-webkit-scrollbar { display:none; }
-    .stab { display:flex; align-items:center; gap:6px; padding:14px 18px; font-size:.85rem; font-weight:600; color:#64748b; border-bottom:3px solid transparent; cursor:pointer; text-decoration:none; white-space:nowrap; transition:color .15s; }
-    .stab:hover { color:#334155; text-decoration:none; }
+    .stab { display:flex; align-items:center; gap:6px; padding:14px 18px; font-size:.85rem; font-weight:600; color:#64748b; border:none; background:none; border-bottom:3px solid transparent; cursor:pointer; white-space:nowrap; transition:color .15s, border-color .15s; }
+    .stab:hover { color:#334155; }
     .stab.active { color:#3b82f6; border-bottom-color:#3b82f6; }
-    .stab .cnt { background:#f1f5f9; color:#64748b; font-size:.72rem; font-weight:700; padding:2px 7px; border-radius:99px; min-width:20px; text-align:center; }
+    .stab .cnt { background:#f1f5f9; color:#64748b; font-size:.72rem; font-weight:700; padding:2px 7px; border-radius:99px; min-width:20px; text-align:center; transition:background .15s, color .15s; }
     .stab.active .cnt { background:#dbeafe; color:#3b82f6; }
+    /* ── Smooth card transitions ── */
+    .order-card { transition: box-shadow .15s, opacity .25s; }
 
     /* ── Order list wrapper ── */
     .om-body { padding:24px 28px; }
@@ -169,46 +171,48 @@
     </div>
   </div>
 
-  <!-- Status tabs -->
-  <div class="status-tabs">
-    <a th:href="@{/admin/hoadon}" th:classappend="${currentStatus == ''} ? ' active'" class="stab">
+  <!-- Status tabs — client-side filtering, no page reload -->
+  <div class="status-tabs" id="statusTabs">
+    <button class="stab active" data-filter="">
       <i class="fas fa-list-ul"></i> Tất cả
-      <span class="cnt" th:text="${counts != null ? counts['all'] : 0}">0</span>
-    </a>
-    <a th:href="@{/admin/hoadon(status='awaiting_payment')}" th:classappend="${currentStatus == 'awaiting_payment'} ? ' active'" class="stab">
+      <span class="cnt" id="cnt-all" th:text="${counts != null ? counts['all'] : 0}">0</span>
+    </button>
+    <button class="stab" data-filter="awaiting_payment">
       <i class="fas fa-clock"></i> Chờ thanh toán
-      <span class="cnt" th:text="${counts != null ? counts['awaiting_payment'] : 0}">0</span>
-    </a>
-    <a th:href="@{/admin/hoadon(status='confirmed')}" th:classappend="${currentStatus == 'confirmed'} ? ' active'" class="stab">
+      <span class="cnt" id="cnt-awaiting" th:text="${counts != null ? counts['awaiting_payment'] : 0}">0</span>
+    </button>
+    <button class="stab" data-filter="confirmed">
       <i class="fas fa-box"></i> Đã xác nhận
-      <span class="cnt" th:text="${counts != null ? counts['confirmed'] : 0}">0</span>
-    </a>
-    <a th:href="@{/admin/hoadon(status='ondelivery')}" th:classappend="${currentStatus == 'ondelivery'} ? ' active'" class="stab">
+      <span class="cnt" id="cnt-confirmed" th:text="${counts != null ? counts['confirmed'] : 0}">0</span>
+    </button>
+    <button class="stab" data-filter="ondelivery">
       <i class="fas fa-shipping-fast"></i> Đang giao
-      <span class="cnt" th:text="${counts != null ? counts['ondelivery'] : 0}">0</span>
-    </a>
-    <a th:href="@{/admin/hoadon(status='received')}" th:classappend="${currentStatus == 'received'} ? ' active'" class="stab">
+      <span class="cnt" id="cnt-ondelivery" th:text="${counts != null ? counts['ondelivery'] : 0}">0</span>
+    </button>
+    <button class="stab" data-filter="received">
       <i class="fas fa-check-circle"></i> Hoàn tất
-      <span class="cnt" th:text="${counts != null ? counts['received'] : 0}">0</span>
-    </a>
-    <a th:href="@{/admin/hoadon(status='cancel')}" th:classappend="${currentStatus == 'cancel'} ? ' active'" class="stab">
+      <span class="cnt" id="cnt-received" th:text="${counts != null ? counts['received'] : 0}">0</span>
+    </button>
+    <button class="stab" data-filter="cancel">
       <i class="fas fa-times-circle"></i> Đã hủy
-      <span class="cnt" th:text="${counts != null ? counts['cancel'] : 0}">0</span>
-    </a>
+      <span class="cnt" id="cnt-cancel" th:text="${counts != null ? counts['cancel'] : 0}">0</span>
+    </button>
   </div>
 
   <!-- Order list -->
   <div class="om-body">
 
     <!-- Empty state -->
-    <div th:if="${#lists.isEmpty(hoadons)}" class="order-card om-empty">
+    <div th:if="${#lists.isEmpty(hoadons)}" class="order-card om-empty" id="emptyState">
       <i class="fas fa-inbox d-block"></i>
       <div class="fw-semibold fs-5 mt-2">Không có đơn hàng</div>
       <div class="small mt-1">Chưa có đơn hàng nào trong trạng thái này</div>
     </div>
 
     <!-- Order cards -->
-    <div th:each="order : ${hoadons}" class="order-card" th:id="'card-' + ${order.idHoadon}">
+    <div th:each="order : ${hoadons}" class="order-card"
+         th:id="'card-' + ${order.idHoadon}"
+         th:attr="data-status=${order.trangthai}">
 
       <!-- Top row: ID + status + customer + tags -->
       <div class="order-card-top">
@@ -366,31 +370,78 @@
   <th:block th:replace="~{admin/_footerAdmin}" />
 
   <script>
+    /* ── Toast ── */
     function showToast(msg, type) {
       const c = document.getElementById('omToastContainer');
       const el = document.createElement('div');
       el.className = 'om-toast-item ' + (type === 'error' ? 'error' : 'success');
-      el.innerHTML = '<i class="fas fa-' + (type === 'error' ? 'times-circle' : 'check-circle') + '"></i>' + msg;
+      el.innerHTML = '<i class="fas fa-' + (type === 'error' ? 'times-circle' : 'check-circle') + '"></i> ' + msg;
       c.appendChild(el);
       setTimeout(() => el.remove(), 3500);
     }
 
-    const STATUS_LABELS = {
-      'awaiting_payment': '<span class="spill spill-awaiting"><i class="fas fa-hourglass-half"></i> Chờ TT</span>',
-      'pending':          '<span class="spill spill-pending"><i class="fas fa-clock"></i> Chờ xác nhận</span>',
-      'confirmed':        '<span class="spill spill-confirmed"><i class="fas fa-box"></i> Đã xác nhận</span>',
-      'ondelivery':       '<span class="spill spill-ondelivery"><i class="fas fa-shipping-fast"></i> Đang giao</span>',
-      'received':         '<span class="spill spill-received"><i class="fas fa-check-circle"></i> Hoàn tất</span>',
-      'cancel':           '<span class="spill spill-cancel"><i class="fas fa-times-circle"></i> Đã hủy</span>',
+    /* ── Client-side tab filtering (instant, no page reload) ── */
+    let activeFilter = '';
+
+    function applyFilter(filter) {
+      activeFilter = filter;
+      const cards = document.querySelectorAll('.order-card[data-status]');
+      let visible = 0;
+      cards.forEach(card => {
+        const show = !filter || card.dataset.status === filter;
+        card.style.display = show ? '' : 'none';
+        if (show) visible++;
+      });
+      // Show empty state if no cards visible
+      const emptyEl = document.getElementById('emptyState');
+      if (emptyEl) emptyEl.style.display = visible === 0 ? '' : 'none';
+    }
+
+    document.querySelectorAll('#statusTabs .stab').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('#statusTabs .stab').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        applyFilter(this.dataset.filter);
+      });
+    });
+
+    /* ── Update tab counts from live data ── */
+    function recomputeCounts() {
+      const cards = document.querySelectorAll('.order-card[data-status]');
+      const counts = { all: 0 };
+      cards.forEach(card => {
+        const s = card.dataset.status;
+        counts.all++;
+        counts[s] = (counts[s] || 0) + 1;
+      });
+      const map = { all:'cnt-all', awaiting_payment:'cnt-awaiting', confirmed:'cnt-confirmed',
+                    ondelivery:'cnt-ondelivery', received:'cnt-received', cancel:'cnt-cancel' };
+      Object.entries(map).forEach(([key, id]) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = counts[key] || 0;
+      });
+    }
+
+    /* ── Status action ── */
+    const STATUS_HTML = {
+      awaiting_payment: '<span class="spill spill-awaiting"><i class="fas fa-hourglass-half"></i> Chờ TT</span>',
+      pending:          '<span class="spill spill-pending"><i class="fas fa-clock"></i> Chờ xác nhận</span>',
+      confirmed:        '<span class="spill spill-confirmed"><i class="fas fa-box"></i> Đã xác nhận</span>',
+      ondelivery:       '<span class="spill spill-ondelivery"><i class="fas fa-shipping-fast"></i> Đang giao</span>',
+      received:         '<span class="spill spill-received"><i class="fas fa-check-circle"></i> Hoàn tất</span>',
+      cancel:           '<span class="spill spill-cancel"><i class="fas fa-times-circle"></i> Đã hủy</span>',
     };
 
     async function updateStatus(orderId, action) {
       const label = { APPROVE:'xác nhận', SHIP:'bắt đầu giao', CONFIRM:'xác nhận giao', CANCEL:'hủy' }[action] || action;
       if (!confirm('Bạn muốn ' + label + ' đơn hàng #' + orderId + '?')) return;
 
-      // Disable all buttons in this card
       const card = document.getElementById('card-' + orderId);
       card.querySelectorAll('button').forEach(b => b.disabled = true);
+
+      // Optimistic spinner on card
+      card.style.opacity = '0.7';
+      card.style.transition = 'opacity .2s';
 
       try {
         const resp = await fetch('/admin/api/hoadon/' + orderId + '/status', {
@@ -402,17 +453,45 @@
         const data = await resp.json();
         if (data.success) {
           showToast(data.message, 'success');
-          // Reload page after short delay to reflect new tab counts
-          setTimeout(() => window.location.reload(), 900);
+          // Update card's data-status and status pill in DOM (no reload)
+          card.dataset.status = data.newStatus;
+          const pillWrap = card.querySelector('.spill')?.parentElement;
+          if (pillWrap && STATUS_HTML[data.newStatus]) {
+            pillWrap.innerHTML = STATUS_HTML[data.newStatus];
+          }
+          // Hide/remove action buttons that no longer apply
+          card.querySelectorAll('.btn-approve, .btn-ship, .btn-done, .btn-cancel').forEach(b => b.remove());
+          // Fade card out if it doesn't belong to current filter
+          if (activeFilter && card.dataset.status !== activeFilter) {
+            card.style.transition = 'opacity .4s, max-height .4s';
+            card.style.opacity = '0';
+            setTimeout(() => { card.style.display = 'none'; recomputeCounts(); }, 420);
+          } else {
+            card.style.opacity = '1';
+            recomputeCounts();
+          }
         } else {
           showToast(data.message || 'Lỗi cập nhật trạng thái', 'error');
           card.querySelectorAll('button').forEach(b => b.disabled = false);
+          card.style.opacity = '1';
         }
       } catch(e) {
         showToast('Lỗi kết nối server', 'error');
         card.querySelectorAll('button').forEach(b => b.disabled = false);
+        card.style.opacity = '1';
       }
     }
+
+    // Init: apply filter from URL param if present
+    (function() {
+      const urlStatus = new URLSearchParams(location.search).get('status') || '';
+      if (urlStatus) {
+        const btn = document.querySelector('#statusTabs .stab[data-filter="' + urlStatus + '"]');
+        if (btn) { document.querySelector('#statusTabs .stab.active')?.classList.remove('active'); btn.classList.add('active'); }
+        applyFilter(urlStatus);
+      }
+      recomputeCounts();
+    })();
   </script>
 </body>
 </html>

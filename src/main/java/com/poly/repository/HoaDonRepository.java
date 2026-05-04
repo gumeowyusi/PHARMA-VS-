@@ -22,7 +22,7 @@ public interface HoaDonRepository extends JpaRepository<HoaDon, Integer> {
 
 	Page<HoaDon> findByUsers_idUser(String email, Pageable pageable);
 
-	@Query("SELECT COUNT(h) FROM HoaDon h WHERE h.trangthai = 'received'")
+	@Query("SELECT COUNT(h) FROM HoaDon h WHERE h.trangthai IN ('received','ondelivery','confirmed','paid')")
 	long countReceivedOrders();
 	
 	@Query("SELECT new com.poly.entity.ReportRevenueStatistics( " 
@@ -35,7 +35,7 @@ public interface HoaDonRepository extends JpaRepository<HoaDon, Integer> {
 			+ "JOIN hdct.sanPham sp " 
 			+ "JOIN hdct.hoaDon hd "
 			+ "JOIN sp.loai l "
-			+ "WHERE l.idLoai = :idLoai AND hd.trangthai = 'received'")
+			+ "WHERE l.idLoai = :idLoai AND hd.trangthai IN ('received','ondelivery','confirmed','paid')")
 	ReportRevenueStatistics thongKeDoanhThuTheoLoai(@Param("idLoai") Integer loaiId);
 
 	Page<HoaDon> findByKhachHang_IdKhachHang(Long idKhachHang, Pageable pageable);
@@ -47,7 +47,7 @@ public interface HoaDonRepository extends JpaRepository<HoaDon, Integer> {
 	@Query(value = "SELECT MONTH(hd.ngaytao) AS thang, " +
 			"SUM(hdct.soluong * (hdct.gia * (1 - hdct.giamgia / 100.0))) AS doanhThu " +
 			"FROM HOADON hd JOIN HOADONCHITIET hdct ON hd.id_hoadon = hdct.id_hoadon " +
-			"WHERE hd.trangthai = 'received' AND YEAR(hd.ngaytao) = :nam " +
+			"WHERE hd.trangthai IN ('received','ondelivery','confirmed','paid') AND YEAR(hd.ngaytao) = :nam " +
 			"GROUP BY MONTH(hd.ngaytao) ORDER BY thang", nativeQuery = true)
 	List<Object[]> doanhThuTheoThang(@Param("nam") int nam);
 
@@ -56,7 +56,7 @@ public interface HoaDonRepository extends JpaRepository<HoaDon, Integer> {
 			"FROM HOADONCHITIET hdct " +
 			"JOIN HOADON hd ON hd.id_hoadon = hdct.id_hoadon " +
 			"JOIN SANPHAM sp ON sp.id_sanpham = hdct.id_sanpham " +
-			"WHERE hd.trangthai = 'received' " +
+			"WHERE hd.trangthai IN ('received','ondelivery','confirmed','paid') " +
 			"GROUP BY sp.id_sanpham, sp.ten_sanpham ORDER BY tongBan DESC", nativeQuery = true)
 	List<Object[]> topSanPhamBanChay();
 
@@ -68,6 +68,6 @@ public interface HoaDonRepository extends JpaRepository<HoaDon, Integer> {
 
 	@Query(value = "SELECT COALESCE(SUM(hdct.soluong * (hdct.gia * (1 - hdct.giamgia / 100.0))), 0) " +
 			"FROM HOADON hd JOIN HOADONCHITIET hdct ON hd.id_hoadon = hdct.id_hoadon " +
-			"WHERE hd.trangthai = 'received'", nativeQuery = true)
+			"WHERE hd.trangthai IN ('received','ondelivery','confirmed','paid')", nativeQuery = true)
 	Double tongDoanhThuToanBo();
 }
