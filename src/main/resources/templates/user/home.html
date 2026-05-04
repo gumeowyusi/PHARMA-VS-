@@ -7,125 +7,157 @@
   <script th:src="@{/js/home.js}" type="module"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <style>
-    /* Feature band */
-    .feature-band { background:#fff; border-radius:1rem; box-shadow:0 4px 18px -6px rgba(0,0,0,.08); padding:1.25rem 1rem; margin-top:0; position:relative; z-index:2; }
-    .feature-item { display:flex; gap:.875rem; align-items:flex-start; }
-    .feature-icon { width:46px; height:46px; display:flex; align-items:center; justify-content:center; border-radius:.75rem; background:linear-gradient(135deg,#0d6efd,#63a3ff); color:#fff; font-size:1.2rem; box-shadow:0 4px 12px -4px rgba(13,110,253,.4); }
-    .feature-item h6 { margin:0 0 .25rem; font-weight:600; }
-    .feature-item p { margin:0; font-size:.8rem; color:#6c757d; }
-    /* Category / product shared */
-    .section-title-wrap p { font-size:.9rem; }
-    .category-card, .product-card { transition:all .35s ease; border-radius:1rem; }
-    .category-card:hover, .product-card:hover { transform:translateY(-6px); box-shadow:0 10px 26px -10px rgba(0,0,0,.18); }
-    .category-icon { width:60px; height:60px; background:rgba(13,110,253,0.08); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 4px; color:#0d6efd; }
-    .product-img { display:block; padding-top:100%; position:relative; overflow:hidden; border-radius:.75rem; }
-    .product-img img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
-    .product-overlay { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,.25); opacity:0; transition:.3s; }
-    .product-img:hover .product-overlay { opacity:1; }
-    .product-badge { position:absolute; top:10px; left:10px; z-index:2; }
-    .product-badge .badge { font-size:.65rem; padding:.45rem .6rem; letter-spacing:.5px; box-shadow:0 2px 4px rgba(0,0,0,.15); }
-  .product-title { display:-webkit-box; -webkit-line-clamp:2; line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; font-size:.9rem; line-height:1.45; }
-    .discount { animation:pulse 2s infinite; font-size:.65rem; padding:.35rem .55rem; }
-    @keyframes pulse { 0%{transform:scale(1);} 50%{transform:scale(1.05);} 100%{transform:scale(1);} }
-    /* Newsletter */
-    .newsletter { background:#ffffff; border-radius:1rem; padding:2.2rem 1.5rem; box-shadow:0 4px 24px -8px rgba(0,0,0,.08); }
-    .newsletter h4 { font-weight:600; }
-    .newsletter .form-control { border-radius:.75rem 0 0 .75rem; }
-    .newsletter .btn { border-radius:0 .75rem .75rem 0; font-weight:600; }
-    /* Utility */
-    .divider-text { text-transform:uppercase; font-size:.7rem; letter-spacing:1px; color:#6c757d; font-weight:600; margin:0 0 1.5rem; display:flex; align-items:center; gap:1rem; }
-    .divider-text::before, .divider-text::after { content:""; flex:1; height:1px; background:linear-gradient(90deg,transparent,#d0d7e2,transparent); }
-    @media (max-width:991.98px){ .feature-band { margin-top:0; } .feature-item p { display:none; } }
-    /* Quick actions */
-    .quick-action { padding:.75rem .4rem; border-radius:.85rem; transition:.2s; }
-    .quick-action:hover { background:#f0f6ff; }
-    .qa-icon { width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto .5rem;font-size:1.2rem; }
-    .qa-1 { background:linear-gradient(135deg,#e3f0ff,#bdd7ff); color:#0d6efd; }
-    .qa-2 { background:linear-gradient(135deg,#e8f8f0,#b6edd4); color:#198754; }
-    .qa-3 { background:linear-gradient(135deg,#fff3e0,#ffd599); color:#fd7e14; }
-    .qa-4 { background:linear-gradient(135deg,#fce4ec,#f8bad0); color:#e91e63; }
-    .qa-5 { background:linear-gradient(135deg,#e8eaf6,#c5cae9); color:#3f51b5; }
-    .qa-6 { background:linear-gradient(135deg,#e0f7fa,#b2ebf2); color:#00838f; }
-    .quick-action span { font-size:.78rem; color:#344054; font-weight:500; }
-    /* ---- Banner Carousel ---- */
+    /* ── Global page base ── */
+    body { background: #f5f7fa; }
+
+    /* ── Scroll reveal ── */
+    .reveal { opacity: 0; transform: translateY(28px); transition: opacity .55s cubic-bezier(.4,0,.2,1), transform .55s cubic-bezier(.4,0,.2,1); }
+    .reveal.visible { opacity: 1; transform: none; }
+    .reveal-delay-1 { transition-delay: .08s; }
+    .reveal-delay-2 { transition-delay: .16s; }
+    .reveal-delay-3 { transition-delay: .24s; }
+    .reveal-delay-4 { transition-delay: .32s; }
+    .reveal-delay-5 { transition-delay: .40s; }
+    .reveal-delay-6 { transition-delay: .48s; }
+
+    /* ── Section headers ── */
+    .section-badge { display:inline-flex; align-items:center; gap:.4rem; font-size:.72rem; font-weight:700; letter-spacing:.8px; text-transform:uppercase; padding:.35rem .85rem; border-radius:2rem; margin-bottom:.6rem; }
+    .section-badge-blue  { background:#e8f1ff; color:#0d6efd; }
+    .section-badge-red   { background:#fff0f0; color:#dc3545; }
+    .section-badge-green { background:#e9f9f0; color:#198754; }
+    .section-badge-purple{ background:#f3e8ff; color:#7c3aed; }
+    .section-title-main  { font-size:clamp(1.35rem,3vw,1.85rem); font-weight:800; letter-spacing:-.02em; color:#111827; margin-bottom:.25rem; }
+    .section-title-main span { background:linear-gradient(135deg,#0d6efd,#20c997); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    .section-divider { height:3px; width:48px; background:linear-gradient(90deg,#0d6efd,#20c997); border-radius:2px; margin:.5rem 0 1.5rem; }
+
+    /* ── Hero ── */
     .home-carousel { position:relative; }
-    .home-carousel .carousel-item { height:340px; overflow:hidden; }
-    @media(max-width:767px){ .home-carousel .carousel-item { height:220px; } }
-    .banner-slide { width:100%; height:100%; display:flex; align-items:center; padding:0 5%; position:relative; overflow:hidden; }
-    .banner-slide::before { content:''; position:absolute; inset:0; background:radial-gradient(circle at 70% 50%,rgba(255,255,255,.18),transparent 55%); pointer-events:none; }
-    .banner-slide-1 { background:linear-gradient(130deg,#0a3d91 0%,#1565c0 40%,#5b9dff 75%,#a8d4ff 100%); }
-    .banner-slide-2 { background:linear-gradient(130deg,#880e4f 0%,#c2185b 40%,#f06292 70%,#f8bbd0 100%); }
-    .banner-slide-3 { background:linear-gradient(130deg,#1b5e20 0%,#2e7d32 45%,#66bb6a 75%,#c8e6c9 100%); }
-    .banner-slide-4 { background:linear-gradient(130deg,#4a148c 0%,#7b1fa2 45%,#ba68c8 75%,#e1bee7 100%); }
-    .banner-text { color:#fff; max-width:520px; z-index:1; }
-    .banner-text .pre-tag { background:rgba(255,255,255,.22); backdrop-filter:blur(6px); display:inline-block; padding:.3rem .8rem; border-radius:2rem; font-size:.78rem; font-weight:600; letter-spacing:.5px; margin-bottom:.75rem; }
-    .banner-text h2 { font-size:clamp(1.4rem,3vw,2.2rem); font-weight:800; line-height:1.15; margin-bottom:.6rem; }
-    .banner-text p { font-size:.95rem; opacity:.88; margin-bottom:1.1rem; }
-    .banner-deco { position:absolute; right:4%; bottom:0; height:95%; opacity:.18; font-size:12rem; line-height:1; user-select:none; }
-    .carousel-control-prev, .carousel-control-next { width:44px; height:44px; background:rgba(255,255,255,.25); backdrop-filter:blur(4px); border-radius:50%; top:50%; transform:translateY(-50%); margin:0 1rem; opacity:1; }
-    .carousel-control-prev { left:0; }
-    .carousel-control-next { right:0; }
-    .carousel-control-prev:hover, .carousel-control-next:hover { background:rgba(255,255,255,.45); }
-    .carousel-indicators button { width:28px; height:4px; border-radius:2px; background:#fff; opacity:.45; border:0; transition:.3s; }
+    .home-carousel .carousel-item { height:360px; overflow:hidden; }
+    @media(max-width:767px){ .home-carousel .carousel-item { height:230px; } }
+    .banner-slide { width:100%; height:100%; display:flex; align-items:center; padding:0 6%; position:relative; overflow:hidden; }
+    .banner-slide::after { content:''; position:absolute; inset:0; background:linear-gradient(90deg,rgba(0,0,0,.22) 0%,transparent 60%); pointer-events:none; }
+    .banner-slide-1 { background:linear-gradient(130deg,#062c91 0%,#0d6efd 55%,#63a3ff 100%); }
+    .banner-slide-2 { background:linear-gradient(130deg,#6b0a28 0%,#c2185b 50%,#f06292 100%); }
+    .banner-slide-3 { background:linear-gradient(130deg,#0a4e2a 0%,#2e7d32 50%,#66bb6a 100%); }
+    .banner-slide-4 { background:linear-gradient(130deg,#3a0a8c 0%,#6d1fa2 50%,#ba68c8 100%); }
+    .banner-text { color:#fff; max-width:500px; z-index:2; position:relative; }
+    .banner-text .pre-tag { background:rgba(255,255,255,.2); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); display:inline-flex; align-items:center; gap:.4rem; padding:.3rem .85rem; border-radius:2rem; font-size:.75rem; font-weight:700; letter-spacing:.6px; margin-bottom:.85rem; border:1px solid rgba(255,255,255,.25); }
+    .banner-text h2 { font-size:clamp(1.5rem,3.5vw,2.3rem); font-weight:900; line-height:1.1; margin-bottom:.65rem; text-shadow:0 2px 16px rgba(0,0,0,.2); }
+    .banner-text p { font-size:.92rem; opacity:.88; margin-bottom:1.1rem; line-height:1.55; }
+    .banner-deco { position:absolute; right:5%; bottom:0; height:88%; opacity:.13; font-size:11rem; line-height:1; user-select:none; z-index:1; filter:drop-shadow(0 4px 12px rgba(0,0,0,.1)); }
+    .carousel-control-prev, .carousel-control-next { width:40px; height:40px; background:rgba(255,255,255,.2); backdrop-filter:blur(6px); border-radius:50%; top:50%; transform:translateY(-50%); margin:0 1.25rem; opacity:1; border:1px solid rgba(255,255,255,.3); transition:.25s; }
+    .carousel-control-prev:hover, .carousel-control-next:hover { background:rgba(255,255,255,.4); }
+    .carousel-indicators button { width:24px; height:4px; border-radius:2px; background:#fff; opacity:.4; border:0; transition:.3s; }
     .carousel-indicators button.active { opacity:1; width:36px; }
-    /* ---- Promo duo ---- */
-    .promo-duo-card { border-radius:1rem; overflow:hidden; position:relative; display:flex; align-items:center; padding:1.5rem 1.75rem; min-height:110px; color:#fff; text-decoration:none; transition:.25s; }
-    .promo-duo-card:hover { transform:translateY(-3px); box-shadow:0 12px 28px -8px rgba(0,0,0,.25); }
-    .promo-duo-card h5 { font-weight:800; margin-bottom:.2rem; font-size:1.15rem; }
-    .promo-duo-card p { font-size:.83rem; opacity:.9; margin:0; }
-    .promo-duo-deco { position:absolute; right:1.2rem; bottom:-10px; font-size:5rem; opacity:.15; }
-    /* Flash sale (new design) */
-    .flash-section { background:linear-gradient(160deg,#fff0f3 0%,#fff8f0 50%,#f0f4ff 100%); padding:2rem 0; }
-    .flash-wrap { background:#fff; border-radius:1.5rem; box-shadow:0 4px 32px -8px rgba(220,53,69,.12); overflow:hidden; }
-    .flash-banner-row { background:linear-gradient(90deg,#dc3545,#e91e63,#ff5722); padding:1.1rem 1.75rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:.75rem; }
-    .flash-title { font-size:clamp(1.2rem,2.5vw,1.7rem); font-weight:900; color:#fff; letter-spacing:.5px; text-shadow:0 2px 8px rgba(0,0,0,.2); }
-    .flash-title span { background:rgba(255,255,255,.2); border-radius:.5rem; padding:.15rem .55rem; }
-    .flash-viewall { background:#fff; color:#dc3545; font-weight:700; font-size:.83rem; padding:.5rem 1.1rem; border-radius:2rem; text-decoration:none; white-space:nowrap; transition:.2s; }
+
+    /* ── Feature band ── */
+    .feature-band { background:#fff; border-radius:1.25rem; box-shadow:0 2px 20px -6px rgba(0,0,0,.09); padding:1.5rem 1.25rem; margin-top:0; position:relative; z-index:2; }
+    .feature-item { display:flex; gap:.85rem; align-items:flex-start; }
+    .feature-icon { width:44px; height:44px; flex-shrink:0; display:flex; align-items:center; justify-content:center; border-radius:.85rem; background:linear-gradient(135deg,#0d6efd,#4facfe); color:#fff; font-size:1.1rem; box-shadow:0 4px 12px -4px rgba(13,110,253,.35); }
+    .feature-item h6 { margin:0 0 .2rem; font-weight:700; font-size:.88rem; }
+    .feature-item p { margin:0; font-size:.77rem; color:#6c757d; line-height:1.4; }
+    @media(max-width:991px){ .feature-item p { display:none; } }
+
+    /* ── Explore shortcuts ── */
+    .explore-grid { display:grid; grid-template-columns:repeat(6,1fr); gap:.75rem; }
+    @media(max-width:767px){ .explore-grid { grid-template-columns:repeat(3,1fr); } }
+    .explore-item { display:flex; flex-direction:column; align-items:center; gap:.5rem; padding:.85rem .5rem; border-radius:1rem; background:#fff; border:1.5px solid #f1f5f9; text-decoration:none; color:#344054; transition:.22s; cursor:pointer; }
+    .explore-item:hover { background:#f0f6ff; border-color:#bfdbfe; color:#0d6efd; transform:translateY(-3px); box-shadow:0 6px 18px -6px rgba(13,110,253,.18); }
+    .explore-icon { width:46px; height:46px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.15rem; transition:.22s; }
+    .explore-item:hover .explore-icon { transform:scale(1.1); }
+    .ei-1 { background:linear-gradient(135deg,#dbeafe,#93c5fd); color:#1d4ed8; }
+    .ei-2 { background:linear-gradient(135deg,#d1fae5,#6ee7b7); color:#065f46; }
+    .ei-3 { background:linear-gradient(135deg,#fee2e2,#fca5a5); color:#b91c1c; }
+    .ei-4 { background:linear-gradient(135deg,#fef3c7,#fcd34d); color:#92400e; }
+    .ei-5 { background:linear-gradient(135deg,#ede9fe,#c4b5fd); color:#5b21b6; }
+    .ei-6 { background:linear-gradient(135deg,#e0f2fe,#7dd3fc); color:#0369a1; }
+    .explore-item span { font-size:.76rem; font-weight:600; text-align:center; line-height:1.3; }
+
+    /* ── Flash sale ── */
+    .flash-section { background:linear-gradient(160deg,#fff0f3 0%,#fff8f0 60%,#f0f4ff 100%); padding:2.5rem 0; }
+    .flash-wrap { background:#fff; border-radius:1.5rem; box-shadow:0 4px 32px -8px rgba(220,53,69,.1); overflow:hidden; }
+    .flash-banner-row { background:linear-gradient(90deg,#dc3545,#e91e63,#ff5722); padding:1rem 1.5rem; display:flex; align-items:center; justify-content:space-between; gap:.75rem; }
+    .flash-title { font-size:clamp(1.1rem,2.5vw,1.6rem); font-weight:900; color:#fff; letter-spacing:.3px; display:flex; align-items:center; gap:.5rem; }
+    .flash-viewall { background:#fff; color:#dc3545; font-weight:700; font-size:.82rem; padding:.45rem 1rem; border-radius:2rem; text-decoration:none; white-space:nowrap; transition:.2s; }
     .flash-viewall:hover { background:#dc3545; color:#fff; }
-    .flash-tabs-row { padding:.75rem 1.5rem; border-bottom:1px solid #f5eaeb; display:flex; align-items:center; gap:1rem; overflow-x:auto; scrollbar-width:none; }
+    .flash-tabs-row { padding:.65rem 1.25rem; border-bottom:1px solid #f5eaeb; display:flex; align-items:center; gap:.75rem; overflow-x:auto; scrollbar-width:none; }
     .flash-tabs-row::-webkit-scrollbar { display:none; }
-    .flash-tab { border:1.5px solid #e9ecef; border-radius:.6rem; padding:.4rem .9rem; font-size:.8rem; font-weight:600; cursor:pointer; white-space:nowrap; transition:.2s; background:#fff; color:#6c757d; user-select:none; }
-    .flash-tab:hover { border-color:#f48fb1; background:#fff8fa; color:#c62828; }
-    .flash-tab.active { border-color:#dc3545; background:#fff5f5; color:#dc3545; box-shadow:0 2px 8px -3px rgba(220,53,69,.25); }
-    .flash-tab .status { display:block; font-size:.7rem; font-weight:500; margin-top:.1rem; }
-    .flash-tab.active .status { color:#e74c3c; }
-    .flash-countdown-row { padding:.65rem 1.5rem .5rem; display:flex; align-items:center; gap:.6rem; }
-    .flash-ct-label { font-size:.82rem; font-weight:600; color:#495057; }
-    .countdown-box { background:#dc3545; color:#fff; font-weight:800; font-size:1rem; padding:.3rem .55rem; border-radius:.4rem; min-width:2.1rem; text-align:center; line-height:1.3; }
-    .countdown-sep { color:#dc3545; font-weight:800; font-size:1.1rem; }
-    .flash-scroll { display:flex; gap:1rem; overflow-x:auto; padding:1rem 1.5rem 1.25rem; scroll-snap-type:x mandatory; scrollbar-width:none; scroll-behavior:smooth; }
+    .flash-tab { border:1.5px solid #e9ecef; border-radius:.55rem; padding:.35rem .85rem; font-size:.78rem; font-weight:600; cursor:pointer; white-space:nowrap; transition:.2s; background:#fff; color:#6c757d; user-select:none; }
+    .flash-tab.active { border-color:#dc3545; background:#fff5f5; color:#dc3545; box-shadow:0 2px 8px -3px rgba(220,53,69,.2); }
+    .flash-tab .status { display:block; font-size:.67rem; font-weight:500; margin-top:.1rem; }
+    .flash-countdown-row { padding:.6rem 1.25rem .45rem; display:flex; align-items:center; gap:.5rem; }
+    .flash-ct-label { font-size:.8rem; font-weight:600; color:#495057; }
+    .countdown-box { background:#dc3545; color:#fff; font-weight:800; font-size:.95rem; padding:.25rem .5rem; border-radius:.4rem; min-width:2rem; text-align:center; line-height:1.3; }
+    .countdown-sep { color:#dc3545; font-weight:800; }
+    .flash-scroll { display:flex; gap:.85rem; overflow-x:auto; padding:.85rem 1.25rem 1.1rem; scroll-snap-type:x mandatory; scrollbar-width:none; scroll-behavior:smooth; }
     .flash-scroll::-webkit-scrollbar { display:none; }
     .flash-nav-wrap { position:relative; }
-    .flash-arrow { position:absolute; top:50%; transform:translateY(-50%); z-index:10; width:36px; height:36px; border-radius:50%; border:none; background:#fff; box-shadow:0 2px 12px rgba(0,0,0,.18); display:flex; align-items:center; justify-content:center; cursor:pointer; color:#dc3545; font-size:1rem; transition:.2s; }
-    .flash-arrow:hover { background:#dc3545; color:#fff; box-shadow:0 4px 16px rgba(220,53,69,.35); }
-    .flash-arrow.prev { left:4px; }
-    .flash-arrow.next { right:4px; }
-    .flash-card { min-width:175px; max-width:175px; flex-shrink:0; scroll-snap-align:start; border-radius:.85rem; overflow:hidden; background:#fff; border:1.5px solid #f5eaeb; transition:.25s; }
+    .flash-arrow { position:absolute; top:50%; transform:translateY(-50%); z-index:10; width:34px; height:34px; border-radius:50%; border:none; background:#fff; box-shadow:0 2px 12px rgba(0,0,0,.15); display:flex; align-items:center; justify-content:center; cursor:pointer; color:#dc3545; font-size:.9rem; transition:.2s; }
+    .flash-arrow:hover { background:#dc3545; color:#fff; }
+    .flash-arrow.prev { left:2px; }
+    .flash-arrow.next { right:2px; }
+    .flash-card { min-width:170px; max-width:170px; flex-shrink:0; scroll-snap-align:start; border-radius:.85rem; overflow:hidden; background:#fff; border:1.5px solid #f5eaeb; transition:.25s; }
     .flash-card:hover { transform:translateY(-4px); box-shadow:0 10px 24px -6px rgba(220,53,69,.15); border-color:#dc3545; }
-    .flash-img-wrap { position:relative; height:140px; background:#f9f9fb; display:flex; align-items:center; justify-content:center; overflow:hidden; }
-    .flash-img-wrap img { width:100%; height:140px; object-fit:cover; }
-    .flash-discount { position:absolute; top:7px; right:7px; background:#dc3545; color:#fff; font-size:.62rem; font-weight:800; padding:.28rem .48rem; border-radius:.4rem; letter-spacing:.3px; }
-    .flash-flag { position:absolute; top:7px; left:7px; font-size:1rem; line-height:1; }
-    .flash-sold-bar { height:4px; background:#ffe0e3; border-radius:2px; margin:.3rem 0 .2rem; }
+    .flash-img-wrap { position:relative; height:130px; background:#f9f9fb; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+    .flash-img-wrap img { width:100%; height:130px; object-fit:cover; transition:transform .3s; }
+    .flash-card:hover .flash-img-wrap img { transform:scale(1.05); }
+    .flash-discount { position:absolute; top:6px; right:6px; background:#dc3545; color:#fff; font-size:.6rem; font-weight:800; padding:.25rem .45rem; border-radius:.35rem; }
+    .flash-sold-bar { height:3px; background:#ffe0e3; border-radius:2px; margin:.3rem 0 .15rem; }
     .flash-sold-bar-fill { height:100%; background:linear-gradient(90deg,#dc3545,#ff5722); border-radius:2px; }
-    /* Bestseller strip */
-    .best-strip { display:flex;gap:1rem;overflow-x:auto;padding-bottom:.5rem;scroll-snap-type:x mandatory;scrollbar-width:none; }
-    .best-strip::-webkit-scrollbar { display:none; }
-    .best-card { min-width:200px;max-width:200px;flex-shrink:0;scroll-snap-align:start;border-radius:1rem;overflow:hidden;background:#fff;box-shadow:0 2px 12px -4px rgba(0,0,0,.1);transition:.25s; }
-    .best-card:hover { transform:translateY(-4px);box-shadow:0 8px 24px -6px rgba(0,0,0,.15); }
-    /* News mini */
-    .mini-news-card { border-radius:.85rem;overflow:hidden;transition:.25s;cursor:pointer; }
-    .mini-news-card:hover { transform:translateY(-4px);box-shadow:0 10px 28px -8px rgba(0,0,0,.12) !important; }
-    .mini-news-thumb { height:100px;display:flex;align-items:center;justify-content:center; }
-    .bg-purple-subtle { background:#ede7f6; }
-    .text-purple { color:#6f42c1; }
+    #flashSoonOverlay { padding:2rem 1.25rem; text-align:center; }
+
+    /* ── Categories ── */
+    .category-card-new { background:#fff; border-radius:1rem; padding:1.25rem .75rem; text-align:center; border:1.5px solid #f1f5f9; transition:.25s; cursor:pointer; text-decoration:none; color:inherit; display:block; }
+    .category-card-new:hover { border-color:#bfdbfe; background:#f0f6ff; transform:translateY(-4px); box-shadow:0 8px 24px -8px rgba(13,110,253,.2); }
+    .cat-icon-wrap { width:56px; height:56px; border-radius:50%; background:linear-gradient(135deg,#dbeafe,#bfdbfe); color:#1d4ed8; display:flex; align-items:center; justify-content:center; font-size:1.3rem; margin:0 auto .65rem; transition:.25s; }
+    .category-card-new:hover .cat-icon-wrap { background:linear-gradient(135deg,#0d6efd,#4facfe); color:#fff; transform:scale(1.1); }
+    .cat-name { font-size:.83rem; font-weight:600; color:#1e293b; line-height:1.3; }
+
+    /* ── Product tabs ── */
+    .prod-tabs-wrap { display:flex; gap:.5rem; background:#f1f5f9; border-radius:2rem; padding:.3rem; margin-bottom:2rem; width:fit-content; }
+    .prod-tab-btn { border:none; background:transparent; padding:.5rem 1.25rem; border-radius:2rem; font-weight:600; font-size:.88rem; color:#64748b; cursor:pointer; transition:.22s; white-space:nowrap; }
+    .prod-tab-btn.active { background:#fff; color:#0d6efd; box-shadow:0 2px 8px -2px rgba(0,0,0,.1); }
+    .prod-tab-panel { display:none; }
+    .prod-tab-panel.active { display:block; }
+
+    /* ── Product cards ── */
+    .product-card-new { background:#fff; border-radius:1.1rem; overflow:hidden; border:1.5px solid #f1f5f9; transition:all .28s cubic-bezier(.4,0,.2,1); position:relative; }
+    .product-card-new:hover { transform:translateY(-6px); box-shadow:0 16px 32px -12px rgba(0,0,0,.16); border-color:#e0e7ff; }
+    .product-img-wrap { position:relative; padding-top:82%; overflow:hidden; background:#f8fafc; }
+    .product-img-wrap img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transition:transform .35s; }
+    .product-card-new:hover .product-img-wrap img { transform:scale(1.06); }
+    .product-overlay-new { position:absolute; inset:0; background:rgba(13,110,253,.12); opacity:0; transition:.3s; display:flex; align-items:center; justify-content:center; gap:.5rem; }
+    .product-card-new:hover .product-overlay-new { opacity:1; }
+    .product-badge-pos { position:absolute; top:10px; left:10px; z-index:2; }
+    .product-badge-pos .badge { font-size:.62rem; padding:.35rem .55rem; letter-spacing:.3px; box-shadow:0 2px 6px rgba(0,0,0,.12); }
+    .product-body { padding:1rem; }
+    .product-name { font-size:.87rem; font-weight:600; color:#1e293b; line-height:1.45; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; margin-bottom:.5rem; }
+    .product-price-new { display:flex; align-items:baseline; gap:.5rem; flex-wrap:wrap; margin-bottom:.75rem; }
+    .product-price-main { font-size:1rem; font-weight:800; color:#0d6efd; }
+    .product-price-orig { font-size:.78rem; color:#94a3b8; text-decoration:line-through; }
+    .product-disc-badge { font-size:.62rem; font-weight:700; background:#fee2e2; color:#dc2626; padding:.2rem .45rem; border-radius:.35rem; }
+    .product-actions-new { display:flex; gap:.4rem; }
+    .btn-cart-add { flex:1; border:none; background:linear-gradient(90deg,#0d6efd,#4facfe); color:#fff; font-weight:600; font-size:.82rem; padding:.55rem; border-radius:.65rem; cursor:pointer; transition:.2s; }
+    .btn-cart-add:hover { opacity:.88; transform:translateY(-1px); }
+    .btn-cart-add:disabled { background:#e2e8f0; color:#94a3b8; cursor:not-allowed; transform:none; }
+    .btn-quick-buy { width:36px; height:36px; border:1.5px solid #e0e7ff; background:#fff; color:#0d6efd; border-radius:.65rem; cursor:pointer; transition:.2s; display:flex; align-items:center; justify-content:center; font-size:.9rem; flex-shrink:0; }
+    .btn-quick-buy:hover { background:#0d6efd; color:#fff; border-color:#0d6efd; }
+
+    /* ── Mini news ── */
+    .news-card { background:#fff; border-radius:1rem; overflow:hidden; border:1.5px solid #f1f5f9; transition:.25s; text-decoration:none; color:inherit; display:block; }
+    .news-card:hover { transform:translateY(-5px); box-shadow:0 12px 28px -8px rgba(0,0,0,.12); border-color:#e0e7ff; }
+    .news-thumb { height:92px; display:flex; align-items:center; justify-content:center; transition:.3s; }
+    .news-card:hover .news-thumb { filter:brightness(1.08); }
+    .news-body { padding:.75rem .85rem .85rem; }
+    .news-cat { font-size:.68rem; font-weight:700; letter-spacing:.5px; text-transform:uppercase; margin-bottom:.35rem; display:inline-block; }
+    .news-title { font-size:.83rem; font-weight:600; color:#1e293b; line-height:1.45; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
   </style>
 </head>
-<body class="bg-light">
+<body>
   <th:block th:replace="~{user/_header}" />
 
-  <!-- BANNER CAROUSEL -->
-  <div id="homeBanner" class="carousel slide home-carousel" data-bs-ride="carousel" data-bs-interval="4500">
+  <!-- ══ HERO CAROUSEL ══ -->
+  <div id="homeBanner" class="carousel slide home-carousel" data-bs-ride="carousel" data-bs-interval="5000">
     <div class="carousel-indicators">
       <button type="button" data-bs-target="#homeBanner" data-bs-slide-to="0" class="active"></button>
       <button type="button" data-bs-target="#homeBanner" data-bs-slide-to="1"></button>
@@ -136,12 +168,12 @@
       <div class="carousel-item active">
         <div class="banner-slide banner-slide-1">
           <div class="banner-text">
-            <span class="pre-tag"><i class="fas fa-certificate me-1"></i>HÀNG CHÍNH HÃNG GPP</span>
-            <h2>Dược mỹ phẩm<br>chính hãng <span style="color:#ffe259;">giảm 35%</span></h2>
-            <p>Hàng nghìn sản phẩm thuốc &amp; thực phẩm chức năng uy tín. Giao nhanh toàn quốc trong 2 giờ.</p>
+            <span class="pre-tag"><i class="fas fa-certificate"></i>HÀNG CHUẨN GPP</span>
+            <h2>Dược phẩm<br>chính hãng <span style="color:#ffe259;">giảm 35%</span></h2>
+            <p>Hàng nghìn sản phẩm thuốc uy tín. Giao nhanh toàn quốc, đội ngũ dược sĩ hỗ trợ 24/7.</p>
             <div class="d-flex gap-2 flex-wrap">
-              <a th:href="@{/khuyen-mai}" class="btn btn-light text-primary fw-bold px-4"><i class="fas fa-tags me-2"></i>Xem ngay</a>
-              <a th:href="@{/loai-all}" class="btn btn-outline-light px-3">Khám phá</a>
+              <a th:href="@{/khuyen-mai}" class="btn btn-light fw-bold px-4" style="color:#0d6efd;border-radius:2rem;"><i class="fas fa-tags me-2"></i>Xem ưu đãi</a>
+              <a th:href="@{/loai-all}" class="btn btn-outline-light px-3" style="border-radius:2rem;">Danh mục</a>
             </div>
           </div>
           <span class="banner-deco">💊</span>
@@ -150,10 +182,10 @@
       <div class="carousel-item">
         <div class="banner-slide banner-slide-2">
           <div class="banner-text">
-            <span class="pre-tag"><i class="fas fa-fire me-1"></i>FLASH SALE MỖI NGÀY</span>
-            <h2>Giá tốt — <span style="color:#fff9c4;">ưu đãi bùng nổ</span><br>chỉ hôm nay thôi!</h2>
-            <p>Flash sale từ 08:00 đến 22:00 mỗi ngày. Hàng trăm sản phẩm giảm giá sâu đến 50%.</p>
-            <a th:href="@{/khuyen-mai}" class="btn btn-light text-danger fw-bold px-4"><i class="fas fa-fire me-2"></i>Săn deal ngay</a>
+            <span class="pre-tag"><i class="fas fa-fire"></i>FLASH SALE MỖI NGÀY</span>
+            <h2>Ưu đãi bùng nổ<br><span style="color:#fff9c4;">giảm đến 50%</span></h2>
+            <p>Flash sale từ 08:00 – 22:00 mỗi ngày. Hàng trăm sản phẩm giảm giá sâu, số lượng có hạn.</p>
+            <a th:href="@{/khuyen-mai}" class="btn btn-light fw-bold px-4" style="color:#c2185b;border-radius:2rem;"><i class="fas fa-fire me-2"></i>Săn deal ngay</a>
           </div>
           <span class="banner-deco">🌸</span>
         </div>
@@ -161,10 +193,10 @@
       <div class="carousel-item">
         <div class="banner-slide banner-slide-3">
           <div class="banner-text">
-            <span class="pre-tag"><i class="fas fa-user-md me-1"></i>TƯ VẤN MIỄN PHÍ</span>
-            <h2>Dược sĩ tư vấn<br><span style="color:#e8f5e9;">24/7 — miễn phí</span></h2>
-            <p>Đặt câu hỏi về thuốc, liều dùng, tương tác thuốc. Đội ngũ dược sĩ MEDISALE trả lời trong 2 giờ.</p>
-            <a th:href="@{/lien-he}" class="btn btn-light text-success fw-bold px-4"><i class="fas fa-headset me-2"></i>Liên hệ ngay</a>
+            <span class="pre-tag"><i class="fas fa-user-md"></i>TƯ VẤN MIỄN PHÍ</span>
+            <h2>Dược sĩ tư vấn<br><span style="color:#e8f5e9;">24/7 miễn phí</span></h2>
+            <p>Đặt câu hỏi về thuốc, liều dùng, tương tác. Đội ngũ dược sĩ MEDISALE phản hồi trong 2 giờ.</p>
+            <a th:href="@{/lien-he}" class="btn btn-light fw-bold px-4" style="color:#2e7d32;border-radius:2rem;"><i class="fas fa-headset me-2"></i>Liên hệ ngay</a>
           </div>
           <span class="banner-deco">🌿</span>
         </div>
@@ -172,10 +204,10 @@
       <div class="carousel-item">
         <div class="banner-slide banner-slide-4">
           <div class="banner-text">
-            <span class="pre-tag"><i class="fas fa-star me-1"></i>SẢN PHẨM MỚI VỀ</span>
+            <span class="pre-tag"><i class="fas fa-star"></i>SẢN PHẨM MỚI VỀ</span>
             <h2>Hàng mới nhập<br><span style="color:#ede7f6;">cập nhật mỗi tuần</span></h2>
-            <p>Khám phá các sản phẩm bổ sung, vitamin và thực phẩm chức năng mới nhất đã có mặt tại MEDISALE.</p>
-            <a th:href="@{/san-pham-moi}" class="btn btn-light text-purple fw-bold px-4" style="color:#7b1fa2 !important;"><i class="fas fa-box-open me-2"></i>Xem ngay</a>
+            <p>Vitamin, thực phẩm chức năng, dược mỹ phẩm mới nhất đã có mặt tại MEDISALE.</p>
+            <a th:href="@{/san-pham-moi}" class="btn btn-light fw-bold px-4" style="color:#6d1fa2;border-radius:2rem;"><i class="fas fa-box-open me-2"></i>Xem ngay</a>
           </div>
           <span class="banner-deco">✨</span>
         </div>
@@ -189,107 +221,78 @@
     </button>
   </div>
 
-  <!-- FEATURE BAND -->
-  <div class="container py-3">
+  <!-- ══ FEATURE BAND ══ -->
+  <div class="container py-3 reveal">
     <div class="feature-band row g-3 g-md-4 text-center text-md-start">
       <div class="col-6 col-md-3">
-        <div class="feature-item"><div class="feature-icon"><i class="fas fa-certificate"></i></div><div><h6>Hàng chuẩn GPP</h6><p>Đảm bảo nguồn gốc rõ ràng</p></div></div>
+        <div class="feature-item"><div class="feature-icon"><i class="fas fa-certificate"></i></div><div><h6>Hàng chuẩn GPP</h6><p>Nguồn gốc rõ ràng, đảm bảo</p></div></div>
       </div>
       <div class="col-6 col-md-3">
-        <div class="feature-item"><div class="feature-icon"><i class="fas fa-user-md"></i></div><div><h6>Dược sĩ hỗ trợ</h6><p>Tư vấn dùng thuốc an toàn</p></div></div>
+        <div class="feature-item"><div class="feature-icon"><i class="fas fa-user-md"></i></div><div><h6>Dược sĩ hỗ trợ</h6><p>Tư vấn thuốc an toàn 24/7</p></div></div>
       </div>
       <div class="col-6 col-md-3">
-        <div class="feature-item"><div class="feature-icon"><i class="fas fa-box-open"></i></div><div><h6>Đóng gói bảo quản</h6><p>Giữ nguyên chất lượng</p></div></div>
+        <div class="feature-item"><div class="feature-icon"><i class="fas fa-shipping-fast"></i></div><div><h6>Giao hàng nhanh</h6><p>Nhận hàng trong 2 giờ</p></div></div>
       </div>
       <div class="col-6 col-md-3">
-        <div class="feature-item"><div class="feature-icon"><i class="fas fa-lock"></i></div><div><h6>Bảo mật & an toàn</h6><p>Thanh toán được mã hóa</p></div></div>
+        <div class="feature-item"><div class="feature-icon"><i class="fas fa-lock"></i></div><div><h6>Bảo mật & an toàn</h6><p>Thanh toán mã hóa SSL</p></div></div>
       </div>
     </div>
   </div>
 
-  <!-- PROMO DUO BANNERS -->
-  <section class="py-3 bg-light">
-    <div class="container">
-      <div class="row g-3">
-        <div class="col-md-6">
-          <a th:href="@{/khuyen-mai}" class="promo-duo-card" style="background:linear-gradient(130deg,#0d47a1,#1976d2,#42a5f5);">
-            <div>
-              <div style="font-size:.72rem;font-weight:700;opacity:.8;letter-spacing:.8px;text-transform:uppercase;margin-bottom:.3rem;">Ưu đãi hôm nay</div>
-              <h5>Tích hợp ưu đãi &amp;<br>gia tăng đặc quyền</h5>
-              <p>Mua nhiều hơn, tiết kiệm nhiều hơn với chương trình khuyến mãi đặc biệt mỗi ngày.</p>
-              <span style="background:rgba(255,255,255,.2);padding:.3rem .75rem;border-radius:2rem;font-size:.78rem;font-weight:600;">Xem ngay →</span>
-            </div>
-            <span class="promo-duo-deco">🎁</span>
-          </a>
-        </div>
-        <div class="col-md-6">
-          <a th:href="@{/tin-tuc}" class="promo-duo-card" style="background:linear-gradient(130deg,#4a148c,#7b1fa2,#ce93d8);">
-            <div>
-              <div style="font-size:.72rem;font-weight:700;opacity:.8;letter-spacing:.8px;text-transform:uppercase;margin-bottom:.3rem;">Kiến thức y tế</div>
-              <h5>Hiểu về sức khỏe<br>từ A đến Z</h5>
-              <p>Thông tin được biên soạn và kiểm duyệt bởi đội ngũ chuyên gia dược sĩ MEDISALE.</p>
-              <span style="background:rgba(255,255,255,.2);padding:.3rem .75rem;border-radius:2rem;font-size:.78rem;font-weight:600;">Đọc ngay →</span>
-            </div>
-            <span class="promo-duo-deco">📖</span>
-          </a>
-        </div>
+  <!-- ══ EXPLORE SHORTCUTS ══ -->
+  <section class="py-4">
+    <div class="container reveal">
+      <div class="explore-grid">
+        <a th:href="@{/loai-all}" class="explore-item">
+          <div class="explore-icon ei-1"><i class="fas fa-prescription-bottle-alt"></i></div>
+          <span>Cần mua thuốc</span>
+        </a>
+        <a th:href="@{/lien-he}" class="explore-item">
+          <div class="explore-icon ei-2"><i class="fas fa-user-md"></i></div>
+          <span>Tư vấn Dược sĩ</span>
+        </a>
+        <a th:href="@{/khuyen-mai}" class="explore-item">
+          <div class="explore-icon ei-3"><i class="fas fa-tags"></i></div>
+          <span>Khuyến mãi</span>
+        </a>
+        <a th:href="@{/order}" class="explore-item">
+          <div class="explore-icon ei-4"><i class="fas fa-clipboard-list"></i></div>
+          <span>Đơn của tôi</span>
+        </a>
+        <a th:href="@{/san-pham-moi}" class="explore-item">
+          <div class="explore-icon ei-5"><i class="fas fa-box-open"></i></div>
+          <span>Sản phẩm mới</span>
+        </a>
+        <a th:href="@{/tin-tuc}" class="explore-item">
+          <div class="explore-icon ei-6"><i class="fas fa-newspaper"></i></div>
+          <span>Tin tức y tế</span>
+        </a>
       </div>
     </div>
   </section>
 
-  <!-- QUICK ACTIONS -->
-  <section class="bg-white border-bottom py-3">
-    <div class="container">
-      <div class="row g-2 row-cols-3 row-cols-sm-6 justify-content-center">
-        <div class="col"><a th:href="@{/loai-all}" class="quick-action text-center d-block text-decoration-none">
-          <div class="qa-icon qa-1"><i class="fas fa-prescription-bottle-alt"></i></div>
-          <span>Cần mua thuốc</span></a></div>
-        <div class="col"><a th:href="@{/lien-he}" class="quick-action text-center d-block text-decoration-none">
-          <div class="qa-icon qa-2"><i class="fas fa-user-md"></i></div>
-          <span>Tư vấn Dược sĩ</span></a></div>
-        <div class="col"><a th:href="@{/order}" class="quick-action text-center d-block text-decoration-none">
-          <div class="qa-icon qa-3"><i class="fas fa-clipboard-list"></i></div>
-          <span>Đơn của tôi</span></a></div>
-        <div class="col"><a th:href="@{/lien-he}" class="quick-action text-center d-block text-decoration-none">
-          <div class="qa-icon qa-4"><i class="fas fa-map-marker-alt"></i></div>
-          <span>Tìm nhà thuốc</span></a></div>
-        <div class="col"><a th:href="@{/khuyen-mai}" class="quick-action text-center d-block text-decoration-none">
-          <div class="qa-icon qa-5"><i class="fas fa-syringe"></i></div>
-          <span>Khuyến mãi hot</span></a></div>
-        <div class="col"><a th:href="@{/san-pham-moi}" class="quick-action text-center d-block text-decoration-none">
-          <div class="qa-icon qa-6"><i class="fas fa-check-circle"></i></div>
-          <span>Sản phẩm mới</span></a></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- FLASH SALE / GIÁ TỐT MỖI NGÀY (new design) -->
-  <section class="flash-section">
+  <!-- ══ FLASH SALE / GIÁ TỐT ══ -->
+  <section class="flash-section reveal">
     <div class="container">
       <div class="flash-wrap">
-        <!-- Top banner bar -->
         <div class="flash-banner-row">
-          <div class="flash-title">🔥 GIÁ TỐT <span>MỖI NGÀY</span></div>
+          <div class="flash-title"><i class="fas fa-fire"></i> GIÁ TỐT MỖI NGÀY</div>
           <a th:href="@{/khuyen-mai}" class="flash-viewall">Xem tất cả →</a>
         </div>
-
-        <!-- Date tabs -->
         <div class="flash-tabs-row">
           <div class="flash-tab active" id="flashTab0">
             <span id="flashTabDate0"></span>
-            <span class="status text-danger" style="font-size:.68rem;">Đang diễn ra</span>
+            <span class="status text-danger">Đang diễn ra</span>
           </div>
           <div class="flash-tab" id="flashTab1">
             <span id="flashTabDate1"></span>
-            <span class="status text-muted" style="font-size:.68rem;">Sắp diễn ra</span>
+            <span class="status text-muted">Sắp diễn ra</span>
           </div>
           <div class="flash-tab" id="flashTab2">
             <span id="flashTabDate2"></span>
-            <span class="status text-muted" style="font-size:.68rem;">Sắp diễn ra</span>
+            <span class="status text-muted">Sắp diễn ra</span>
           </div>
         </div>
-
-        <!-- Countdown -->
         <div class="flash-countdown-row">
           <span class="flash-ct-label" id="flashCtLabel">Kết thúc sau</span>
           <span class="countdown-box" id="ctH">00</span>
@@ -298,213 +301,44 @@
           <span class="countdown-sep">:</span>
           <span class="countdown-box" id="ctS">00</span>
         </div>
-
-        <!-- Soon overlay (hidden by default) -->
-        <div id="flashSoonOverlay" style="display:none; padding:2rem 1.5rem; text-align:center;">
-          <div style="background:linear-gradient(135deg,#fff5f5,#fff0f0); border:1.5px dashed #dc3545; border-radius:1rem; padding:2rem; max-width:400px; margin:0 auto;">
-            <div style="font-size:2.5rem; margin-bottom:.75rem;">⏰</div>
+        <div id="flashSoonOverlay" style="display:none;">
+          <div style="background:#fff5f5; border:1.5px dashed #dc3545; border-radius:1rem; padding:1.75rem; max-width:380px; margin:0 auto; text-align:center;">
+            <div style="font-size:2.2rem; margin-bottom:.6rem;">⏰</div>
             <h6 class="fw-bold text-danger mb-1" id="flashSoonTitle">Chương trình sắp bắt đầu</h6>
-            <p class="text-muted small mb-2" id="flashSoonDesc">Quay lại lúc 08:00 để săn deal giá tốt!</p>
+            <p class="text-muted small mb-2" id="flashSoonDesc">Quay lại lúc 08:00 để săn deal!</p>
             <div class="d-flex align-items-center justify-content-center gap-1">
-              <span style="font-size:.82rem; color:#6c757d; font-weight:600;">Bắt đầu sau</span>
-              <span class="countdown-box" id="ctH2">00</span>
-              <span class="countdown-sep">:</span>
-              <span class="countdown-box" id="ctM2">00</span>
-              <span class="countdown-sep">:</span>
+              <span style="font-size:.8rem; color:#6c757d; font-weight:600;">Bắt đầu sau</span>
+              <span class="countdown-box" id="ctH2">00</span><span class="countdown-sep">:</span>
+              <span class="countdown-box" id="ctM2">00</span><span class="countdown-sep">:</span>
               <span class="countdown-box" id="ctS2">00</span>
             </div>
           </div>
         </div>
-
-        <!-- Products -->
         <div class="flash-nav-wrap">
-          <button class="flash-arrow prev" id="flashPrev" onclick="scrollFlash(-1)" title="Trước">
-            <i class="fas fa-chevron-left"></i>
-          </button>
-          <button class="flash-arrow next" id="flashNext" onclick="scrollFlash(1)" title="Tiếp">
-            <i class="fas fa-chevron-right"></i>
-          </button>
-        <div class="flash-scroll" id="flashProductsRow">
-          <div th:each="sp,iter : ${listSPGiamGia}" class="flash-card">
-            <a th:href="@{/sanpham(id=${sp.idSanpham})}" class="text-decoration-none d-block">
-              <div class="flash-img-wrap">
-                <img th:if="${sp.hinh != null and !sp.hinh.isEmpty()}"
-                     th:src="@{/image/{url}(url=${sp.hinh})}"
-                     th:alt="${sp.tenSanpham}">
-                <div th:if="${sp.hinh == null or sp.hinh.isEmpty()}"
-                     class="d-flex align-items-center justify-content-center w-100 h-100">
-                  <i class="fas fa-capsules fa-2x text-primary opacity-40"></i>
+          <button class="flash-arrow prev" id="flashPrev" onclick="scrollFlash(-1)"><i class="fas fa-chevron-left"></i></button>
+          <button class="flash-arrow next" id="flashNext" onclick="scrollFlash(1)"><i class="fas fa-chevron-right"></i></button>
+          <div class="flash-scroll" id="flashProductsRow">
+            <div th:each="sp,iter : ${listSPGiamGia}" class="flash-card">
+              <a th:href="@{/sanpham(id=${sp.idSanpham})}" class="text-decoration-none d-block">
+                <div class="flash-img-wrap">
+                  <img th:if="${sp.hinh != null and !sp.hinh.isEmpty()}" th:src="@{/image/{url}(url=${sp.hinh})}" th:alt="${sp.tenSanpham}">
+                  <div th:if="${sp.hinh == null or sp.hinh.isEmpty()}" class="d-flex align-items-center justify-content-center w-100 h-100">
+                    <i class="fas fa-capsules fa-2x text-primary opacity-40"></i>
+                  </div>
+                  <span class="flash-discount" th:text="'-' + ${sp.giamgia} + '%'"></span>
                 </div>
-                <span class="flash-discount" th:text="'-' + ${sp.giamgia} + '%'"></span>
-                <span class="flash-flag"
-                      th:text="${iter.index % 4 == 0 ? '🇯🇵' : (iter.index % 4 == 1 ? '🇻🇳' : (iter.index % 4 == 2 ? '🇰🇷' : '🇬🇧'))}"></span>
-              </div>
-              <div class="px-2 pt-2">
-                <div style="-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;overflow:hidden;font-size:.8rem;font-weight:600;color:#212529;line-height:1.4;min-height:2.3em;"
-                     th:text="${sp.tenSanpham}"></div>
-                <div class="d-flex align-items-baseline gap-1 mt-1">
-                  <span style="color:#dc3545;font-weight:800;font-size:.9rem;"
-                        th:text="${#numbers.formatInteger(sp.gia * (100 - sp.giamgia) / 100, 0, 'COMMA') + '₫'}"></span>
-                </div>
-                <div style="color:#adb5bd;font-size:.72rem;text-decoration:line-through;"
-                     th:text="${#numbers.formatInteger(sp.gia, 0, 'COMMA') + '₫'}"></div>
-                <!-- Sold indicator -->
-                <div class="flash-sold-bar">
-                  <div class="flash-sold-bar-fill"
-                       th:style="'width:' + ${(sp.idSanpham * 17 % 75) + 15} + '%'"></div>
-                </div>
-                <div style="font-size:.68rem;color:#dc3545;font-weight:600;">
-                  🔥 Đã bán <span th:text="${(sp.idSanpham * 17 % 75) + 15}"></span>/300 suất
-                </div>
-              </div>
-            </a>
-            <div class="px-2 pb-2 mt-1">
-              <button class="btn btn-primary btn-sm w-100 add-cart-item"
-                      th:data-id="${sp.idSanpham}" th:data-name="${sp.tenSanpham}">
-                Chọn mua
-              </button>
-            </div>
-          </div>
-        </div>
-        </div><!-- end flash-nav-wrap -->
-      </div>
-    </div>
-  </section>
-
-  <!-- BESTSELLER STRIP -->
-  <section class="py-4 bg-white">
-    <div class="container">
-      <div class="d-flex align-items-center justify-content-between mb-3">
-        <h4 class="fw-bold mb-0">
-          <span class="badge bg-danger me-2 align-middle" style="font-size:.65rem;vertical-align:middle;">HOT</span>Sản phẩm bán chạy
-        </h4>
-        <a th:href="@{/san-pham-moi}" class="btn btn-outline-primary btn-sm">Xem tất cả <i class="fas fa-arrow-right ms-1"></i></a>
-      </div>
-      <div class="best-strip">
-        <div th:each="sp : ${sanphams}" class="best-card">
-          <a th:href="@{/sanpham(id=${sp.idSanpham})}" class="text-decoration-none">
-            <div style="height:150px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#f8f9fa;">
-              <img th:if="${sp.hinh != null and !sp.hinh.isEmpty()}"
-                   th:src="@{/image/{url}(url=${sp.hinh})}"
-                   style="width:100%;height:150px;object-fit:cover;"
-                   th:alt="${sp.tenSanpham}">
-              <i th:if="${sp.hinh == null or sp.hinh.isEmpty()}"
-                 class="fas fa-capsules fa-2x text-primary opacity-50"></i>
-            </div>
-            <div class="p-2">
-              <div class="small text-dark fw-semibold lh-sm mb-1"
-                   style="-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;overflow:hidden;"
-                   th:text="${sp.tenSanpham}"></div>
-              <div th:if="${sp.giamgia > 0}" class="text-primary fw-bold small"
-                   th:text="${#numbers.formatInteger(sp.gia * (100 - sp.giamgia) / 100, 0, 'COMMA') + '₫'}"></div>
-              <div th:if="${sp.giamgia == 0}" class="text-primary fw-bold small"
-                   th:text="${#numbers.formatInteger(sp.gia, 0, 'COMMA') + '₫'}"></div>
-            </div>
-          </a>
-          <div class="px-2 pb-2">
-            <button class="btn btn-primary btn-sm w-100 add-cart-item"
-                    th:data-id="${sp.idSanpham}" th:data-name="${sp.tenSanpham}">
-              <i class="fas fa-cart-plus me-1"></i>Chọn mua
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Categories Section -->
-  <section class="section-categories py-5 bg-white">
-    <div class="container">
-      <div class="section-header d-flex justify-content-between align-items-center mb-4 section-title-wrap">
-        <div>
-          <h2 class="section-title fw-bold mb-1">Danh mục sản phẩm</h2>
-          <p class="text-muted mb-0">Khám phá các nhóm sản phẩm được quan tâm nhất</p>
-        </div>
-        <a class="btn btn-outline-primary" th:href="@{/loai-all}"><i class="fas fa-th-large me-2"></i>Xem tất cả</a>
-      </div>
-      <div class="row g-4">
-        <div class="col-lg-2 col-md-3 col-6" th:each="loai : ${loais}">
-          <a th:href="@{/loai(id=${loai.idLoai})}" class="text-decoration-none">
-            <div class="card category-card h-100 border-0 shadow-sm">
-              <div class="card-body text-center p-4">
-                <div class="category-icon mb-2"><i class="fas fa-pills fa-lg"></i></div>
-                <h6 class="category-title text-dark mb-0" th:text="${loai.tenLoai}"></h6>
-              </div>
-            </div>
-          </a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- New Products Section -->
-  <section class="section-products py-5">
-    <div class="container">
-      <div class="section-header d-flex justify-content-between align-items-center mb-4">
-        <div>
-          <h2 class="section-title fw-bold mb-1">Sản phẩm mới nhất</h2>
-          <p class="text-muted mb-0">Khám phá các sản phẩm mới nhất của chúng tôi</p>
-        </div>
-      </div>
-
-      <div class="row g-4">
-        <div class="col-xl-3 col-lg-4 col-md-6" th:each="sanpham : ${sanphams}">
-          <div class="card product-card h-100 border-0 shadow-sm">
-            <div class="card-body p-3">
-              <a th:href="@{/sanpham(id=${sanpham.idSanpham})}" class="product-img mb-3">
-                <img th:src="@{/image/{url}(url=${sanpham.hinh})}" class="img-fluid" th:alt="${sanpham.tenSanpham}">
-                <div class="product-overlay">
-                  <i class="fas fa-search-plus"></i>
+                <div class="px-2 pt-2">
+                  <div style="-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;overflow:hidden;font-size:.79rem;font-weight:600;color:#212529;line-height:1.4;min-height:2.2em;" th:text="${sp.tenSanpham}"></div>
+                  <div class="d-flex align-items-baseline gap-1 mt-1">
+                    <span style="color:#dc3545;font-weight:800;font-size:.88rem;" th:text="${#numbers.formatInteger(sp.gia * (100 - sp.giamgia) / 100, 0, 'COMMA') + '₫'}"></span>
+                  </div>
+                  <div style="color:#adb5bd;font-size:.7rem;text-decoration:line-through;" th:text="${#numbers.formatInteger(sp.gia, 0, 'COMMA') + '₫'}"></div>
+                  <div class="flash-sold-bar"><div class="flash-sold-bar-fill" th:style="'width:' + ${(sp.idSanpham * 17 % 75) + 15} + '%'"></div></div>
+                  <div style="font-size:.67rem;color:#dc3545;font-weight:600;">🔥 Đã bán <span th:text="${(sp.idSanpham * 17 % 75) + 15}"></span>/300</div>
                 </div>
               </a>
-              
-              <div class="product-info">
-                <h6 class="product-title mb-2">
-                  <a th:href="@{/sanpham(id=${sanpham.idSanpham})}" class="text-dark text-decoration-none">
-                    <i class="fas fa-capsules me-2 text-primary"></i>
-                    <span th:text="${sanpham.tenSanpham}"></span>
-                  </a>
-                </h6>
-
-                <div class="product-price mb-3">
-                  <div th:if="${sanpham.giamgia == 0}" class="d-flex align-items-center">
-                    <i class="fas fa-tag text-primary me-2"></i>
-                    <span class="price fw-bold text-primary">
-                      <span th:text="${#numbers.formatInteger(sanpham.gia, 0, 'COMMA')}"></span>₫
-                    </span>
-                  </div>
-                  <div th:if="${sanpham.giamgia > 0}" class="d-flex align-items-center gap-2">
-                    <i class="fas fa-tags text-danger me-2"></i>
-                    <span class="price fw-bold text-primary">
-                      <span th:text="${#numbers.formatInteger(sanpham.gia * (100 - sanpham.giamgia) / 100, 0, 'COMMA')}"></span>₫
-                    </span>
-                    <span class="original-price text-decoration-line-through text-muted small">
-                      <span th:text="${#numbers.formatInteger(sanpham.gia, 0, 'COMMA')}"></span>₫
-                    </span>
-                    <span class="discount badge bg-danger">
-                      <i class="fas fa-percent me-1"></i>
-                      <span th:text="${sanpham.giamgia}"></span>%
-                    </span>
-                  </div>
-                </div>
-
-                <div class="product-actions d-flex gap-2">
-                  <button th:disabled="${sanpham.soluong == 0}" 
-                          th:classappend="${sanpham.soluong == 0?'btn-danger':'btn-primary'}"
-                          type="button" 
-                          class="btn flex-grow-1 add-cart-item" 
-                          th:data-id="${sanpham.idSanpham}"
-                          th:data-name="${sanpham.tenSanpham}">
-                    <i class="fas fa-cart-plus me-2"></i>
-                    <span th:text="${sanpham.soluong == 0?'Hết hàng':'Thêm vào giỏ'}"></span>
-                  </button>
-                  <button th:if="${sanpham.soluong > 0}" 
-                          type="button"
-                          class="btn btn-outline-primary buy-now"
-                          th:data-id="${sanpham.idSanpham}">
-                    <i class="fas fa-bolt"></i>
-                  </button>
-                </div>
+              <div class="px-2 pb-2 mt-1">
+                <button class="btn btn-primary btn-sm w-100 add-cart-item" th:data-id="${sp.idSanpham}" th:data-name="${sp.tenSanpham}">Chọn mua</button>
               </div>
             </div>
           </div>
@@ -513,140 +347,177 @@
     </div>
   </section>
 
-  <!-- Sale Products Section -->
-  <section class="section-products py-5 bg-white">
+  <!-- ══ CATEGORIES ══ -->
+  <section class="py-5 bg-white">
     <div class="container">
-      <div class="section-header d-flex justify-content-between align-items-center mb-4">
+      <div class="d-flex justify-content-between align-items-end mb-4 reveal">
         <div>
-          <h2 class="section-title fw-bold mb-1">
-            <i class="fas fa-fire text-danger me-2"></i>Sản phẩm giảm giá
-          </h2>
-          <p class="text-muted mb-0">Khám phá các sản phẩm đang giảm giá hot nhất</p>
+          <div class="section-badge section-badge-blue"><i class="fas fa-th-large"></i>Danh mục</div>
+          <h2 class="section-title-main">Sản phẩm theo <span>nhóm thuốc</span></h2>
+          <div class="section-divider"></div>
         </div>
-      </div>
-
-      <div class="row g-4">
-        <div class="col-xl-3 col-lg-4 col-md-6" th:each="sanpham : ${listSPGiamGia}">
-          <div class="card product-card h-100 border-0 shadow-sm">
-            <div class="card-body p-3">
-              <!-- Product Image -->
-              <a th:href="@{/sanpham(id=${sanpham.idSanpham})}" class="product-img mb-3">
-                <img th:src="@{/image/{url}(url=${sanpham.hinh})}" class="img-fluid" th:alt="${sanpham.tenSanpham}">
-                <div class="product-overlay">
-                  <i class="fas fa-search-plus"></i>
-                </div>
-                <div class="product-badge">
-                  <span class="badge bg-danger">
-                    <i class="fas fa-bolt me-1"></i>Giảm giá
-                  </span>
-                </div>
-              </a>
-              
-              <!-- Product Info -->
-              <div class="product-info">
-                <h6 class="product-title mb-2">
-                  <a th:href="@{/sanpham(id=${sanpham.idSanpham})}" class="text-dark text-decoration-none">
-                    <i class="fas fa-capsules me-2 text-primary"></i>
-                    <span th:text="${sanpham.tenSanpham}"></span>
-                  </a>
-                </h6>
-
-                <!-- Price Info -->
-                <div class="product-price mb-3">
-                  <div class="d-flex align-items-center gap-2">
-                    <i class="fas fa-tags text-danger me-2"></i>
-                    <span class="price fw-bold text-primary">
-                      <span th:text="${#numbers.formatInteger(sanpham.gia * (100 - sanpham.giamgia) / 100, 0, 'COMMA')}"></span>₫
-                    </span>
-                    <span class="original-price text-decoration-line-through text-muted small">
-                      <span th:text="${#numbers.formatInteger(sanpham.gia, 0, 'COMMA')}"></span>₫
-                    </span>
-                    <span class="discount badge bg-danger">
-                      <i class="fas fa-percent me-1"></i>
-                      <span th:text="${sanpham.giamgia}"></span>%
-                    </span>
-                  </div>
-                </div>
-
-                <!-- Product Actions -->
-                <div class="product-actions d-flex gap-2">
-                  <button th:disabled="${sanpham.soluong == 0}" 
-                          th:classappend="${sanpham.soluong == 0?'btn-danger':'btn-primary'}"
-                          type="button" 
-                          class="btn flex-grow-1 add-cart-item" 
-                          th:data-id="${sanpham.idSanpham}"
-                          th:data-name="${sanpham.tenSanpham}">
-                    <i class="fas fa-cart-plus me-2"></i>
-                    <span th:text="${sanpham.soluong == 0?'Hết hàng':'Thêm vào giỏ'}"></span>
-                  </button>
-                  <button th:if="${sanpham.soluong > 0}" 
-                          type="button"
-                          class="btn btn-outline-primary buy-now"
-                          th:data-id="${sanpham.idSanpham}">
-                    <i class="fas fa-bolt"></i>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- MINI NEWS -->
-  <section class="py-4 bg-light border-top">
-    <div class="container">
-      <div class="d-flex align-items-center justify-content-between mb-3">
-        <h4 class="fw-bold mb-0"><i class="fas fa-newspaper text-primary me-2"></i>Kiến thức sức khỏe</h4>
-        <a th:href="@{/tin-tuc}" class="btn btn-outline-primary btn-sm">Xem thêm <i class="fas fa-arrow-right ms-1"></i></a>
+        <a th:href="@{/loai-all}" class="btn btn-outline-primary btn-sm d-none d-md-inline-flex align-items-center gap-1" style="border-radius:2rem;">
+          <i class="fas fa-th-large"></i> Tất cả danh mục
+        </a>
       </div>
       <div class="row g-3">
-        <div class="col-sm-6 col-lg-3">
-          <a th:href="@{/tin-tuc}" class="text-decoration-none">
-            <div class="card border-0 shadow-sm mini-news-card h-100">
-              <div class="mini-news-thumb" style="background:linear-gradient(135deg,#0d6efd,#63a3ff);">
-                <i class="fas fa-pills fa-2x text-white opacity-75"></i></div>
-              <div class="card-body py-2 px-3">
-                <span class="badge bg-primary-subtle text-primary mb-1" style="font-size:.7rem;">Hướng dẫn</span>
-                <div class="small fw-semibold text-dark lh-sm">5 lưu ý khi tự dùng thuốc cảm cúm tại nhà</div>
+        <div class="col-lg-2 col-md-3 col-4 reveal" th:each="loai,i : ${loais}" th:classappend="${'reveal-delay-' + (i.index + 1)}">
+          <a th:href="@{/loai(id=${loai.idLoai})}" class="category-card-new">
+            <div class="cat-icon-wrap"><i class="fas fa-pills"></i></div>
+            <div class="cat-name" th:text="${loai.tenLoai}"></div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ PRODUCTS (TABBED: Mới nhất / Giảm giá) ══ -->
+  <section class="py-5" style="background:#f5f7fa;">
+    <div class="container">
+      <div class="d-flex justify-content-between align-items-end mb-1 reveal">
+        <div>
+          <div class="section-badge section-badge-blue"><i class="fas fa-box-open"></i>Sản phẩm</div>
+          <h2 class="section-title-main">Khám phá <span>sản phẩm</span></h2>
+          <div class="section-divider"></div>
+        </div>
+      </div>
+      <div class="prod-tabs-wrap reveal">
+        <button class="prod-tab-btn active" data-tab="new">
+          <i class="fas fa-star me-1"></i>Mới nhất
+        </button>
+        <button class="prod-tab-btn" data-tab="sale">
+          <i class="fas fa-fire me-1" style="color:#dc3545;"></i>Đang giảm giá
+        </button>
+      </div>
+
+      <!-- Tab: Sản phẩm mới -->
+      <div class="prod-tab-panel active" id="tab-new">
+        <div class="row g-3">
+          <div class="col-xl-3 col-lg-4 col-md-6 col-6 reveal" th:each="sp,i : ${sanphams}" th:classappend="${i.index < 4 ? ('reveal-delay-' + (i.index + 1)) : ''}">
+            <div class="product-card-new">
+              <a th:href="@{/sanpham(id=${sp.idSanpham})}" class="product-img-wrap d-block text-decoration-none">
+                <img th:if="${sp.hinh != null and !sp.hinh.isEmpty()}" th:src="@{/image/{url}(url=${sp.hinh})}" th:alt="${sp.tenSanpham}">
+                <div th:if="${sp.hinh == null or sp.hinh.isEmpty()}" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
+                  <i class="fas fa-capsules fa-3x text-primary opacity-25"></i>
+                </div>
+                <div class="product-overlay-new">
+                  <i class="fas fa-search-plus text-white fa-lg"></i>
+                </div>
+                <div class="product-badge-pos" th:if="${sp.giamgia > 0}">
+                  <span class="badge bg-danger product-badge-pos"><i class="fas fa-bolt me-1"></i>Sale</span>
+                </div>
+              </a>
+              <div class="product-body">
+                <div class="product-name" th:text="${sp.tenSanpham}"></div>
+                <div class="product-price-new">
+                  <span class="product-price-main" th:if="${sp.giamgia == 0}" th:text="${#numbers.formatInteger(sp.gia, 0, 'COMMA') + '₫'}"></span>
+                  <span class="product-price-main" th:if="${sp.giamgia > 0}" th:text="${#numbers.formatInteger(sp.gia * (100 - sp.giamgia) / 100, 0, 'COMMA') + '₫'}"></span>
+                  <span class="product-price-orig" th:if="${sp.giamgia > 0}" th:text="${#numbers.formatInteger(sp.gia, 0, 'COMMA') + '₫'}"></span>
+                  <span class="product-disc-badge" th:if="${sp.giamgia > 0}" th:text="'-' + ${sp.giamgia} + '%'"></span>
+                </div>
+                <div class="product-actions-new">
+                  <button class="btn-cart-add add-cart-item"
+                          th:data-id="${sp.idSanpham}" th:data-name="${sp.tenSanpham}"
+                          th:disabled="${sp.soluong == 0}"
+                          th:text="${sp.soluong == 0 ? 'Hết hàng' : 'Thêm vào giỏ'}">
+                  </button>
+                  <button class="btn-quick-buy buy-now" th:if="${sp.soluong > 0}" th:data-id="${sp.idSanpham}" title="Mua ngay">
+                    <i class="fas fa-bolt"></i>
+                  </button>
+                </div>
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Đang giảm giá -->
+      <div class="prod-tab-panel" id="tab-sale">
+        <div class="row g-3">
+          <div class="col-xl-3 col-lg-4 col-md-6 col-6 reveal" th:each="sp,i : ${listSPGiamGia}" th:classappend="${i.index < 4 ? ('reveal-delay-' + (i.index + 1)) : ''}">
+            <div class="product-card-new">
+              <a th:href="@{/sanpham(id=${sp.idSanpham})}" class="product-img-wrap d-block text-decoration-none">
+                <img th:if="${sp.hinh != null and !sp.hinh.isEmpty()}" th:src="@{/image/{url}(url=${sp.hinh})}" th:alt="${sp.tenSanpham}">
+                <div th:if="${sp.hinh == null or sp.hinh.isEmpty()}" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
+                  <i class="fas fa-capsules fa-3x text-primary opacity-25"></i>
+                </div>
+                <div class="product-overlay-new"><i class="fas fa-search-plus text-white fa-lg"></i></div>
+                <div class="product-badge-pos">
+                  <span class="badge bg-danger"><i class="fas fa-fire me-1"></i>-<span th:text="${sp.giamgia}"></span>%</span>
+                </div>
+              </a>
+              <div class="product-body">
+                <div class="product-name" th:text="${sp.tenSanpham}"></div>
+                <div class="product-price-new">
+                  <span class="product-price-main" th:text="${#numbers.formatInteger(sp.gia * (100 - sp.giamgia) / 100, 0, 'COMMA') + '₫'}"></span>
+                  <span class="product-price-orig" th:text="${#numbers.formatInteger(sp.gia, 0, 'COMMA') + '₫'}"></span>
+                  <span class="product-disc-badge" th:text="'-' + ${sp.giamgia} + '%'"></span>
+                </div>
+                <div class="product-actions-new">
+                  <button class="btn-cart-add add-cart-item"
+                          th:data-id="${sp.idSanpham}" th:data-name="${sp.tenSanpham}"
+                          th:disabled="${sp.soluong == 0}"
+                          th:text="${sp.soluong == 0 ? 'Hết hàng' : 'Thêm vào giỏ'}">
+                  </button>
+                  <button class="btn-quick-buy buy-now" th:if="${sp.soluong > 0}" th:data-id="${sp.idSanpham}" title="Mua ngay">
+                    <i class="fas fa-bolt"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ HEALTH NEWS ══ -->
+  <section class="py-5 bg-white">
+    <div class="container">
+      <div class="d-flex justify-content-between align-items-end mb-4 reveal">
+        <div>
+          <div class="section-badge section-badge-green"><i class="fas fa-newspaper"></i>Tin tức</div>
+          <h2 class="section-title-main">Kiến thức <span>sức khỏe</span></h2>
+          <div class="section-divider" style="background:linear-gradient(90deg,#198754,#20c997);"></div>
+        </div>
+        <a th:href="@{/tin-tuc}" class="btn btn-outline-success btn-sm d-none d-md-inline-flex align-items-center gap-1" style="border-radius:2rem;">
+          <i class="fas fa-arrow-right"></i> Xem thêm
+        </a>
+      </div>
+      <div class="row g-3">
+        <div class="col-sm-6 col-lg-3 reveal reveal-delay-1">
+          <a th:href="@{/tin-tuc}" class="news-card">
+            <div class="news-thumb" style="background:linear-gradient(135deg,#0d6efd,#4facfe);"><i class="fas fa-pills fa-2x text-white opacity-75"></i></div>
+            <div class="news-body">
+              <span class="news-cat text-primary">Hướng dẫn</span>
+              <div class="news-title">5 lưu ý khi tự dùng thuốc cảm cúm tại nhà an toàn</div>
             </div>
           </a>
         </div>
-        <div class="col-sm-6 col-lg-3">
-          <a th:href="@{/tin-tuc}" class="text-decoration-none">
-            <div class="card border-0 shadow-sm mini-news-card h-100">
-              <div class="mini-news-thumb" style="background:linear-gradient(135deg,#198754,#75b798);">
-                <i class="fas fa-apple-alt fa-2x text-white opacity-75"></i></div>
-              <div class="card-body py-2 px-3">
-                <span class="badge bg-success-subtle text-success mb-1" style="font-size:.7rem;">Dinh dưỡng</span>
-                <div class="small fw-semibold text-dark lh-sm">Tăng đề kháng mùa giao mùa như thế nào?</div>
-              </div>
+        <div class="col-sm-6 col-lg-3 reveal reveal-delay-2">
+          <a th:href="@{/tin-tuc}" class="news-card">
+            <div class="news-thumb" style="background:linear-gradient(135deg,#198754,#75b798);"><i class="fas fa-apple-alt fa-2x text-white opacity-75"></i></div>
+            <div class="news-body">
+              <span class="news-cat text-success">Dinh dưỡng</span>
+              <div class="news-title">Tăng đề kháng mùa giao mùa: những điều cần biết</div>
             </div>
           </a>
         </div>
-        <div class="col-sm-6 col-lg-3">
-          <a th:href="@{/tin-tuc}" class="text-decoration-none">
-            <div class="card border-0 shadow-sm mini-news-card h-100">
-              <div class="mini-news-thumb" style="background:linear-gradient(135deg,#fd7e14,#ffc107);">
-                <i class="fas fa-exclamation-triangle fa-2x text-white opacity-75"></i></div>
-              <div class="card-body py-2 px-3">
-                <span class="badge bg-warning-subtle text-warning mb-1" style="font-size:.7rem;">An toàn thuốc</span>
-                <div class="small fw-semibold text-dark lh-sm">Khi nào không nên dùng chung nhiều thuốc giảm đau?</div>
-              </div>
+        <div class="col-sm-6 col-lg-3 reveal reveal-delay-3">
+          <a th:href="@{/tin-tuc}" class="news-card">
+            <div class="news-thumb" style="background:linear-gradient(135deg,#fd7e14,#ffc107);"><i class="fas fa-exclamation-triangle fa-2x text-white opacity-75"></i></div>
+            <div class="news-body">
+              <span class="news-cat text-warning">An toàn thuốc</span>
+              <div class="news-title">Khi nào không nên dùng chung nhiều loại thuốc giảm đau?</div>
             </div>
           </a>
         </div>
-        <div class="col-sm-6 col-lg-3">
-          <a th:href="@{/tin-tuc}" class="text-decoration-none">
-            <div class="card border-0 shadow-sm mini-news-card h-100">
-              <div class="mini-news-thumb" style="background:linear-gradient(135deg,#6f42c1,#a78bfa);">
-                <i class="fas fa-heartbeat fa-2x text-white opacity-75"></i></div>
-              <div class="card-body py-2 px-3">
-                <span class="badge bg-purple-subtle text-purple mb-1" style="font-size:.7rem;">Sống khỏe</span>
-                <div class="small fw-semibold text-dark lh-sm">10 thói quen buổi sáng giúp cơ thể khỏe mạnh cả ngày</div>
-              </div>
+        <div class="col-sm-6 col-lg-3 reveal reveal-delay-4">
+          <a th:href="@{/tin-tuc}" class="news-card">
+            <div class="news-thumb" style="background:linear-gradient(135deg,#6f42c1,#a78bfa);"><i class="fas fa-heartbeat fa-2x text-white opacity-75"></i></div>
+            <div class="news-body">
+              <span class="news-cat" style="color:#6f42c1;">Sống khỏe</span>
+              <div class="news-title">10 thói quen buổi sáng giúp cơ thể khỏe mạnh cả ngày</div>
             </div>
           </a>
         </div>
@@ -655,139 +526,101 @@
   </section>
 
   <th:block th:replace="~{user/_footer}" />
-
   <div class="toast-container position-fixed bottom-0 start-0 p-3"></div>
 
   <script>
-    (function () {
-      function pad2(n) { return String(n).padStart(2, '0'); }
+  (function () {
+    /* ── Scroll reveal ── */
+    var io = new IntersectionObserver(function(entries) {
+      entries.forEach(function(e) {
+        if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.08 });
+    document.querySelectorAll('.reveal').forEach(function(el) { io.observe(el); });
 
-      /* ---- Build tab date labels ---- */
-      var now = new Date();
-      var tabDates = [];
-      for (var i = 0; i < 3; i++) {
-        var d = new Date(now); d.setDate(d.getDate() + i);
-        tabDates.push(d);
-        var label = '08:00 - 22:00, ' + pad2(d.getDate()) + '/' + pad2(d.getMonth() + 1);
-        var el = document.getElementById('flashTabDate' + i);
-        if (el) el.textContent = label;
-      }
-
-      /* ---- State ---- */
-      var activeTab = 0;
-      var countdownTarget = null; // Date object to count down to
-
-      function getEndOfDay(dayOffset) {
-        var e = new Date(); e.setDate(e.getDate() + dayOffset);
-        e.setHours(22, 0, 0, 0);
-        return e;
-      }
-      function getStartOfDay(dayOffset) {
-        var e = new Date(); e.setDate(e.getDate() + dayOffset);
-        e.setHours(8, 0, 0, 0);
-        return e;
-      }
-
-      /* ---- Switch tab ---- */
-      function switchTab(idx) {
-        activeTab = idx;
-
-        // Update tab appearance
-        for (var i = 0; i < 3; i++) {
-          var t = document.getElementById('flashTab' + i);
-          if (!t) continue;
-          var statusEl = t.querySelector('.status');
-          t.classList.toggle('active', i === idx);
-          if (i === 0) {
-            statusEl.textContent = 'Đang diễn ra';
-            statusEl.className = 'status text-danger';
-          } else {
-            statusEl.textContent = i === idx ? 'Đã chọn' : 'Sắp diễn ra';
-            statusEl.className = 'status ' + (i === idx ? 'text-danger' : 'text-muted');
-          }
+    /* ── Product tabs ── */
+    document.querySelectorAll('.prod-tab-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.prod-tab-btn').forEach(function(b) { b.classList.remove('active'); });
+        document.querySelectorAll('.prod-tab-panel').forEach(function(p) { p.classList.remove('active'); });
+        btn.classList.add('active');
+        var panel = document.getElementById('tab-' + btn.dataset.tab);
+        if (panel) {
+          panel.classList.add('active');
+          panel.querySelectorAll('.reveal').forEach(function(el) { io.observe(el); });
         }
+      });
+    });
 
-        var productsRow  = document.getElementById('flashProductsRow');
-        var soonOverlay  = document.getElementById('flashSoonOverlay');
-        var ctLabel      = document.getElementById('flashCtLabel');
-        var topCdRow     = document.querySelector('.flash-countdown-row');
-
-        if (idx === 0) {
-          // Today: show products, countdown to 22:00
-          productsRow.style.display = '';
-          soonOverlay.style.display = 'none';
-          countdownTarget = getEndOfDay(0);
-          if (ctLabel) ctLabel.textContent = 'Kết thúc sau';
-          topCdRow.style.display = '';
-        } else {
-          // Future: hide products, show overlay, countdown to 08:00 of that day
-          productsRow.style.display = 'none';
-          soonOverlay.style.display = '';
-          var targetDate = tabDates[idx];
-          var dd = pad2(targetDate.getDate()), mm = pad2(targetDate.getMonth() + 1);
-          document.getElementById('flashSoonTitle').textContent = 'Chương trình ngày ' + dd + '/' + mm + ' sắp bắt đầu';
-          document.getElementById('flashSoonDesc').textContent = 'Quay lại lúc 08:00 ngày ' + dd + '/' + mm + ' để săn deal giá tốt!';
-          countdownTarget = getStartOfDay(idx);
-          topCdRow.style.display = 'none'; // hide top countdown, overlay has its own
-        }
-      }
-
-      /* ---- Tab click handlers ---- */
-      for (var ti = 0; ti < 3; ti++) {
-        (function(index) {
-          var tab = document.getElementById('flashTab' + index);
-          if (tab) tab.addEventListener('click', function () { switchTab(index); });
-        })(ti);
-      }
-
-      /* ---- Countdown tick ---- */
-      function tick() {
-        var target = activeTab === 0 ? getEndOfDay(0) : getStartOfDay(activeTab);
-        var diff = Math.max(0, target - new Date());
-        var h = Math.floor(diff / 3600000);
-        var m = Math.floor((diff % 3600000) / 60000);
-        var s = Math.floor((diff % 60000) / 1000);
-        var vals = [h, m, s];
-        // Main countdown row (tab 0)
-        ['ctH','ctM','ctS'].forEach(function(id, i) {
-          var el = document.getElementById(id); if (el) el.textContent = pad2(vals[i]);
-        });
-        // Overlay countdown (future tabs)
-        ['ctH2','ctM2','ctS2'].forEach(function(id, i) {
-          var el = document.getElementById(id); if (el) el.textContent = pad2(vals[i]);
-        });
-      }
-
-      // Init
-      switchTab(0);
-      tick();
-      setInterval(tick, 1000);
-    })();
-
-    /* ---- Flash sale scroll arrows ---- */
-    function scrollFlash(dir) {
-      var row = document.getElementById('flashProductsRow');
-      if (!row) return;
-      var cardW = 175 + 16; // card width + gap
-      row.scrollBy({ left: dir * cardW * 3, behavior: 'smooth' });
+    /* ── Flash sale ── */
+    function pad2(n) { return String(n).padStart(2, '0'); }
+    var now = new Date();
+    var tabDates = [];
+    for (var i = 0; i < 3; i++) {
+      var d = new Date(now); d.setDate(d.getDate() + i); tabDates.push(d);
+      var label = pad2(d.getDate()) + '/' + pad2(d.getMonth() + 1);
+      var el = document.getElementById('flashTabDate' + i);
+      if (el) el.textContent = label;
     }
-
-    /* Hide/show arrows based on scroll position */
-    (function() {
-      var row  = document.getElementById('flashProductsRow');
-      var prev = document.getElementById('flashPrev');
-      var next = document.getElementById('flashNext');
-      if (!row || !prev || !next) return;
-      function updateArrows() {
-        prev.style.opacity = row.scrollLeft <= 10 ? '0.35' : '1';
-        prev.style.pointerEvents = row.scrollLeft <= 10 ? 'none' : 'auto';
-        var atEnd = row.scrollLeft + row.clientWidth >= row.scrollWidth - 10;
-        next.style.opacity = atEnd ? '0.35' : '1';
-        next.style.pointerEvents = atEnd ? 'none' : 'auto';
+    var activeTab = 0;
+    function getEndOfDay(offset) { var e=new Date(); e.setDate(e.getDate()+offset); e.setHours(22,0,0,0); return e; }
+    function getStartOfDay(offset) { var e=new Date(); e.setDate(e.getDate()+offset); e.setHours(8,0,0,0); return e; }
+    function switchTab(idx) {
+      activeTab = idx;
+      for (var i=0;i<3;i++) {
+        var t=document.getElementById('flashTab'+i);
+        if (!t) continue;
+        var s=t.querySelector('.status');
+        t.classList.toggle('active',i===idx);
+        if (i===0) { s.textContent='Đang diễn ra'; s.className='status text-danger'; }
+        else { s.textContent=(i===idx?'Đã chọn':'Sắp diễn ra'); s.className='status '+(i===idx?'text-danger':'text-muted'); }
       }
-      row.addEventListener('scroll', updateArrows);
-      updateArrows();
-    })();
+      var row=document.getElementById('flashProductsRow');
+      var soon=document.getElementById('flashSoonOverlay');
+      var ctLabel=document.getElementById('flashCtLabel');
+      var cdRow=document.querySelector('.flash-countdown-row');
+      if (idx===0) {
+        if (row) row.style.display=''; if (soon) soon.style.display='none';
+        if (ctLabel) ctLabel.textContent='Kết thúc sau'; if (cdRow) cdRow.style.display='';
+      } else {
+        if (row) row.style.display='none'; if (soon) soon.style.display='';
+        var td=tabDates[idx];
+        var dd=pad2(td.getDate()),mm=pad2(td.getMonth()+1);
+        var st=document.getElementById('flashSoonTitle'); if(st) st.textContent='Chương trình ngày '+dd+'/'+mm+' sắp bắt đầu';
+        var sd=document.getElementById('flashSoonDesc'); if(sd) sd.textContent='Quay lại lúc 08:00 ngày '+dd+'/'+mm+' để săn deal!';
+        if (cdRow) cdRow.style.display='none';
+      }
+    }
+    for (var ti=0;ti<3;ti++) {
+      (function(idx){ var t=document.getElementById('flashTab'+idx); if(t) t.addEventListener('click',function(){switchTab(idx);}); })(ti);
+    }
+    function tick() {
+      var target=activeTab===0?getEndOfDay(0):getStartOfDay(activeTab);
+      var diff=Math.max(0,target-new Date());
+      var h=Math.floor(diff/3600000),m=Math.floor((diff%3600000)/60000),s=Math.floor((diff%60000)/1000);
+      ['ctH','ctM','ctS'].forEach(function(id,i){var el=document.getElementById(id);if(el)el.textContent=pad2([h,m,s][i]);});
+      ['ctH2','ctM2','ctS2'].forEach(function(id,i){var el=document.getElementById(id);if(el)el.textContent=pad2([h,m,s][i]);});
+    }
+    switchTab(0); tick(); setInterval(tick,1000);
+  })();
+
+  function scrollFlash(dir) {
+    var row=document.getElementById('flashProductsRow'); if(!row)return;
+    row.scrollBy({left:dir*(170+13)*3,behavior:'smooth'});
+  }
+  (function(){
+    var row=document.getElementById('flashProductsRow');
+    var prev=document.getElementById('flashPrev'),next=document.getElementById('flashNext');
+    if(!row||!prev||!next)return;
+    function ua(){
+      prev.style.opacity=row.scrollLeft<=10?'0.3':'1';
+      prev.style.pointerEvents=row.scrollLeft<=10?'none':'auto';
+      var atEnd=row.scrollLeft+row.clientWidth>=row.scrollWidth-10;
+      next.style.opacity=atEnd?'0.3':'1';
+      next.style.pointerEvents=atEnd?'none':'auto';
+    }
+    row.addEventListener('scroll',ua); ua();
+  })();
   </script>
 </body>
 </html>

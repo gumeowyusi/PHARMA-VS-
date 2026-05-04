@@ -73,7 +73,7 @@ html, body {
 
 /* toast */
 .toast-container {
-	z-index: 5;
+	z-index: 1090;
 }
 
 .td-text {

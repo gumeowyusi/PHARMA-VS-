@@ -42,7 +42,20 @@
   --shadow-lg: 0 10px 15px -3px rgba(0,0,0,.1),0 4px 6px -4px rgba(0,0,0,.1);
 }
 
-body { font-family: var(--font-base); font-size: var(--font-size-base); line-height: var(--line-height-base); }
+body { font-family: var(--font-base); font-size: var(--font-size-base); line-height: var(--line-height-base); -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+
+/* Global smooth scrolling */
+html { scroll-behavior: smooth; }
+
+/* Smooth image loading */
+img { transition: opacity .3s ease; }
+
+/* Better focus ring */
+:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+
+/* Smooth button interactions */
+.btn { transition: all .2s cubic-bezier(.4,0,.2,1) !important; }
+.btn:active { transform: scale(.97); }
 
 /* Utility classes */
 .text-muted-sm { font-size: var(--font-size-sm); color: var(--color-muted); }
