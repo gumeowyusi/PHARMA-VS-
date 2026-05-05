@@ -202,11 +202,16 @@
   <!-- Order list -->
   <div class="om-body">
 
-    <!-- Empty state -->
-    <div th:if="${#lists.isEmpty(hoadons)}" class="order-card om-empty" id="emptyState">
+    <!-- Empty state: server-rendered (when 0 orders total) -->
+    <div th:if="${#lists.isEmpty(hoadons)}" class="order-card om-empty" id="emptyStateAll">
       <i class="fas fa-inbox d-block"></i>
+      <div class="fw-semibold fs-5 mt-2">Chưa có đơn hàng nào</div>
+    </div>
+    <!-- Empty state: JS-controlled (when filter shows 0 matching orders) -->
+    <div class="order-card om-empty" id="emptyStateFilter" style="display:none;">
+      <i class="fas fa-filter d-block"></i>
       <div class="fw-semibold fs-5 mt-2">Không có đơn hàng</div>
-      <div class="small mt-1">Chưa có đơn hàng nào trong trạng thái này</div>
+      <div class="small mt-1">Không có đơn hàng nào trong trạng thái này</div>
     </div>
 
     <!-- Order cards -->
@@ -392,9 +397,9 @@
         card.style.display = show ? '' : 'none';
         if (show) visible++;
       });
-      // Show empty state if no cards visible
-      const emptyEl = document.getElementById('emptyState');
-      if (emptyEl) emptyEl.style.display = visible === 0 ? '' : 'none';
+      // Show JS-managed empty state when no cards match filter
+      const filterEmpty = document.getElementById('emptyStateFilter');
+      if (filterEmpty) filterEmpty.style.display = visible === 0 ? '' : 'none';
     }
 
     document.querySelectorAll('#statusTabs .stab').forEach(btn => {
@@ -463,9 +468,13 @@
           card.querySelectorAll('.btn-approve, .btn-ship, .btn-done, .btn-cancel').forEach(b => b.remove());
           // Fade card out if it doesn't belong to current filter
           if (activeFilter && card.dataset.status !== activeFilter) {
-            card.style.transition = 'opacity .4s, max-height .4s';
+            card.style.transition = 'opacity .4s';
             card.style.opacity = '0';
-            setTimeout(() => { card.style.display = 'none'; recomputeCounts(); }, 420);
+            setTimeout(() => {
+              card.style.display = 'none';
+              recomputeCounts();
+              applyFilter(activeFilter); // refresh empty state
+            }, 420);
           } else {
             card.style.opacity = '1';
             recomputeCounts();
