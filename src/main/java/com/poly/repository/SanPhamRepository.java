@@ -35,7 +35,7 @@ public interface SanPhamRepository extends JpaRepository<SanPham, Integer> {
 			@Param("maxPrice") Integer maxPrice, @Param("sortBy") String sortBy, Pageable pageable);
 
 	@Query("SELECT DISTINCT hct.sanPham FROM HoaDonChiTiet hct " + "JOIN hct.hoaDon hd "
-			+ "WHERE hd.users.idUser = :idUser AND hd.trangthai = 'received'")
+			+ "WHERE hd.users.idUser = :idUser AND hd.trangthai IN ('received','paid','confirmed','ondelivery')")
 	Page<SanPham> findSanPhamByUser(@Param("idUser") String idUser, Pageable pageable);
 
 	Page<SanPham> findByTenSanphamContainingIgnoreCaseAndLoai_IdLoai(String keyword, Integer idLoai, Pageable pageable);

@@ -453,7 +453,7 @@ function _renderStep2Items() {
       ? Math.round(item.productPrice * (100 - item.productDiscount) / 100)
       : item.productPrice;
     return `<div style="display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid #f1f5f9;">
-      <img src="${item.productImage || '/img/50px.png'}" alt="" style="width:44px;height:44px;object-fit:cover;border-radius:8px;background:#f8fafc;border:1px solid #e2e8f0;flex-shrink:0;" onerror="this.src='/img/50px.png'">
+      <img src="${item.productImageName ? '/image/' + item.productImageName : '/img/50px.png'}" alt="" style="width:44px;height:44px;object-fit:cover;border-radius:8px;background:#f8fafc;border:1px solid #e2e8f0;flex-shrink:0;" onerror="this.src='/img/50px.png'">
       <div style="flex:1;min-width:0;">
         <div style="font-size:.83rem;font-weight:600;color:#1e293b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${item.productName}</div>
         <div style="font-size:.78rem;color:#64748b;">${new Intl.NumberFormat('vi-VN').format(priceAfter)}₫ × ${item.quantity}</div>
