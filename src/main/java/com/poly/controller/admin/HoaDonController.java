@@ -36,8 +36,8 @@ public class HoaDonController {
 	public String hoadonManager(Model model,
 			@RequestParam(defaultValue = "0", name = "page") int page,
 			@RequestParam(defaultValue = "", name = "status") String status) {
-		// Load all orders for client-side instant tab filtering (no page reload on tab switch)
-		Page<HoaDon> hoadonPage = hoaDonService.getAllHoaDon(page, 50);
+		// Load orders for client-side tab filtering (LAZY + @BatchSize avoids N+1)
+		Page<HoaDon> hoadonPage = hoaDonService.getAllHoaDon(page, 20);
 		model.addAttribute("hoadons", hoadonPage.getContent());
 		model.addAttribute("currentPage", page);
 		model.addAttribute("totalPages", hoadonPage.getTotalPages());

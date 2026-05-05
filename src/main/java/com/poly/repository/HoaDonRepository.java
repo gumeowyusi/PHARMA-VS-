@@ -44,6 +44,9 @@ public interface HoaDonRepository extends JpaRepository<HoaDon, Integer> {
 
 	long countByTrangthai(String trangthai);
 
+	@Query("SELECT h.trangthai, COUNT(h) FROM HoaDon h GROUP BY h.trangthai")
+	List<Object[]> countGroupByTrangthai();
+
 	@Query(value = "SELECT MONTH(hd.ngaytao) AS thang, " +
 			"SUM(hdct.soluong * (hdct.gia * (1 - hdct.giamgia / 100.0))) AS doanhThu " +
 			"FROM HOADON hd JOIN HOADONCHITIET hdct ON hd.id_hoadon = hdct.id_hoadon " +

@@ -296,16 +296,14 @@
       <div class="order-totals" th:with="
           gh=${order.giaohang != null ? order.giaohang : ''},
           dp=${gh.contains('nhanh') ? 50000 : 20000},
-          vd=${order.voucherDiscountAmount != null ? order.voucherDiscountAmount : 0}">
+          vd=${order.voucherDiscountAmount != null ? order.voucherDiscountAmount : 0},
+          sub=${#aggregates.sum(order.hoaDonChiTiets.![giamgia == 0 ? gia * soluong : gia * (100 - giamgia) / 100.0 * soluong])}">
         <div class="total-chips">
           <span class="total-chip">Ship: <span class="val" th:text="${#numbers.formatInteger(dp,0,'COMMA')} + '₫'"></span></span>
           <span th:if="${vd > 0}" class="total-chip disc">Voucher: <span class="val" th:text="'-' + ${#numbers.formatInteger(vd,0,'COMMA')} + '₫'"></span></span>
         </div>
         <div class="total-final">
-          Tổng:&nbsp;<span
-            th:with="sub=${order.hoaDonChiTiets.stream().mapToDouble(ct -> ct.giamgia == 0 ? ct.gia * ct.soluong : ct.gia * (100 - ct.giamgia) / 100.0 * ct.soluong).sum()}"
-            th:text="${#numbers.formatInteger(sub + (order.giaohang != null and order.giaohang.contains('nhanh') ? 50000 : 20000) - (order.voucherDiscountAmount != null ? order.voucherDiscountAmount : 0), 0, 'COMMA')} + '₫'">
-          </span>
+          Tổng:&nbsp;<span th:text="${#numbers.formatInteger(sub + dp - vd, 0, 'COMMA')} + '₫'"></span>
         </div>
       </div>
 

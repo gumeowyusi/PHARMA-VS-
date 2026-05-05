@@ -204,7 +204,7 @@ public class HoaDonService {
 	}
 
 	public Page<HoaDon> getAllHoaDon(int pageNumber, int limit) {
-		PageRequest pageable = PageRequest.of(pageNumber, limit, Sort.by("ngaytao", "idHoadon").descending());
+		PageRequest pageable = PageRequest.of(pageNumber, limit, Sort.by("idHoadon").descending());
 		return hoaDonRepository.findAll(pageable);
 	}
 
@@ -215,11 +215,14 @@ public class HoaDonService {
 
 	public java.util.Map<String, Long> getOrderCounts() {
 		java.util.Map<String, Long> counts = new java.util.LinkedHashMap<>();
-		long total = hoaDonRepository.count();
-		counts.put("all", total);
-		for (String s : new String[]{"awaiting_payment", "pending", "confirmed", "ondelivery", "received", "cancel"}) {
-			counts.put(s, hoaDonRepository.countByTrangthai(s));
+		long total = 0;
+		for (Object[] row : hoaDonRepository.countGroupByTrangthai()) {
+			String status = (String) row[0];
+			Long cnt = ((Number) row[1]).longValue();
+			counts.put(status, cnt);
+			total += cnt;
 		}
+		counts.put("all", total);
 		return counts;
 	}
 

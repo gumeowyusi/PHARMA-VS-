@@ -15,6 +15,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
+import org.hibernate.annotations.BatchSize;
 
 @Entity
 @Table(name = "HOADON")
@@ -113,7 +114,8 @@ public class HoaDon {
 		this.diachi = diachi;
 	}
 
-	@OneToMany(fetch = FetchType.EAGER, mappedBy = "hoaDon")
+	@BatchSize(size = 20)
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "hoaDon")
 	public List<HoaDonChiTiet> getHoaDonChiTiets() {
 		return this.hoaDonChiTiets;
 	}
