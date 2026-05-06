@@ -219,26 +219,6 @@
       color: var(--ink-light);
     }
 
-    .qr-box {
-      position: absolute;
-      top: 32px;
-      right: 32px;
-      text-align: center;
-      font-size: 10px;
-      color: var(--ink-light);
-    }
-
-    .qr-box .qr-placeholder {
-      width: 90px;
-      height: 90px;
-      border: 1px dashed var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 10px;
-      border-radius: 6px;
-    }
-
     .alert {
       padding: 10px 12px;
       border: 1px solid #f5c6cb;
@@ -282,9 +262,6 @@
   <div class="invoice-shell"
     th:with="effectiveDiscountPercent=${derivedDiscountPercent != null ? derivedDiscountPercent : (order != null ? order.discountPercent : null)}">
     <div th:if="${errorMessage}" class="alert"><strong>Lỗi:</strong> <span th:text="${errorMessage}"></span></div>
-    <div class="qr-box" aria-hidden="true">
-      <div class="qr-placeholder">QR</div>
-    </div>
     <div class="brand-header">
       <img src="/img/favicon.ico" alt="MEDISALE" class="logo"
            onerror="this.style.display='none'" />
@@ -300,9 +277,13 @@
         <span class="meta-value" th:text="${order != null ? order.idHoadon : 'N/A'}"></span>
       </div>
       <div class="meta-item">
-        <span class="meta-label">Ngày tạo</span>
+        <span class="meta-label">Ngày đặt hàng</span>
         <span class="meta-value"
-          th:text="${order.ngaytao != null ? #dates.format(order.ngaytao, 'dd/MM/yyyy HH:mm') : 'N/A'}"></span>
+          th:text="${order.ngaytao != null ? #dates.format(order.ngaytao, 'dd/MM/yyyy') : 'N/A'}"></span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Ngày in hóa đơn</span>
+        <span class="meta-value" id="printTime">–</span>
       </div>
       <div class="meta-item">
         <span class="meta-label">Địa chỉ giao hàng</span>
@@ -405,7 +386,15 @@
     </div>
   </div>
   <script>
-    window.onload = function () { window.print(); };
+    window.onload = function () {
+      // Inject real current time (since ngaytao DB column has no time component)
+      var now = new Date();
+      var pad = function(n){ return String(n).padStart(2,'0'); };
+      document.getElementById('printTime').textContent =
+        pad(now.getDate()) + '/' + pad(now.getMonth()+1) + '/' + now.getFullYear() +
+        ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes());
+      window.print();
+    };
   </script>
 </body>
 
