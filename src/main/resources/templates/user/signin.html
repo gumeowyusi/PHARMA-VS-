@@ -245,18 +245,6 @@
       color: var(--primary-hover);
     }
 
-    .divider {
-      display: flex;
-      align-items: center;
-      text-align: center;
-      color: #94a3b8;
-      font-size: 0.85rem;
-      text-transform: uppercase;
-      font-weight: 600;
-      letter-spacing: 1px;
-      margin: 2rem 0;
-    }
-
     .divider::before,
     .divider::after {
       content: '';
@@ -273,18 +261,35 @@
     }
 
     .social-btn {
-      height: 3rem;
-      border-radius: 10px;
+      height: 3.2rem;
+      border-radius: 12px;
       font-weight: 600;
-      color: #475569;
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
+      font-size: .95rem;
+      color: #334155;
+      background: #fff;
+      border: 1.5px solid #e2e8f0;
+      box-shadow: 0 1px 4px rgba(0,0,0,.06);
       transition: all 0.2s ease;
     }
 
     .social-btn:hover {
-      background: #f1f5f9;
-      transform: translateY(-1px);
+      background: #f8faff;
+      border-color: #93c5fd;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(13,110,253,.12);
+      color: #0d6efd;
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      text-align: center;
+      color: #94a3b8;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      font-weight: 600;
+      letter-spacing: 1px;
+      margin: 1.5rem 0;
     }
 
     .form-check-input:checked {
@@ -405,24 +410,13 @@
 
                   <div class="divider">Hoặc đăng nhập bằng</div>
 
-                  <div class="row g-2">
-                    <div class="col-6">
-                      <a th:href="@{/oauth2/authorization/google}"
-                         class="btn social-btn w-100 text-decoration-none d-flex align-items-center justify-content-center"
-                         title="Đăng nhập bằng Google">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"
-                             width="18" class="me-2" alt="Google"> Google
-                      </a>
-                    </div>
-                    <div class="col-6">
-                      <a th:href="@{/oauth2/authorization/facebook}"
-                         class="btn social-btn w-100 text-decoration-none d-flex align-items-center justify-content-center"
-                         title="Đăng nhập bằng Facebook">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/2021_Facebook_icon.svg"
-                             width="18" class="me-2" alt="Facebook"> Facebook
-                      </a>
-                    </div>
-                  </div>
+                  <a th:href="@{/oauth2/authorization/google}"
+                     class="btn social-btn w-100 text-decoration-none d-flex align-items-center justify-content-center gap-2"
+                     title="Đăng nhập bằng Google">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"
+                         width="20" alt="Google">
+                    <span>Tiếp tục với Google</span>
+                  </a>
 
                   <p class="mt-4 pt-2 text-center small text-muted mb-0">
                     Bằng việc đăng nhập, bạn đồng ý với <a href="#"
