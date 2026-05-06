@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -46,7 +47,7 @@ public class HoaDonController {
 		return "admin/hoadon/hoadonManager";
 	}
 
-	@PostMapping("/admin/api/hoadon/{id}/status")
+	@PostMapping(value = "/admin/api/hoadon/{id}/status", produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	@PreAuthorize("hasAnyRole('ADMIN','STAFF')")
 	public ResponseEntity<?> updateOrderStatusAjax(@PathVariable int id, @RequestParam String action) {

@@ -66,18 +66,30 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
     private String extractEmail(Map<String, Object> attrs, String provider) {
         Object email = attrs.get("email");
-        return email != null ? email.toString() : null;
+        if (email != null && !email.toString().isBlank()) return email.toString();
+        // Facebook sometimes hides email – fall back to synthetic email from oauth id
+        if ("facebook".equals(provider)) {
+            Object id = attrs.get("id");
+            if (id != null) return id.toString() + "@facebook.oauth";
+        }
+        return null;
     }
 
     private String extractName(Map<String, Object> attrs) {
         Object name = attrs.get("name");
-        if (name != null) return name.toString();
+        if (name != null && !name.toString().isBlank()) return name.toString();
         String given = attrs.containsKey("given_name") ? (String) attrs.get("given_name") : "";
         String family = attrs.containsKey("family_name") ? (String) attrs.get("family_name") : "";
-        return (given + " " + family).trim();
+        String full = (given + " " + family).trim();
+        return full.isEmpty() ? "Người dùng" : full;
     }
 
     private String extractOAuthId(Map<String, Object> attrs, String provider) {
+        // Facebook uses "id", Google uses "sub"
+        if ("facebook".equals(provider)) {
+            Object id = attrs.get("id");
+            return id != null ? id.toString() : null;
+        }
         Object sub = attrs.get("sub");
         if (sub != null) return sub.toString();
         Object id = attrs.get("id");
