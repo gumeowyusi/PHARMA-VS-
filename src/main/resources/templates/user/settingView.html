@@ -1,159 +1,237 @@
 <!DOCTYPE html>
 <html lang="vi">
-
 <head>
   <th:block th:replace="~{user/_meta}" />
-  <title>Thiết đặt</title>
+  <title>Thiết đặt – MEDISALE</title>
   <script th:src="@{/js/toast.js}" type="module"></script>
   <script th:src="@{/js/home.js}" type="module"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <style>
+    body { background:#f0f4ff; }
+    .setting-section { padding:2.5rem 0 3.5rem; }
+    /* Sidebar */
+    .acc-nav .list-group-item {
+      border:none; border-radius:10px !important; margin-bottom:.35rem;
+      font-weight:500; color:#374151; padding:.65rem 1.1rem;
+      transition:background .18s,color .18s;
+    }
+    .acc-nav .list-group-item:hover { background:#e8f0fe; color:#0d6efd; }
+    .acc-nav .list-group-item.active {
+      background:linear-gradient(135deg,#0d6efd,#2563eb); color:#fff;
+      box-shadow:0 4px 14px -4px rgba(13,110,253,.4);
+    }
+    /* Cards */
+    .setting-card {
+      background:#fff; border-radius:18px; border:1.5px solid #e2e8f0;
+      box-shadow:0 4px 24px -6px rgba(13,110,253,.08); overflow:hidden;
+    }
+    .setting-card-header {
+      padding:1rem 1.4rem .8rem; border-bottom:1.5px solid #f1f5f9;
+      font-weight:700; font-size:.95rem; color:#1e293b;
+      display:flex; align-items:center; gap:.5rem;
+    }
+    .setting-card-body { padding:1.25rem 1.4rem; }
+    /* Avatar */
+    .avatar-wrap { position:relative; display:inline-block; cursor:pointer; }
+    .avatar-wrap img { width:90px; height:90px; border-radius:50%; object-fit:cover; border:3px solid #e2e8f0; }
+    .avatar-overlay {
+      position:absolute; inset:0; border-radius:50%;
+      background:rgba(0,0,0,.35); display:flex; align-items:center; justify-content:center;
+      opacity:0; transition:.2s;
+    }
+    .avatar-wrap:hover .avatar-overlay { opacity:1; }
+    /* Form */
+    .form-control { border-radius:10px; font-size:.88rem; border-color:#e2e8f0; }
+    .form-control:focus { border-color:#93c5fd; box-shadow:0 0 0 3px rgba(59,130,246,.12); }
+    .form-label { font-size:.8rem; font-weight:600; color:#475569; margin-bottom:.3rem; }
+    /* Points card */
+    .points-card {
+      background:linear-gradient(135deg,#1e40af 0%,#2563eb 60%,#3b82f6 100%);
+      border-radius:16px; color:#fff; padding:1.2rem 1.4rem;
+    }
+    .points-value { font-size:2rem; font-weight:900; line-height:1; }
+    .points-label { font-size:.78rem; opacity:.85; }
+    .points-rule { font-size:.72rem; opacity:.75; margin-top:.4rem; }
+    /* History list */
+    .diem-item {
+      display:flex; align-items:center; gap:.75rem;
+      padding:.65rem .85rem; border-bottom:1px solid #f1f5f9;
+    }
+    .diem-item:last-child { border-bottom:none; }
+    .diem-icon {
+      width:32px; height:32px; border-radius:50%; flex-shrink:0;
+      display:flex; align-items:center; justify-content:center; font-size:.8rem;
+    }
+    .diem-earn  { background:#d1fae5; color:#059669; }
+    .diem-redeem{ background:#fee2e2; color:#dc2626; }
+    .diem-note  { font-size:.82rem; font-weight:600; color:#1e293b; }
+    .diem-date  { font-size:.72rem; color:#94a3b8; }
+    .diem-amount{ font-size:.88rem; font-weight:700; margin-left:auto; white-space:nowrap; }
+  </style>
 </head>
-
 <body>
-<th:block th:replace="~{user/_header}" />
+  <th:block th:replace="~{user/_header}" />
 
-<section class="section-pagetop bg-light">
-  <div class="container">
-    <h2 class="title-page">Thiết đặt</h2>
-  </div> <!-- container.// -->
-</section> <!-- section-pagetop.// -->
+  <section class="setting-section">
+    <div class="container">
+      <div class="row g-4">
 
-<section class="section-content padding-y">
-  <div class="container">
-    <div class="row">
-		 <th:block th:insert="~{user/navPanel :: nav(active='SETTING')}"></th:block>
-         <main class="col-md-9">
-           <article class="card">
-             <div class="card-body row">
-              <div th:if="${successMessage}" class="alert alert-success" role="alert" th:text="${successMessage}"></div>
-        	  <div th:if="${errorMessage}" class="alert alert-danger" role="alert" th:text="${errorMessage}"></div>
-
-               <div class="col-lg-6">
-                 <form th:action="@{/setting}" method="post"  autocomplete="off" enctype="multipart/form-data">
-                   <div class="mb-3 d-flex justify-content-center">
-                    <label for="avatarInput" class="avatar-label">
-				    	<img th:if="${user.hinh == null}" th:src="@{img/280px.png}" alt="Avatar" id="avatarPreview">
-				    	<img th:if="${user.hinh != null}" th:src="@{/image/{url}(url=${user.hinh})}" th:alt="${user.hoten}" id="avatarPreview">
-				  	</label>
-				  	<input type="file" name="image" class="d-none" id="avatarInput" accept="image/*">
-                   </div>
-                   <div class="mb-3">
-                     <label for="username" class="form-label">Tên đăng nhập</label>
-                     <input type="text"
-                            class="form-control"
-                            id="username"
-                            name="username" readonly
-                            th:value="${user.idUser}">
-                   </div>
-                   <div class="mb-3">
-                     <label for="hoten" class="form-label">Họ và tên</label>
-                     <input type="text"
-                            class="form-control"
-                            id="hoten"
-                            name="hoten"
-                            th:value="${user.hoten}">
-                   </div>
-                   <div class="mb-3">
-                     <label for="sdt" class="form-label">Số điện thoại</label>
-                     <input type="text"
-                            class="form-control"
-                            id="sdt"
-                            name="sdt"
-                            th:value="${user.sdt}">
-                   </div>
-                   <div class="d-flex gap-2">
-	                   <button type="submit" class="btn btn-primary w-100">Cập nhật thông tin mới</button>
-	                   <button type="submit" form="cancel-account" class="btn btn-danger w-100" onclick="return confirm('Bạn có muốn hủy tài khoản?')">Hủy tài khoản</button>
-                   </div>
-                 </form>
-                 
-                 <form th:action="@{/cance-account}" method="post"
-	                    id="cancel-account">
-	                <input type="hidden" name="idUser" th:value="${user.idUser}">
-	              </form>
-               </div>
-
-               <!-- Points section -->
-               <div class="col-lg-6">
-                 <div class="card border-0 shadow-sm mb-3" style="background: linear-gradient(135deg,#f0f7ff,#e8f4fd); border-radius:16px;">
-                   <div class="card-body py-3 px-4">
-                     <div class="d-flex align-items-center gap-3 mb-2">
-                       <div style="width:48px;height:48px;background:linear-gradient(135deg,#f59e0b,#fbbf24);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                         <i class="fas fa-coins text-white fs-5"></i>
-                       </div>
-                       <div>
-                         <div class="text-muted small fw-semibold">Điểm tích lũy</div>
-                         <div class="fw-bold" style="font-size:1.6rem;color:#d97706;" th:text="${user.diemTichLuy != null ? user.diemTichLuy : 0} + ' điểm'"></div>
-                       </div>
-                     </div>
-                     <div class="small text-muted">
-                       <i class="fas fa-info-circle me-1"></i>
-                       Mỗi <strong>1.000 VNĐ</strong> chi tiêu = <strong>1 điểm</strong>. Điểm được cộng khi đơn hàng giao thành công.
-                     </div>
-                   </div>
-                 </div>
-
-                 <div class="card border-0 shadow-sm" style="border-radius:16px;">
-                   <div class="card-header bg-white border-0 pt-3 px-3 pb-0 fw-bold small">
-                     <i class="fas fa-history text-primary me-1"></i> Lịch sử điểm
-                   </div>
-                   <div class="card-body p-0">
-                     <div id="lichSuDiemList" class="list-group list-group-flush" style="max-height:240px;overflow-y:auto;">
-                       <div class="text-center text-muted small py-3" id="lichSuLoading">
-                         <span class="spinner-border spinner-border-sm me-1"></span> Đang tải...
-                       </div>
-                     </div>
-                   </div>
-                 </div>
-               </div>
-             </div> <!-- card-body.// -->
-           </article>
-         </main> <!-- col.// -->
-    </div> <!-- row.// -->
-  </div> <!-- container.// -->
-</section> <!-- section-content.// -->
-
-
-<th:block th:replace="~{user/_footer}" />
-</body>
-<script>
-  // Load lịch sử tích điểm
-  fetch('/api/diem/lich-su')
-    .then(r => r.json())
-    .then(data => {
-      const list = document.getElementById('lichSuDiemList');
-      document.getElementById('lichSuLoading').remove();
-      if (!data.length) {
-        list.innerHTML = '<div class="text-center text-muted small py-3">Chưa có giao dịch điểm nào.</div>';
-        return;
-      }
-      data.slice(0, 20).forEach(item => {
-        const isEarn = item.loaiGiaoDich === 'EARN';
-        const d = new Date(item.ngayTao);
-        const dateStr = d.getDate().toString().padStart(2,'0') + '/' + (d.getMonth()+1).toString().padStart(2,'0') + '/' + d.getFullYear();
-        list.innerHTML += `<div class="list-group-item px-3 py-2 border-0 border-bottom d-flex justify-content-between align-items-center">
-          <div>
-            <div class="small fw-semibold">${item.ghiChu || (isEarn ? 'Tích điểm' : 'Đổi điểm')}</div>
-            <div class="text-muted" style="font-size:.75rem">${dateStr}</div>
+        <!-- Sidebar -->
+        <div class="col-md-3">
+          <div class="setting-card acc-nav p-2">
+            <a class="list-group-item" href="/order"><i class="fas fa-receipt me-2"></i>Đơn hàng</a>
+            <a class="list-group-item" href="/history"><i class="fas fa-history me-2"></i>Lịch sử mua</a>
+            <a class="list-group-item" href="/changePassword"><i class="fas fa-lock me-2"></i>Đổi mật khẩu</a>
+            <a class="list-group-item active" href="/setting"><i class="fas fa-cog me-2"></i>Thiết đặt</a>
+            <a class="list-group-item text-danger" href="/signout"><i class="fas fa-sign-out-alt me-2"></i>Đăng xuất</a>
           </div>
-          <span class="fw-bold ${isEarn ? 'text-success' : 'text-danger'}">${isEarn ? '+' : ''}${item.soLuongDiem} đ</span>
-        </div>`;
-      });
-    })
-    .catch(() => {
-      const el = document.getElementById('lichSuLoading');
-      if (el) el.textContent = 'Không thể tải lịch sử điểm.';
+        </div>
+
+        <!-- Main content -->
+        <div class="col-md-9">
+          <div th:if="${successMessage}" class="alert alert-success border-0 rounded-3 mb-3" th:text="${successMessage}"></div>
+          <div th:if="${errorMessage}" class="alert alert-danger border-0 rounded-3 mb-3" th:text="${errorMessage}"></div>
+
+          <div class="row g-3">
+
+            <!-- Profile form -->
+            <div class="col-lg-6">
+              <div class="setting-card h-100">
+                <div class="setting-card-header">
+                  <i class="fas fa-user-circle text-primary"></i> Thông tin tài khoản
+                </div>
+                <div class="setting-card-body">
+                  <form th:action="@{/setting}" method="post" autocomplete="off" enctype="multipart/form-data">
+                    <div class="text-center mb-3">
+                      <label for="avatarInput" class="avatar-wrap" title="Nhấn để đổi ảnh">
+                        <img th:if="${user.hinh == null}" th:src="@{/img/280px.png}" alt="Avatar" id="avatarPreview">
+                        <img th:if="${user.hinh != null}" th:src="@{/image/{url}(url=${user.hinh})}" th:alt="${user.hoten}" id="avatarPreview">
+                        <div class="avatar-overlay"><i class="fas fa-camera text-white"></i></div>
+                      </label>
+                      <input type="file" name="image" class="d-none" id="avatarInput" accept="image/*">
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-label">Email / Tên đăng nhập</label>
+                      <input class="form-control bg-light" type="text" name="username" readonly th:value="${user.idUser}">
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-label">Họ và tên</label>
+                      <input class="form-control" type="text" name="hoten" th:value="${user.hoten}">
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-label">Số điện thoại</label>
+                      <input class="form-control" type="text" name="sdt" th:value="${user.sdt}">
+                    </div>
+                    <div class="d-flex gap-2">
+                      <button type="submit" class="btn btn-primary w-100" style="border-radius:10px;">
+                        <i class="fas fa-save me-1"></i>Lưu thay đổi
+                      </button>
+                      <button type="submit" form="cancel-account" class="btn btn-outline-danger" style="border-radius:10px;"
+                              onclick="return confirm('Bạn có chắc muốn hủy tài khoản?')">
+                        <i class="fas fa-user-times"></i>
+                      </button>
+                    </div>
+                  </form>
+                  <form th:action="@{/cance-account}" method="post" id="cancel-account">
+                    <input type="hidden" name="idUser" th:value="${user.idUser}">
+                  </form>
+                </div>
+              </div>
+            </div>
+
+            <!-- Points panel -->
+            <div class="col-lg-6 d-flex flex-column gap-3">
+
+              <!-- Points summary card -->
+              <div class="points-card">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                  <div>
+                    <div class="points-label">Điểm tích lũy của bạn</div>
+                    <div class="points-value" th:text="${user.diemTichLuy != null ? user.diemTichLuy : 0}">0</div>
+                    <div class="points-rule">1.000 VNĐ chi tiêu = 1 điểm · Dùng khi thanh toán</div>
+                  </div>
+                  <div style="font-size:2.8rem;opacity:.7;">🪙</div>
+                </div>
+              </div>
+
+              <!-- Points history -->
+              <div class="setting-card flex-grow-1">
+                <div class="setting-card-header">
+                  <i class="fas fa-history text-primary"></i> Lịch sử điểm
+                </div>
+                <div id="lichSuDiemList" style="max-height:280px;overflow-y:auto;">
+                  <div class="text-center text-muted small py-4" id="lichSuLoading">
+                    <span class="spinner-border spinner-border-sm me-1"></span> Đang tải...
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <th:block th:replace="~{user/_footer}" />
+
+  <script>
+    // ── Avatar preview ──────────────────────────────────────────────────────
+    document.getElementById('avatarInput').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => { document.getElementById('avatarPreview').src = ev.target.result; };
+      reader.readAsDataURL(file);
     });
 
-  document.getElementById("avatarInput").addEventListener("change", function (event) {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        document.getElementById("avatarPreview").src = e.target.result;
-      };
-      reader.readAsDataURL(file);
+    // ── Points history ───────────────────────────────────────────────────────
+    function _fmtDate(str) {
+      if (!str) return '–';
+      try {
+        const d = new Date(str);
+        if (isNaN(d.getTime())) return str;
+        const p = n => String(n).padStart(2,'0');
+        return p(d.getDate()) + '/' + p(d.getMonth()+1) + '/' + d.getFullYear()
+             + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
+      } catch { return str; }
     }
-  });
-</script>
+
+    fetch('/api/diem/lich-su')
+      .then(r => r.json())
+      .then(data => {
+        const list = document.getElementById('lichSuDiemList');
+        const loading = document.getElementById('lichSuLoading');
+        if (loading) loading.remove();
+        if (!Array.isArray(data) || !data.length) {
+          list.innerHTML = '<div class="text-center text-muted small py-4"><i class="fas fa-inbox me-2 opacity-50"></i>Chưa có giao dịch điểm nào.</div>';
+          return;
+        }
+        list.innerHTML = data.slice(0, 30).map(item => {
+          const isEarn = item.loaiGiaoDich === 'EARN';
+          const pts = item.soLuongDiem != null ? Math.abs(item.soLuongDiem) : 0;
+          const note = item.ghiChu || (isEarn ? 'Tích điểm đơn hàng' : 'Đổi / dùng điểm');
+          const orderLink = item.idHoaDon
+            ? ` <a href="/orderDetail?id=${item.idHoaDon}" style="font-size:.7rem;color:#0d6efd;">#${item.idHoaDon}</a>` : '';
+          return `<div class="diem-item">
+            <div class="diem-icon ${isEarn ? 'diem-earn' : 'diem-redeem'}">
+              <i class="fas fa-${isEarn ? 'arrow-down' : 'arrow-up'}"></i>
+            </div>
+            <div style="min-width:0;">
+              <div class="diem-note">${note}${orderLink}</div>
+              <div class="diem-date"><i class="fas fa-clock me-1" style="font-size:.6rem;"></i>${_fmtDate(item.ngayTao)}</div>
+            </div>
+            <div class="diem-amount ${isEarn ? 'text-success' : 'text-danger'}">
+              ${isEarn ? '+' : '-'}${pts.toLocaleString('vi-VN')} đ
+            </div>
+          </div>`;
+        }).join('');
+      })
+      .catch(() => {
+        const el = document.getElementById('lichSuLoading');
+        if (el) el.innerHTML = '<i class="fas fa-exclamation-circle me-1 text-danger"></i>Không thể tải lịch sử.';
+      });
+  </script>
+</body>
 </html>

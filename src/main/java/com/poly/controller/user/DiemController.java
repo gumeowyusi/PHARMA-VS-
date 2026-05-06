@@ -31,7 +31,21 @@ public class DiemController {
     public ResponseEntity<?> lichSu() {
         return currentUserService.getCurrentUser().map(u -> {
             List<LichSuDiem> list = diemTichLuyService.getLichSuByUser(u.getIdUser());
-            return ResponseEntity.ok(list);
+            // Map to safe DTO — avoids Hibernate proxy serialization issues
+            List<Map<String, Object>> dtos = list.stream().map(item -> {
+                Map<String, Object> dto = new java.util.LinkedHashMap<>();
+                dto.put("id",            item.getId());
+                dto.put("soLuongDiem",   item.getSoLuongDiem());
+                dto.put("loaiGiaoDich",  item.getLoaiGiaoDich());
+                dto.put("ghiChu",        item.getGhiChu());
+                dto.put("idHoaDon",      item.getIdHoaDon());
+                // Format date as ISO string to avoid browser parsing issues
+                dto.put("ngayTao", item.getNgayTao() != null
+                    ? new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(item.getNgayTao())
+                    : null);
+                return dto;
+            }).collect(java.util.stream.Collectors.toList());
+            return ResponseEntity.ok(dtos);
         }).orElse(ResponseEntity.status(401).body(List.of()));
     }
 
