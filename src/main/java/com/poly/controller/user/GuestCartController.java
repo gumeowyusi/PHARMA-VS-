@@ -161,7 +161,7 @@ public class GuestCartController {
             var kh = guestCartService.ensureGuestCustomer(req.hoten(), req.sdt(), req.email(), req.address());
             guestCartService.attachCustomerToCart(cartId, kh);
         OrderRequest orderRequest = new OrderRequest(cartId, "GUEST", req.address(), req.deliveryMethod(),
-            req.deliveryPrice(), req.paymentMethod(), req.orderItems());
+            req.deliveryPrice(), req.paymentMethod(), req.orderItems(), null, null, null);
             Integer orderId = hoaDonService.add(orderRequest);
             guestCartService.clearCart(cartId);
             res.put("message", "Đặt hàng thành công (khách lẻ)! Nhân viên sẽ liên hệ xác nhận.");

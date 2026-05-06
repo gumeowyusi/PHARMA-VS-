@@ -45,6 +45,14 @@
           data-path="/admin/vouchers" class="nav-link-item"><i class="fas fa-ticket-alt me-2"></i>Voucher</a></li>
       <li th:if="${currentUser != null and currentUser.admin}"><a th:href="@{/admin/tintuc}"
           data-path="/admin/tintuc" class="nav-link-item"><i class="fas fa-newspaper me-2"></i>Tin tức</a></li>
+      <li th:if="${currentUser != null and (currentUser.admin or currentUser.staff)}">
+        <a th:href="@{/admin/lien-he}" data-path="/admin/lien-he" class="nav-link-item" style="position:relative;">
+          <i class="fas fa-inbox me-2"></i>Liên hệ
+          <span th:if="${lienHeUnread != null and lienHeUnread > 0}"
+                th:text="${lienHeUnread}"
+                style="position:absolute;top:4px;right:4px;background:#dc2626;color:#fff;border-radius:99px;font-size:.6rem;font-weight:700;padding:1px 5px;line-height:1.4;"></span>
+        </a>
+      </li>
     </ul>
   </nav>
 </header>

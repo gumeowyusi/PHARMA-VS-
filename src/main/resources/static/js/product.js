@@ -1,12 +1,12 @@
 import createToast, { toastComponent } from "./toast.js";
-import { setTotalCartItemsQuantity } from "./header.js";
+import { setTotalCartItemsQuantity, refreshCartBadge } from "./header.js";
 
 // STATIC DATA
 const currentUserIdMetaTag = document.querySelector("meta[name='currentUserId']");
 const productIdMetaTag = document.querySelector("meta[name='productId']");
 
 const quantityInput = document.querySelector("#cart-item-quantity");
-const productTitleElement = document.querySelector(".title");
+const productTitleElement = document.querySelector(".product-title");
 
 // MESSAGES
 const REQUIRED_SIGNIN_MESSAGE = "Vui lòng đăng nhập để thực hiện thao tác!";
@@ -58,7 +58,9 @@ function noneSigninEvent() {
 }
 
 async function buyNowBtnEvent() {
-  const [status] = await _fetchPostAddCartItem();
+  const result = await _fetchPostAddCartItem();
+  if (!result) return;
+  const [status] = result;
   if (status === 200) {
     window.location.href = "/cart";
   } else if (status === 404) {
@@ -67,11 +69,15 @@ async function buyNowBtnEvent() {
 }
 
 async function addCartItemBtnEvent() {
-  const [status] = await _fetchPostAddCartItem();
+  const result = await _fetchPostAddCartItem();
+  if (!result) return;
+  const [status] = result;
   if (status === 200) {
+    const title = productTitleElement ? productTitleElement.innerText : 'sản phẩm';
     createToast(toastComponent(
-      SUCCESS_ADD_CART_ITEM_MESSAGE(quantityInput.value, productTitleElement.innerText), "success"));
-    setTotalCartItemsQuantity(quantityInput.value);
+      SUCCESS_ADD_CART_ITEM_MESSAGE(quantityInput.value, title), "success"));
+    // Refresh badge from server for accurate count
+    await refreshCartBadge();
   } else if (status === 404) {
     createToast(toastComponent(FAILED_ADD_CART_ITEM_MESSAGE, "danger"));
   }

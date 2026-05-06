@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <th:block th:replace="~{user/_meta}" />
+  <title>Hộp thư liên hệ – MEDISALE</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <style>
+    body { background: #f0f4ff; }
+    .inbox-shell { max-width: 900px; margin: 0 auto; padding: 2rem 1rem 3rem; }
+    .inbox-header { display: flex; align-items: center; gap: .75rem; margin-bottom: 1.5rem; }
+    .inbox-header h4 { margin: 0; font-weight: 700; font-size: 1.15rem; color: #1e293b; }
+    .badge-unread {
+      background: #dc2626; color: #fff; border-radius: 99px;
+      font-size: .72rem; font-weight: 700; padding: 3px 9px;
+    }
+    .msg-card {
+      background: #fff; border-radius: 14px; border: 1.5px solid #e2e8f0;
+      margin-bottom: 1rem; overflow: hidden;
+      box-shadow: 0 2px 10px -4px rgba(13,110,253,.08);
+      transition: box-shadow .15s;
+    }
+    .msg-card.unread { border-left: 4px solid #0d6efd; }
+    .msg-card:hover { box-shadow: 0 6px 20px -4px rgba(13,110,253,.16); }
+    .msg-head {
+      display: flex; flex-wrap: wrap; align-items: center; gap: .75rem;
+      padding: .85rem 1.2rem .65rem; border-bottom: 1px solid #f1f5f9;
+    }
+    .msg-avatar {
+      width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+      background: linear-gradient(135deg,#0d6efd,#4facfe);
+      color: #fff; display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 1rem;
+    }
+    .msg-name { font-weight: 700; color: #1e293b; font-size: .95rem; }
+    .msg-phone { font-size: .8rem; color: #64748b; }
+    .msg-time { font-size: .75rem; color: #94a3b8; margin-left: auto; white-space: nowrap; }
+    .msg-body { padding: .9rem 1.2rem; font-size: .88rem; color: #374151; line-height: 1.6; white-space: pre-wrap; }
+    .msg-actions { padding: .5rem 1.2rem .85rem; display: flex; gap: .5rem; }
+    .btn-read {
+      font-size: .78rem; font-weight: 600; padding: .3rem .85rem; border-radius: 8px;
+      border: 1.5px solid #dbeafe; background: #eff6ff; color: #2563eb; cursor: pointer;
+    }
+    .btn-read:hover { background: #dbeafe; }
+    .btn-del {
+      font-size: .78rem; font-weight: 600; padding: .3rem .85rem; border-radius: 8px;
+      border: 1.5px solid #fee2e2; background: #fff5f5; color: #dc2626; cursor: pointer;
+    }
+    .btn-del:hover { background: #fee2e2; }
+    .empty-state { text-align: center; padding: 4rem 1rem; color: #94a3b8; }
+    .empty-state .icon { font-size: 3rem; margin-bottom: 1rem; opacity: .4; }
+  </style>
+</head>
+<body>
+  <th:block th:replace="~{admin/_headerAdmin}" />
+
+  <div class="inbox-shell">
+    <div class="inbox-header">
+      <div style="width:42px;height:42px;border-radius:12px;background:#eff6ff;color:#0d6efd;display:flex;align-items:center;justify-content:center;font-size:1.1rem;">
+        <i class="fas fa-inbox"></i>
+      </div>
+      <h4>Hộp thư liên hệ</h4>
+      <span th:if="${unreadCount > 0}" class="badge-unread" th:text="${unreadCount} + ' chưa đọc'"></span>
+    </div>
+
+    <!-- Empty state -->
+    <div th:if="${#lists.isEmpty(messages)}" class="empty-state">
+      <div class="icon"><i class="fas fa-inbox"></i></div>
+      <div class="fw-semibold">Chưa có tin nhắn nào</div>
+      <div class="small mt-1">Khi khách hàng gửi liên hệ, tin nhắn sẽ hiện ở đây.</div>
+    </div>
+
+    <!-- Message list -->
+    <div th:each="msg : ${messages}"
+         class="msg-card"
+         th:classappend="${!msg.daDoc} ? ' unread' : ''">
+      <div class="msg-head">
+        <div class="msg-avatar"
+             th:text="${msg.hoTen != null and msg.hoTen.length() > 0 ? msg.hoTen.substring(0,1).toUpperCase() : '?'}"></div>
+        <div>
+          <div class="msg-name" th:text="${msg.hoTen}"></div>
+          <div class="msg-phone">
+            <i class="fas fa-phone-alt me-1" style="font-size:.7rem;"></i>
+            <span th:text="${msg.sdt != null and !msg.sdt.isBlank() ? msg.sdt : 'Không cung cấp'}"></span>
+          </div>
+        </div>
+        <div class="ms-auto d-flex align-items-center gap-2">
+          <span th:if="${!msg.daDoc}"
+                style="background:#dbeafe;color:#2563eb;border-radius:99px;font-size:.7rem;font-weight:700;padding:2px 8px;">
+            Mới
+          </span>
+          <span class="msg-time">
+            <i class="fas fa-clock me-1"></i>
+            <span th:text="${#dates.format(msg.ngayGui,'dd/MM/yyyy HH:mm')}"></span>
+          </span>
+        </div>
+      </div>
+
+      <div class="msg-body" th:text="${msg.noiDung}"></div>
+
+      <div class="msg-actions">
+        <form th:if="${!msg.daDoc}" th:action="@{/admin/lien-he/{id}/read(id=${msg.id})}" method="post" style="display:inline;">
+          <button type="submit" class="btn-read">
+            <i class="fas fa-check me-1"></i>Đánh dấu đã đọc
+          </button>
+        </form>
+        <form th:action="@{/admin/lien-he/{id}/delete(id=${msg.id})}" method="post" style="display:inline;"
+              onsubmit="return confirm('Xóa tin nhắn này?')">
+          <button type="submit" class="btn-del">
+            <i class="fas fa-trash me-1"></i>Xóa
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <th:block th:replace="~{user/_footer}" />
+</body>
+</html>

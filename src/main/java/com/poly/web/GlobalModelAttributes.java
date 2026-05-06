@@ -1,6 +1,7 @@
 package com.poly.web;
 
 import com.poly.entity.Users;
+import com.poly.repository.LienHeRepository;
 import com.poly.repository.UsersRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,9 +18,16 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 @Component
 public class GlobalModelAttributes {
     private final UsersRepository usersRepository;
+    private final LienHeRepository lienHeRepository;
 
-    public GlobalModelAttributes(UsersRepository usersRepository) {
-        this.usersRepository = usersRepository;
+    public GlobalModelAttributes(UsersRepository usersRepository, LienHeRepository lienHeRepository) {
+        this.usersRepository  = usersRepository;
+        this.lienHeRepository = lienHeRepository;
+    }
+
+    @ModelAttribute("lienHeUnread")
+    public long exposeLienHeUnread() {
+        try { return lienHeRepository.countUnread(); } catch (Exception e) { return 0; }
     }
 
     @ModelAttribute("currentUser")
