@@ -27,6 +27,7 @@ import com.poly.entity.SanPham;
 import com.poly.entity.TinTuc;
 import com.poly.entity.Users;
 import com.poly.service.DiemTichLuyService;
+import com.poly.service.EmailService;
 import com.poly.service.HoaDonService;
 import com.poly.service.LoaiService;
 import com.poly.service.NewsAggregatorService;
@@ -58,6 +59,11 @@ public class HomeController {
 	NewsAggregatorService newsAggregatorService;
 	@Autowired
 	DiemTichLuyService diemTichLuyService;
+	@Autowired
+	EmailService emailService;
+
+	@org.springframework.beans.factory.annotation.Value("${spring.mail.username}")
+	private String adminEmail;
 
 	@GetMapping("/")
 	public String home(Model model) {
@@ -131,7 +137,10 @@ public class HomeController {
 			@RequestParam(name = "phone", required = false) String phone,
 			@RequestParam(name = "message", required = false) String message,
 			RedirectAttributes redirectAttributes) {
-		String displayName = (name == null || name.isBlank()) ? "bạn" : name.trim();
+		String displayName = (name == null || name.isBlank()) ? "Khách hàng" : name.trim();
+		String msgContent  = (message == null || message.isBlank()) ? "(không có nội dung)" : message.trim();
+		// Notify admin asynchronously (ignore errors)
+		emailService.sendContactNotificationToAdmin(adminEmail, displayName, phone, msgContent);
 		redirectAttributes.addFlashAttribute("successMessage",
 				"Cảm ơn " + displayName + "! Nhà thuốc đã nhận thông tin và sẽ liên hệ sớm.");
 		redirectAttributes.addFlashAttribute("lastPhone", phone);

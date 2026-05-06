@@ -1,23 +1,101 @@
 <!DOCTYPE html>
 <html lang="vi">
-
 <head>
   <th:block th:replace="~{user/_meta}" />
-  <title>Đơn hàng</title>
+  <title>Đơn hàng của tôi – MEDISALE</title>
   <script th:src="@{/js/toast.js}" type="module"></script>
   <script th:src="@{/js/home.js}" type="module"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <style>
-    /* ── Receipt modal ── */
+    body { background: #f0f4ff; }
+    .account-section { padding: 2.5rem 0 3.5rem; }
+    .acc-nav .list-group-item {
+      border: none; border-radius: 10px !important; margin-bottom: .35rem;
+      font-weight: 500; color: #374151; padding: .65rem 1.1rem;
+      transition: background .18s, color .18s;
+    }
+    .acc-nav .list-group-item:hover { background: #e8f0fe; color: #0d6efd; }
+    .acc-nav .list-group-item.active {
+      background: linear-gradient(135deg,#0d6efd,#2563eb); color: #fff;
+      box-shadow: 0 4px 14px -4px rgba(13,110,253,.4);
+    }
+    .acc-card {
+      background: #fff; border-radius: 18px;
+      border: 1.5px solid #e2e8f0;
+      box-shadow: 0 4px 24px -6px rgba(13,110,253,.10);
+      overflow: hidden;
+    }
+    .acc-card-header {
+      display: flex; align-items: center; gap: .65rem;
+      padding: 1.1rem 1.4rem .9rem;
+      border-bottom: 1.5px solid #e2e8f0;
+      font-weight: 700; font-size: 1rem; color: #1e293b;
+    }
+    .acc-card-header .icon-wrap {
+      width: 36px; height: 36px; border-radius: 9px;
+      background: #e8f0fe; color: #0d6efd;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; flex-shrink: 0;
+    }
+    /* Order list */
+    .order-list { padding: .5rem 0; }
+    .order-item {
+      display: flex; flex-wrap: wrap; align-items: center;
+      gap: .75rem; padding: 1rem 1.4rem;
+      border-bottom: 1px solid #f1f5f9;
+      transition: background .15s;
+    }
+    .order-item:last-child { border-bottom: none; }
+    .order-item:hover { background: #f8faff; }
+    .order-id { font-weight: 700; color: #0d6efd; font-size: .92rem; min-width: 60px; }
+    .order-date { font-size: .8rem; color: #94a3b8; }
+    .order-delivery { font-size: .78rem; color: #475569; }
+    .order-actions { margin-left: auto; display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; }
+    /* Status badges */
+    .status-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 4px 12px; border-radius: 99px; font-size: .75rem; font-weight: 700;
+    }
+    .s-awaiting  { background: #ede9fe; color: #6d28d9; }
+    .s-pending   { background: #fef3c7; color: #d97706; }
+    .s-paid      { background: #dbeafe; color: #1d4ed8; }
+    .s-confirmed { background: #dbeafe; color: #2563eb; }
+    .s-ondelivery{ background: #ede9fe; color: #7c3aed; }
+    .s-received  { background: #d1fae5; color: #059669; }
+    .s-cancel    { background: #fee2e2; color: #dc2626; }
+    /* Buttons */
+    .btn-detail {
+      font-size: .78rem; font-weight: 600; padding: .35rem .85rem;
+      border-radius: 8px; border: 1.5px solid #e2e8f0;
+      background: #fff; color: #374151; text-decoration: none;
+      transition: all .15s;
+    }
+    .btn-detail:hover { background: #f1f5f9; border-color: #cbd5e1; color: #111; }
+    .btn-bill {
+      font-size: .78rem; font-weight: 600; padding: .35rem .85rem;
+      border-radius: 8px; border: 1.5px solid #dbeafe;
+      background: #eff6ff; color: #2563eb; cursor: pointer;
+      transition: all .15s;
+    }
+    .btn-bill:hover { background: #dbeafe; }
+    .btn-pay {
+      font-size: .78rem; font-weight: 600; padding: .35rem .85rem;
+      border-radius: 8px; background: #0d6efd; color: #fff;
+      text-decoration: none; border: none; transition: all .15s;
+    }
+    .btn-pay:hover { background: #2563eb; color: #fff; }
+    /* Empty state */
+    .order-empty { text-align: center; padding: 3.5rem 1rem; color: #94a3b8; }
+    .order-empty .empty-icon { font-size: 3rem; margin-bottom: 1rem; opacity: .5; }
+    /* Pagination */
+    .acc-pagination { padding: .75rem 1.4rem 1rem; display: flex; justify-content: center; }
+    .page-link { border-radius: 8px !important; border: 1.5px solid #e2e8f0; color: #374151; font-size: .83rem; padding: .4rem .75rem; }
+    .page-item.active .page-link { background: #0d6efd; border-color: #0d6efd; color: #fff; }
+    /* Receipt modal */
     .receipt-wrap {
       font-family: 'Courier New', Courier, monospace;
-      background: #fff;
-      max-width: 340px;
-      margin: 0 auto;
-      padding: 20px 18px 16px;
-      border-radius: 6px;
-      font-size: 13px;
-      color: #111;
+      background: #fff; max-width: 340px; margin: 0 auto;
+      padding: 20px 18px 16px; border-radius: 6px; font-size: 13px; color: #111;
     }
     .receipt-store { font-size: 15px; font-weight: 700; text-align: center; letter-spacing: .5px; }
     .receipt-addr  { font-size: 11.5px; text-align: center; color: #555; margin-bottom: 4px; }
@@ -26,10 +104,7 @@
     .receipt-meta  { font-size: 12px; margin-bottom: 2px; }
     .receipt-meta b { display: inline-block; min-width: 80px; }
     .receipt-table { width: 100%; border-collapse: collapse; margin: 4px 0; font-size: 12px; }
-    .receipt-table th {
-      border-top: 1.5px solid #333; border-bottom: 1.5px solid #333;
-      padding: 3px 4px; font-size: 11.5px;
-    }
+    .receipt-table th { border-top: 1.5px solid #333; border-bottom: 1.5px solid #333; padding: 3px 4px; font-size: 11.5px; }
     .receipt-table td { padding: 4px 4px; vertical-align: top; }
     .receipt-table .col-no  { width: 20px; text-align: center; }
     .receipt-table .col-sl  { width: 24px; text-align: center; }
@@ -41,8 +116,6 @@
     .receipt-row.discount { color: #16a34a; }
     .receipt-footer { text-align: center; margin-top: 12px; font-size: 12.5px; }
     .receipt-footer .thanks { font-weight: 700; font-size: 13.5px; margin-bottom: 4px; }
-    .receipt-footer .brand  { font-size: 11px; color: #777; }
-
     @media print {
       body * { visibility: hidden; }
       #receiptPrintArea, #receiptPrintArea * { visibility: visible; }
@@ -51,106 +124,106 @@
     }
   </style>
 </head>
-
 <body>
   <th:block th:replace="~{user/_header}" />
 
-  <section class="section-pagetop bg-light">
+  <section class="account-section">
     <div class="container">
-      <h2 class="title-page">Đơn hàng</h2>
-    </div>
-  </section>
+      <div class="row g-4">
 
-  <section class="section-content padding-y">
-    <div class="container">
-      <div class="row">
-        <th:block th:if="${currentUser != null}">
-          <th:block th:insert="~{user/navPanel :: nav(active='ORDER')}"></th:block>
+        <!-- Sidebar nav -->
+        <div class="col-md-3">
+          <div class="acc-card acc-nav p-2">
+            <a class="list-group-item active" href="/order"><i class="fas fa-receipt me-2"></i>Đơn hàng của tôi</a>
+            <a class="list-group-item" href="/history"><i class="fas fa-history me-2"></i>Lịch sử mua</a>
+            <a class="list-group-item" href="/changePassword"><i class="fas fa-lock me-2"></i>Đổi mật khẩu</a>
+            <a class="list-group-item" href="/setting"><i class="fas fa-cog me-2"></i>Thiết đặt</a>
+            <a class="list-group-item text-danger" href="/signout"><i class="fas fa-sign-out-alt me-2"></i>Đăng xuất</a>
+          </div>
+        </div>
 
-          <main class="col-md-9">
-
-            <div class="table-responsive-xxl">
-              <table class="table table-bordered table-striped table-hover align-middle">
-                <thead>
-                  <tr>
-                    <th scope="col" style="min-width: 125px;">Mã đơn hàng</th>
-                    <th scope="col" style="min-width: 100px;">Ngày mua</th>
-                    <th scope="col" style="min-width: 100px;">Giao hàng</th>
-                    <th scope="col" style="min-width: 175px;">Trạng thái đơn hàng</th>
-                    <th scope="col">Thao tác</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <th:block th:each="order:${orders}">
-                    <tr>
-                      <th scope="row" th:text="${order.idHoadon}"></th>
-                      <td th:text="${#dates.format(order.ngaytao, 'dd/MM/yyyy')}"></td>
-                      <td
-                        th:text="${order.giaohang != null and order.giaohang.contains('nhanh')?'Giao hàng nhanh (+50.000₫)':'Giao hàng tiêu chuẩn (+20.000₫)'}">
-                      </td>
-                      <td>
-                        <th:block th:if="${order.trangthai == 'awaiting_payment'}">
-                          <span class="badge bg-warning text-dark"><i class="fas fa-hourglass-half me-1"></i>Chờ thanh toán</span>
-                        </th:block>
-                        <th:block th:if="${order.trangthai == 'pending'}">
-                          <span class="badge bg-secondary"><i class="fas fa-clock me-1"></i>Chờ xác nhận</span>
-                        </th:block>
-                        <th:block th:if="${order.trangthai == 'paid'}">
-                          <span class="badge bg-info text-dark"><i class="fas fa-credit-card me-1"></i>Đã thanh toán</span>
-                        </th:block>
-                        <th:block th:if="${order.trangthai == 'confirmed'}">
-                          <span class="badge bg-primary"><i class="fas fa-clipboard-check me-1"></i>Đã xác nhận</span>
-                        </th:block>
-                        <th:block th:if="${order.trangthai == 'ondelivery'}">
-                          <span class="badge bg-warning text-dark"><i class="fas fa-truck me-1"></i>Đang giao hàng</span>
-                        </th:block>
-                        <th:block th:if="${order.trangthai == 'received'}">
-                          <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Giao hàng thành công</span>
-                        </th:block>
-                        <th:block th:if="${order.trangthai == 'cancel'}">
-                          <span class="badge bg-danger"><i class="fas fa-times-circle me-1"></i>Đã hủy</span>
-                        </th:block>
-                      </td>
-                      <td class="text-center text-nowrap">
-                        <a class="btn btn-primary btn-sm me-1" th:href="@{/orderDetail(id=${order.idHoadon})}" role="button">
-                          <i class="fas fa-eye me-1"></i>Xem
-                        </a>
-                        <button class="btn btn-outline-secondary btn-sm me-1 btn-view-bill"
-                                th:data-order-id="${order.idHoadon}" title="Xem hóa đơn">
-                          <i class="fas fa-receipt me-1"></i>Bill
-                        </button>
-                        <th:block th:if="${order.trangthai == 'awaiting_payment'}">
-                          <a class="btn btn-success btn-sm"
-                             th:href="@{/api/payments/create-bank-transfer(orderId=${order.idHoadon},deliveryPrice=0)}">
-                            <i class="fas fa-credit-card me-1"></i>Thanh toán
-                          </a>
-                        </th:block>
-                      </td>
-                    </tr>
-                  </th:block>
-                </tbody>
-              </table>
+        <!-- Main -->
+        <div class="col-md-9" th:if="${currentUser != null}">
+          <div class="acc-card">
+            <div class="acc-card-header">
+              <div class="icon-wrap"><i class="fas fa-receipt"></i></div>
+              Đơn hàng của tôi
             </div>
 
-            <div th:if="${totalPages > 0}">
-              <nav class="mt-4 d-flex justify-content-center">
-                <ul class="pagination">
-                  <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
-                    <a class="page-link" th:href="@{/order(page=${currentPage - 1})}">Trang trước</a>
-                  </li>
-                  <li th:each="i : ${#numbers.sequence(1, totalPages)}" class="page-item"
+            <!-- Empty state -->
+            <div th:if="${#lists.isEmpty(orders)}" class="order-empty">
+              <div class="empty-icon"><i class="fas fa-inbox"></i></div>
+              <div class="fw-semibold fs-5 mb-1">Chưa có đơn hàng nào</div>
+              <div class="small mb-3">Hãy mua sắm để xem lịch sử đơn hàng của bạn</div>
+              <a href="/" class="btn btn-primary btn-sm px-4" style="border-radius:10px;">
+                <i class="fas fa-shopping-bag me-1"></i>Mua sắm ngay
+              </a>
+            </div>
+
+            <!-- Order list -->
+            <div th:if="${!#lists.isEmpty(orders)}" class="order-list">
+              <div th:each="order : ${orders}" class="order-item">
+                <!-- Order ID + date -->
+                <div>
+                  <div class="order-id">#<span th:text="${order.idHoadon}"></span></div>
+                  <div class="order-date" th:text="${#dates.format(order.ngaytao,'dd/MM/yyyy')}"></div>
+                </div>
+                <!-- Delivery method -->
+                <div class="order-delivery d-none d-sm-block">
+                  <i class="fas fa-truck me-1 text-muted"></i>
+                  <span th:text="${order.giaohang != null and order.giaohang.contains('nhanh') ? 'Nhanh' : 'Tiêu chuẩn'}"></span>
+                </div>
+                <!-- Status badge -->
+                <div>
+                  <span th:switch="${order.trangthai}">
+                    <span th:case="'awaiting_payment'" class="status-badge s-awaiting"><i class="fas fa-hourglass-half"></i>Chờ TT</span>
+                    <span th:case="'pending'"          class="status-badge s-pending"  ><i class="fas fa-clock"></i>Chờ xác nhận</span>
+                    <span th:case="'paid'"             class="status-badge s-paid"     ><i class="fas fa-credit-card"></i>Đã TT</span>
+                    <span th:case="'confirmed'"        class="status-badge s-confirmed"><i class="fas fa-clipboard-check"></i>Đã xác nhận</span>
+                    <span th:case="'ondelivery'"       class="status-badge s-ondelivery"><i class="fas fa-truck"></i>Đang giao</span>
+                    <span th:case="'received'"         class="status-badge s-received" ><i class="fas fa-check-circle"></i>Hoàn tất</span>
+                    <span th:case="'cancel'"           class="status-badge s-cancel"   ><i class="fas fa-times-circle"></i>Đã hủy</span>
+                  </span>
+                </div>
+                <!-- Actions -->
+                <div class="order-actions">
+                  <a th:href="@{/orderDetail(id=${order.idHoadon})}" class="btn-detail">
+                    <i class="fas fa-eye me-1"></i>Xem
+                  </a>
+                  <button class="btn-bill btn-view-bill" th:data-order-id="${order.idHoadon}">
+                    <i class="fas fa-receipt me-1"></i>Bill
+                  </button>
+                  <a th:if="${order.trangthai == 'awaiting_payment'}"
+                     class="btn-pay"
+                     th:href="@{/api/payments/create-bank-transfer(orderId=${order.idHoadon},deliveryPrice=0)}">
+                    <i class="fas fa-credit-card me-1"></i>Thanh toán
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Pagination -->
+            <div th:if="${totalPages > 1}" class="acc-pagination">
+              <ul class="pagination pagination-sm gap-1 mb-0">
+                <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                  <a class="page-link" th:href="@{/order(page=${currentPage - 1})}">
+                    <i class="fas fa-chevron-left" style="font-size:.7rem;"></i>
+                  </a>
+                </li>
+                <li th:each="i : ${#numbers.sequence(1, totalPages)}" class="page-item"
                     th:classappend="${currentPage == i - 1} ? 'active'">
-                    <a class="page-link" th:href="@{/order(page=${i - 1})}" th:text="${i}"></a>
-                  </li>
-                  <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
-                    <a class="page-link" th:href="@{/order(page=${currentPage + 1})}">Trang sau</a>
-                  </li>
-                </ul>
-              </nav>
+                  <a class="page-link" th:href="@{/order(page=${i - 1})}" th:text="${i}"></a>
+                </li>
+                <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+                  <a class="page-link" th:href="@{/order(page=${currentPage + 1})}">
+                    <i class="fas fa-chevron-right" style="font-size:.7rem;"></i>
+                  </a>
+                </li>
+              </ul>
             </div>
+          </div>
+        </div>
 
-          </main>
-        </th:block>
       </div>
     </div>
   </section>
@@ -158,7 +231,7 @@
   <!-- Receipt Modal -->
   <div class="modal fade" id="billModal" tabindex="-1" aria-labelledby="billModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" style="max-width:400px;">
-      <div class="modal-content border-0 shadow-lg" style="border-radius:12px;overflow:hidden;">
+      <div class="modal-content border-0 shadow-lg" style="border-radius:16px;overflow:hidden;">
         <div class="modal-header border-0 pb-0 px-4 pt-3">
           <h6 class="modal-title fw-bold" id="billModalLabel">
             <i class="fas fa-receipt me-2 text-primary"></i>Hóa đơn thanh toán
@@ -166,7 +239,6 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body px-3 py-2" id="receiptPrintArea">
-          <!-- injected by JS -->
           <div id="billContent" class="receipt-wrap">
             <div class="text-center text-muted py-4">
               <span class="spinner-border spinner-border-sm me-2"></span>Đang tải...
@@ -175,7 +247,7 @@
         </div>
         <div class="modal-footer border-0 px-4 pb-3 pt-0 gap-2">
           <button class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Đóng</button>
-          <button class="btn btn-primary btn-sm" id="printBillBtn" onclick="window.print()">
+          <button class="btn btn-primary btn-sm" onclick="window.print()">
             <i class="fas fa-print me-1"></i>In hóa đơn
           </button>
         </div>
@@ -186,81 +258,38 @@
   <th:block th:replace="~{user/_footer}" />
 
   <script>
-    function _fmtMoney(n) {
-      return new Intl.NumberFormat('vi-VN').format(n);
-    }
-
+    function _fmtMoney(n) { return new Intl.NumberFormat('vi-VN').format(n); }
     function _renderReceipt(b) {
       const discountRow = b.voucherDiscount > 0
-        ? `<div class="receipt-row discount">
-             <span><i class="fas fa-tag" style="font-size:10px;"></i> Voucher ${b.voucherCode || ''}</span>
-             <span>-${_fmtMoney(b.voucherDiscount)}₫</span>
-           </div>` : '';
-
+        ? `<div class="receipt-row discount"><span><i class="fas fa-tag" style="font-size:10px;"></i> ${b.voucherCode||''}</span><span>-${_fmtMoney(b.voucherDiscount)}₫</span></div>` : '';
       const rows = b.items.map(it =>
-        `<tr>
-           <td class="col-no">${it.no}</td>
-           <td>${it.name}</td>
-           <td class="col-sl">${it.qty}</td>
-           <td class="col-dg">${_fmtMoney(it.unitPrice)}</td>
-           <td class="col-tt">${_fmtMoney(it.lineTotal)}</td>
-         </tr>`
+        `<tr><td class="col-no">${it.no}</td><td>${it.name}</td><td class="col-sl">${it.qty}</td><td class="col-dg">${_fmtMoney(it.unitPrice)}</td><td class="col-tt">${_fmtMoney(it.lineTotal)}</td></tr>`
       ).join('');
-
-      return `
-        <div class="receipt-wrap">
-          <div class="receipt-store">PHARMA VS</div>
-          <div class="receipt-addr">Nhà thuốc PHARMA VS</div>
-          <div class="receipt-title">HÓA ĐƠN THANH TOÁN</div>
-          <div class="receipt-dash"></div>
-          <div class="receipt-meta"><b>Ngày:</b> ${b.date}</div>
-          <div class="receipt-meta"><b>Mã ĐH:</b> #${b.orderId}</div>
-          <div class="receipt-meta"><b>Khách hàng:</b> ${b.customerName || ''}</div>
-          <div class="receipt-meta"><b>Địa chỉ:</b> ${b.address || ''}</div>
-          <div class="receipt-dash"></div>
-          <table class="receipt-table">
-            <thead>
-              <tr>
-                <th class="col-no">#</th>
-                <th>Tên sản phẩm</th>
-                <th class="col-sl">SL</th>
-                <th class="col-dg">ĐG</th>
-                <th class="col-tt">TT</th>
-              </tr>
-            </thead>
-            <tbody>${rows}</tbody>
-          </table>
-          <div class="receipt-dash"></div>
-          <div class="receipt-row">
-            <span>Tạm tính</span>
-            <span>${_fmtMoney(b.subtotal)}₫</span>
-          </div>
-          <div class="receipt-row">
-            <span>Phí vận chuyển</span>
-            <span>${_fmtMoney(b.deliveryPrice)}₫</span>
-          </div>
-          ${discountRow}
-          <div class="receipt-dash"></div>
-          <div class="receipt-row total">
-            <span>Tổng thanh toán</span>
-            <span>${_fmtMoney(b.total)}₫</span>
-          </div>
-          <div class="receipt-row" style="margin-top:4px;font-size:12px;color:#555;">
-            <span>${b.paymentMethod}</span>
-            <span>${_fmtMoney(b.total)}₫</span>
-          </div>
-          <div class="receipt-row" style="font-size:12px;color:#555;">
-            <span>${b.deliveryMethod}</span>
-            <span></span>
-          </div>
-          <div class="receipt-dash"></div>
-          <div class="receipt-footer">
-            <div class="thanks">Trân trọng cảm ơn!</div>
-            <div class="brand">PHARMA VS — Nhà thuốc uy tín</div>
-          </div>
-        </div>`;
+      return `<div class="receipt-wrap">
+        <div class="receipt-store">MEDISALE</div>
+        <div class="receipt-addr">Nhà thuốc MEDISALE – TP. Hồ Chí Minh</div>
+        <div class="receipt-title">HÓA ĐƠN THANH TOÁN</div>
+        <div class="receipt-dash"></div>
+        <div class="receipt-meta"><b>Ngày:</b> ${b.date}</div>
+        <div class="receipt-meta"><b>Mã ĐH:</b> #${b.orderId}</div>
+        <div class="receipt-meta"><b>Khách:</b> ${b.customerName||''}</div>
+        <div class="receipt-meta"><b>Địa chỉ:</b> ${b.address||''}</div>
+        <div class="receipt-dash"></div>
+        <table class="receipt-table">
+          <thead><tr><th class="col-no">#</th><th>Tên sản phẩm</th><th class="col-sl">SL</th><th class="col-dg">ĐG</th><th class="col-tt">TT</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+        <div class="receipt-dash"></div>
+        <div class="receipt-row"><span>Tạm tính</span><span>${_fmtMoney(b.subtotal)}₫</span></div>
+        <div class="receipt-row"><span>Phí ship</span><span>${_fmtMoney(b.deliveryPrice)}₫</span></div>
+        ${discountRow}
+        <div class="receipt-dash"></div>
+        <div class="receipt-row total"><span>Tổng thanh toán</span><span>${_fmtMoney(b.total)}₫</span></div>
+        <div class="receipt-row" style="font-size:12px;color:#555;"><span>${b.paymentMethod}</span><span>${b.deliveryMethod}</span></div>
+        <div class="receipt-dash"></div>
+        <div class="receipt-footer"><div class="thanks">Trân trọng cảm ơn!</div><div style="font-size:11px;color:#777;">MEDISALE — Nhà thuốc uy tín</div></div>
+      </div>`;
     }
-
     document.addEventListener('DOMContentLoaded', () => {
       const billModal = new bootstrap.Modal(document.getElementById('billModal'));
       document.querySelectorAll('.btn-view-bill').forEach(btn => {
@@ -282,5 +311,4 @@
     });
   </script>
 </body>
-
 </html>

@@ -55,16 +55,20 @@
     }
 
     .brand-header .logo {
-      width: 56px;
-      height: 56px;
+      width: 64px;
+      height: 64px;
       object-fit: contain;
+      border-radius: 10px;
+      border: 1.5px solid #e2e8f0;
+      padding: 4px;
     }
 
     .brand-text h1 {
-      font-size: 24px;
+      font-size: 26px;
       line-height: 1.1;
-      margin: 0 0 6px;
-      letter-spacing: .5px;
+      margin: 0 0 4px;
+      letter-spacing: 1px;
+      color: #0a7;
     }
 
     .brand-text .meta {
@@ -282,10 +286,11 @@
       <div class="qr-placeholder">QR</div>
     </div>
     <div class="brand-header">
-      <img src="/static/img/favicon.ico" alt="Logo" class="logo" />
+      <img src="/img/favicon.ico" alt="MEDISALE" class="logo"
+           onerror="this.style.display='none'" />
       <div class="brand-text">
-        <h1>NHÀ THUỐC DANT</h1>
-        <div class="meta">123 đường gì đó, tỉnh gì đó, thành phố gì đó · ĐT: 0123 456 789</div>
+        <h1>MEDISALE</h1>
+        <div class="meta">Thành phố Hồ Chí Minh, Việt Nam · ĐT: 0353048599 · capyboy.dev@gmail.com</div>
       </div>
     </div>
     <h2 class="invoice-title" th:text="'HÓA ĐƠN BÁN HÀNG'">HÓA ĐƠN BÁN HÀNG</h2>

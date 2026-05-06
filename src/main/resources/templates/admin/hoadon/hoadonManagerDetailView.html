@@ -14,7 +14,8 @@
     <div class="d-none d-print-block invoice-print-header">
       <div class="d-flex align-items-start justify-content-between mb-2">
         <div class="d-flex align-items-center gap-3">
-          <img src="/static/img/favicon.ico" alt="Logo" class="invoice-logo" />
+          <img src="/img/favicon.ico" alt="MEDISALE" class="invoice-logo"
+               onerror="this.style.display='none'" />
           <div>
             <h3 class="m-0" th:text="${storeName}"></h3>
             <div class="small" th:text="${storeAddress}"></div>

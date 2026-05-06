@@ -166,6 +166,44 @@ public class EmailService {
 		emailSender.send(message);
 	}
 	 
+	public void sendContactNotificationToAdmin(String adminEmail, String senderName, String senderPhone, String messageContent) {
+		try {
+			MimeMessage mimeMessage = emailSender.createMimeMessage();
+			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+			helper.setTo(adminEmail);
+			helper.setFrom(fromEmail);
+			helper.setSubject("📩 Liên hệ mới từ website – " + senderName);
+			String html = "<!DOCTYPE html><html><head><meta charset='UTF-8'></head>"
+				+ "<body style='margin:0;padding:0;background:#f8fafc;font-family:Arial,sans-serif;'>"
+				+ "<table width='100%' cellpadding='0' cellspacing='0' style='padding:30px 0;'><tr><td align='center'>"
+				+ "<table width='560' cellpadding='0' cellspacing='0' style='background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08);'>"
+				+ "<tr><td style='background:linear-gradient(135deg,#0d6efd,#4facfe);padding:28px 36px;text-align:center;'>"
+				+ "<span style='color:#fff;font-size:20px;font-weight:800;letter-spacing:1px;'>🏥 MEDISALE</span>"
+				+ "<h2 style='color:#fff;margin:10px 0 0;font-size:18px;font-weight:700;'>Tin nhắn liên hệ mới</h2>"
+				+ "</td></tr>"
+				+ "<tr><td style='padding:28px 36px;'>"
+				+ "<table width='100%' style='border-collapse:collapse;'>"
+				+ "<tr><td style='padding:10px 0;border-bottom:1px solid #f1f5f9;color:#64748b;font-size:13px;width:130px;'>👤 Họ và tên</td>"
+				+ "<td style='padding:10px 0;border-bottom:1px solid #f1f5f9;font-weight:600;font-size:14px;color:#1e293b;'>" + senderName + "</td></tr>"
+				+ "<tr><td style='padding:10px 0;border-bottom:1px solid #f1f5f9;color:#64748b;font-size:13px;'>📞 Số điện thoại</td>"
+				+ "<td style='padding:10px 0;border-bottom:1px solid #f1f5f9;font-weight:600;font-size:14px;color:#1e293b;'>" + (senderPhone != null && !senderPhone.isBlank() ? senderPhone : "Không cung cấp") + "</td></tr>"
+				+ "<tr><td style='padding:14px 0 10px;color:#64748b;font-size:13px;vertical-align:top;padding-top:14px;'>💬 Nội dung</td>"
+				+ "<td style='padding:14px 0 10px;font-size:14px;color:#1e293b;line-height:1.6;'>" + messageContent.replace("\n","<br>") + "</td></tr>"
+				+ "</table>"
+				+ "<div style='margin-top:24px;text-align:center;'>"
+				+ "<p style='color:#94a3b8;font-size:12px;margin:0;'>© 2026 MEDISALE · Hệ thống tự gửi, vui lòng không reply trực tiếp email này.</p>"
+				+ "</div>"
+				+ "</td></tr>"
+				+ "</table></td></tr></table>"
+				+ "</body></html>";
+			helper.setText(html, true);
+			emailSender.send(mimeMessage);
+		} catch (Exception e) {
+			// log but don't break the request
+			System.err.println("[EmailService] Failed to send contact notification: " + e.getMessage());
+		}
+	}
+
 	 public void sendPasswordResetEmail(String toEmail, String subject, String token) {
 	        try {
 	            MimeMessage mimeMessage = emailSender.createMimeMessage();

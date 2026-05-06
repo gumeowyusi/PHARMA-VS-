@@ -127,14 +127,15 @@ public class BanHangTaiQuayController {
 
 		Page<SanPham> dsSanPham;
 
+		final int PAGE_SIZE = 16;
 		if ((keyword != null && !keyword.isEmpty()) && idLoai != null) {
-			dsSanPham = sanPhamService.searchByTenAndLoai(page, 9, keyword, idLoai);
+			dsSanPham = sanPhamService.searchByTenAndLoai(page, PAGE_SIZE, keyword, idLoai);
 		} else if (keyword != null && !keyword.isEmpty()) {
-			dsSanPham = sanPhamService.searchByName(page, 9, keyword);
+			dsSanPham = sanPhamService.searchByName(page, PAGE_SIZE, keyword);
 		} else if (idLoai != null) {
-			dsSanPham = sanPhamService.getSanPhamByIdLoai(idLoai, page, 9);
+			dsSanPham = sanPhamService.getSanPhamByIdLoai(idLoai, page, PAGE_SIZE);
 		} else {
-			dsSanPham = sanPhamService.getAllSanPham(page, 9);
+			dsSanPham = sanPhamService.getAllSanPham(page, PAGE_SIZE);
 		}
 
 		List<Loai> dsLoai = loaiService.getAllLoai(0, 100).getContent();
