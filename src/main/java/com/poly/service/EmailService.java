@@ -15,6 +15,7 @@ import com.poly.entity.Users;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import org.springframework.scheduling.annotation.Async;
 
 @Service
 public class EmailService {
@@ -166,6 +167,7 @@ public class EmailService {
 		emailSender.send(message);
 	}
 	 
+	@Async
 	public void sendContactNotificationToAdmin(String adminEmail, String senderName, String senderPhone, String messageContent) {
 		try {
 			MimeMessage mimeMessage = emailSender.createMimeMessage();
