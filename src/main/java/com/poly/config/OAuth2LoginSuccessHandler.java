@@ -42,6 +42,8 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
             response.sendRedirect("/signin?error=oauth_no_email");
             return;
         }
+        // Always normalize to lowercase so Google "User@Gmail.com" matches registered "user@gmail.com"
+        email = email.trim().toLowerCase();
 
         try {
             Users user = userService.findOrCreateOAuthUser(email, name, registrationId, oauthId);

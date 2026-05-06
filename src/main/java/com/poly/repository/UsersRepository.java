@@ -13,6 +13,10 @@ import com.poly.entity.Users;
 public interface UsersRepository extends JpaRepository<Users, String> {
 	Optional<Users> findBySdt(String sdt);
 
+	/** Case-insensitive lookup so Google email "User@Gmail.com" == registered "user@gmail.com" */
+	@Query("SELECT u FROM Users u WHERE LOWER(u.idUser) = LOWER(:email)")
+	Optional<Users> findByEmailIgnoreCase(@org.springframework.data.repository.query.Param("email") String email);
+
 	@Query("SELECT new com.poly.entity.ReportKhachHangVip( "
 			+ "u.hoten,u.hinh, SUM(hdct.soluong * (hdct.gia * (1 - hdct.giamgia/100.0))), " 
 			+ "MIN(hd.ngaytao), MAX(hd.ngaytao)) "

@@ -298,13 +298,23 @@ public class UserService {
 	}
 	
 	public Users findOrCreateOAuthUser(String email, String name, String provider, String oauthId) {
-		Optional<Users> existing = usersRepository.findById(email);
+		// Normalize email to lowercase to avoid case-mismatch duplicates
+		String normalizedEmail = email.trim().toLowerCase();
+
+		// 1. Exact PK lookup (fast path)
+		Optional<Users> existing = usersRepository.findById(normalizedEmail);
+		// 2. Case-insensitive fallback for accounts registered with mixed-case email
+		if (existing.isEmpty()) {
+			existing = usersRepository.findByEmailIgnoreCase(normalizedEmail);
+		}
+
 		if (existing.isPresent()) {
 			Users user = existing.get();
 			if (!user.isKichhoat()) {
 				user.setKichhoat(true);
 				usersRepository.save(user);
 			}
+			// Link OAuth provider if not yet linked (first Google login on existing account)
 			if (user.getOauthProvider() == null) {
 				user.setOauthProvider(provider);
 				user.setOauthId(oauthId);
@@ -314,8 +324,8 @@ public class UserService {
 		}
 
 		Users newUser = new Users();
-		newUser.setIdUser(email);
-		newUser.setHoten(name != null && !name.isBlank() ? name : email.split("@")[0]);
+		newUser.setIdUser(normalizedEmail);
+		newUser.setHoten(name != null && !name.isBlank() ? name : normalizedEmail.split("@")[0]);
 		String placeholderPhone = String.format("%010d", Math.abs((long) email.hashCode() % 10_000_000_000L));
 		newUser.setSdt(placeholderPhone);
 		newUser.setMatkhau(passwordEncoder.encode(java.util.UUID.randomUUID().toString()));
